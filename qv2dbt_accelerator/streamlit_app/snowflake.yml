@@ -1,0 +1,53 @@
+# created-by: streamlit-in-workspaces; skill-version=1.0.0
+definition_version: 2
+entities:
+  streamlit_app:
+    type: streamlit
+    query_warehouse: COMPUTE_WH
+    compute_pool: SYSTEM_COMPUTE_POOL_CPU
+    main_file: streamlit_app.py
+    artifacts:
+      - pyproject.toml
+      - streamlit_app.py
+      - engine_bridge.py
+      - snowflake_utils.py
+      - .streamlit/config.toml
+      - config/__init__.py
+      - config/brand.py
+      - components/__init__.py
+      - components/header.py
+      - components/sidebar.py
+      - components/styles.py
+      - app_pages/__init__.py
+      - app_pages/upload.py
+      - app_pages/inventory.py
+      - app_pages/lineage.py
+      - app_pages/sttm.py
+      - app_pages/conversion.py
+      - app_pages/chatbot.py
+      # Bundled qv2dbt engine package
+      - qv2dbt/__init__.py
+      - qv2dbt/__main__.py
+      - qv2dbt/cli.py
+      - qv2dbt/config.py
+      - qv2dbt/control.py
+      - qv2dbt/default_config.yml
+      - qv2dbt/default_config.json
+      - qv2dbt/expressions.py
+      - qv2dbt/generators/__init__.py
+      - qv2dbt/generators/control_stubs.py
+      - qv2dbt/generators/dbt_models.py
+      - qv2dbt/generators/dbt_scaffold.py
+      - qv2dbt/generators/lineage_out.py
+      - qv2dbt/generators/report.py
+      - qv2dbt/generators/snowflake_ddl.py
+      - qv2dbt/generators/sql_views.py
+      - qv2dbt/generators/sttm.py
+      - qv2dbt/lineage.py
+      - qv2dbt/models.py
+      - qv2dbt/parser.py
+      - qv2dbt/pipeline.py
+      - qv2dbt/preprocessor.py
+      - qv2dbt/qvf_extractor.py
+      - qv2dbt/transformer.py
+      - qv2dbt/utils.py

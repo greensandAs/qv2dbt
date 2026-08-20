@@ -1,0 +1,11 @@
+[project]
+name = "qv2dbt-studio"
+requires-python = ">= 3.11"
+version = "1.0.0"
+description = "QlikView to Snowflake Migration Studio — Tiger Analytics"
+dependencies = [
+    "streamlit[snowflake]>=1.54.0"
+]
+
+[tool.uv]
+constraint-dependencies = ["numba>=0.56.0"]

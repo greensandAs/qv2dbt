@@ -1,0 +1,211 @@
+# =============================================================================
+# qv2dbt accelerator - default configuration
+# =============================================================================
+# Every rule the accelerator uses is data-driven from this file so the tool can
+# be re-tuned per engagement without touching code. Override any key by passing
+# --config my_overrides.yml on the CLI (values are deep-merged over these).
+# -----------------------------------------------------------------------------
+
+target:
+  # Snowflake object naming for generated DDL and dbt sources.
+  database: LUNDBECK_UKIE
+  raw_schema: RAW          # landing zone for QVD/file extracts
+  staging_schema: STAGING  # dbt staging models materialize here
+  mart_schema: MARTS       # dbt marts materialize here
+  # Snowflake quoting: 'upper' (default), 'lower', or 'preserve'.
+  identifier_case: upper
+
+naming:
+  # dbt model prefixes per layer.
+  staging_prefix: stg_
+  intermediate_prefix: int_
+  mart_prefix: mart_
+  # Source name used in sources.yml (grouping of raw tables).
+  source_name: qlikview_raw
+
+layers:
+  # How a parsed table is assigned to a dbt layer.
+  # A table that reads directly from a QVD/file/SQL source -> staging.
+  # A RESIDENT/JOIN-built table -> intermediate.
+  # Tables whose names match one of these patterns -> mart (final outputs).
+  mart_name_patterns:
+    - "*_fact"
+    - "*_dim"
+    - "fact_*"
+    - "dim_*"
+    - "fact*"
+    - "dim*"
+    - "*fact"
+    - "*_report"
+    - "*_kpi"
+    - "*summary"
+
+# -----------------------------------------------------------------------------
+# Expression translation: QlikView function -> Snowflake SQL template.
+# {0}, {1}, ... are positional argument placeholders. {*} means "pass all
+# remaining args through unchanged, comma-separated".
+# Functions not listed here are passed through verbatim and flagged as a
+# warning in the migration report for manual review.
+# -----------------------------------------------------------------------------
+functions:
+  # --- Conditional / null handling ---
+  if: "CASE WHEN {0} THEN {1} ELSE {2} END"
+  alt: "COALESCE({*})"
+  isnull: "{0} IS NULL"
+  nullasvalue: "COALESCE({0}, {1})"    # (approx) documented for reviewers
+  # --- String ---
+  left: "LEFT({0}, {1})"
+  right: "RIGHT({0}, {1})"
+  mid: "SUBSTR({0}, {1}, {2})"
+  len: "LENGTH({0})"
+  upper: "UPPER({0})"
+  lower: "LOWER({0})"
+  trim: "TRIM({0})"
+  ltrim: "LTRIM({0})"
+  rtrim: "RTRIM({0})"
+  index: "POSITION({1} IN {0})"
+  subfield: "SPLIT_PART({0}, {1}, {2})"
+  replace: "REPLACE({0}, {1}, {2})"
+  keepchar: "REGEXP_REPLACE({0}, '[^' || {1} || ']', '')"
+  # --- Numeric ---
+  num: "TO_NUMBER({0})"
+  round: "ROUND({*})"
+  floor: "FLOOR({0})"
+  ceil: "CEIL({0})"
+  abs: "ABS({0})"
+  fabs: "ABS({0})"
+  pow: "POWER({0}, {1})"
+  mod: "MOD({0}, {1})"
+  # --- Date / time ---
+  today: "CURRENT_DATE"
+  now: "CURRENT_TIMESTAMP"
+  # Arity-aware: Date(x) casts; Date(x, fmt) formats. NOTE: QlikView format
+  # tokens (YYYY/MM/DD) mostly align with Snowflake but review MM vs MI etc.
+  date:
+    1: "TO_DATE({0})"
+    2: "TO_DATE({0}, {1})"
+  date#:
+    1: "TO_DATE({0})"
+    2: "TO_DATE({0}, {1})"
+  num#: "TO_NUMBER({0})"
+  makedate: "DATE_FROM_PARTS({*})"
+  year: "YEAR({0})"
+  month: "MONTH({0})"
+  day: "DAY({0})"
+  week: "WEEK({0})"
+  monthstart: "DATE_TRUNC('MONTH', {0})"
+  monthend: "LAST_DAY({0})"
+  yearstart: "DATE_TRUNC('YEAR', {0})"
+  addmonths: "DATEADD('MONTH', {1}, {0})"
+  # --- Aggregations (used in preceding LOAD / GROUP BY) ---
+  sum: "SUM({0})"
+  count: "COUNT({0})"
+  avg: "AVG({0})"
+  min: "MIN({0})"
+  max: "MAX({0})"
+  only: "MIN({0})"        # QlikView Only() -> deterministic single value
+  rangesum: "({*})"       # approximate; flagged for review
+  median: "MEDIAN({0})"
+  stdev: "STDDEV({0})"
+  mode: "MODE({0})"
+  concat: "LISTAGG({0}, {1})"
+
+  # --- More string functions ---
+  capitalize: "INITCAP({0})"
+  purgechar: "REGEXP_REPLACE({0}, '[' || {1} || ']', '')"
+  chr: "CHR({0})"
+  ord: "ASCII({0})"
+  repeat: "REPEAT({0}, {1})"
+  text: "TO_VARCHAR({0})"
+  substringcount: "((LENGTH({0}) - LENGTH(REPLACE({0}, {1}, ''))) / NULLIF(LENGTH({1}), 0))"
+
+  # --- More numeric functions ---
+  sign: "SIGN({0})"
+  sqrt: "SQRT({0})"
+  exp: "EXP({0})"
+  log: "LN({0})"
+  log10: "LOG(10, {0})"
+  fmod: "MOD({0}, {1})"
+  div: "FLOOR({0} / {1})"
+  frac: "({0} - FLOOR({0}))"
+  even: "(MOD({0}, 2) = 0)"
+  odd: "(MOD({0}, 2) <> 0)"
+  rangemin: "LEAST({*})"
+  rangemax: "GREATEST({*})"
+
+  # --- More conditional / null ---
+  "not": "NOT ({0})"
+  nullif: "NULLIF({0}, {1})"
+  rangecount: "({*})"     # approximate; flagged for review
+
+  # --- Hashing ---
+  hash128: "MD5({0})"
+  hash256: "SHA2({0}, 256)"
+
+  # --- AutoNumber / surrogate keys ---
+  autonumber: "DENSE_RANK() OVER (ORDER BY {0})"
+
+  # --- Date naming ---
+  monthname: "TO_CHAR({0}, 'YYYY-Mon')"
+  quartername: "'Q' || QUARTER({0}) || ' ' || YEAR({0})"
+  dayname: "TO_CHAR({0}, 'DY')"
+
+  # --- String: textbetween ---
+  textbetween: "REGEXP_SUBSTR({0}, REGEXP_REPLACE({1}, '(.)', '\\\\\\\\1') || '(.*)' || REGEXP_REPLACE({2}, '(.)', '\\\\\\\\1'), 1, 1, 'e')"
+
+  # --- More date / time functions ---
+  maketime: "TIME_FROM_PARTS({*})"
+  timestamp:
+    1: "TO_TIMESTAMP({0})"
+    2: "TO_TIMESTAMP({0}, {1})"
+  "timestamp#":
+    1: "TO_TIMESTAMP({0})"
+    2: "TO_TIMESTAMP({0}, {1})"
+  hour: "HOUR({0})"
+  minute: "MINUTE({0})"
+  second: "SECOND({0})"
+  weekday: "DAYOFWEEK({0})"
+  weekstart: "DATE_TRUNC('WEEK', {0})"
+  quarterstart: "DATE_TRUNC('QUARTER', {0})"
+  quarterend: "LAST_DAY({0}, 'QUARTER')"
+  yearend: "LAST_DAY({0}, 'YEAR')"
+  addyears: "DATEADD('YEAR', {1}, {0})"
+  utc: "CURRENT_TIMESTAMP"
+  localtime: "CURRENT_TIMESTAMP"
+
+# QlikView operators/tokens -> Snowflake equivalents (applied token-wise).
+operators:
+  "&": "||"        # string concatenation
+  "=": "="
+  "<>": "<>"
+  "true()": "TRUE"
+  "false()": "FALSE"
+  "null()": "NULL"
+
+# Functions that have no safe automatic mapping. When encountered the field is
+# emitted verbatim, marked with a TODO comment, and listed in the report.
+manual_review_functions:
+  - peek
+  - previous
+  - fieldvalue
+  - fieldvaluecount
+  - applymap        # handled specially (LEFT JOIN) but flagged for validation
+  - aggr
+  - rangesum
+  - rangecount
+  - rangeavg
+  - recno
+  - rowno
+  - iterno
+  - pick            # index-based selection -> needs CASE by hand
+  - match           # returns match index -> needs CASE
+  - mixmatch
+  - wildmatch
+  - evaluate        # evaluates a string as code -> no SQL equivalent
+  - findoneof
+  - firstsortedvalue
+  - fractile
+  - interval
+  - "class"
+  - age
+  - networkdays

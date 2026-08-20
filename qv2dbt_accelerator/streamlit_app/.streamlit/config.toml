@@ -1,0 +1,11 @@
+# Tiger Analytics branded theme
+[server]
+maxUploadSize = 50
+maxMessageSize = 50
+
+[theme]
+primaryColor = "#F15A22"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F5F5"
+textColor = "#1A1A2E"
+font = "sans serif"
