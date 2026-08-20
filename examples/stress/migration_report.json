@@ -1,0 +1,315 @@
+{
+  "summary": {
+    "script": "stress_test.qvs",
+    "tables": 4,
+    "models_generated": 4,
+    "mapping_tables": 1,
+    "external_sources": 2,
+    "variables": 2,
+    "total_fields": 29,
+    "fields_needing_review": 2,
+    "auto_translatable_pct": 93.1,
+    "unsupported_statements": 10
+  },
+  "layers": {
+    "staging": [
+      "Customers"
+    ],
+    "intermediate": [
+      "Orders",
+      "Orders__join3"
+    ],
+    "mart": [
+      "sales_fact"
+    ]
+  },
+  "tables": [
+    {
+      "name": "Customers",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://DW/qvd/customers.qvd",
+      "fields": 9,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Orders",
+      "layer": "intermediate",
+      "load_kind": "qvd",
+      "source": "lib://DW/qvd/orders.qvd",
+      "fields": 9,
+      "joins": [
+        "Orders__join3"
+      ],
+      "warnings": []
+    },
+    {
+      "name": "Orders__join3",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "Customers",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "sales_fact",
+      "layer": "mart",
+      "load_kind": "resident",
+      "source": "Orders",
+      "fields": 8,
+      "joins": [],
+      "warnings": [
+        "Aggregating LOAD (GROUP BY) - verify aggregate expressions."
+      ]
+    }
+  ],
+  "lineage": [
+    {
+      "target": "Customers.CustomerID",
+      "expression": "CustomerID",
+      "snowflake": "CustomerID",
+      "review": []
+    },
+    {
+      "target": "Customers.CustomerName",
+      "expression": "Capitalize(CustomerName)",
+      "snowflake": "INITCAP(CustomerName)",
+      "review": []
+    },
+    {
+      "target": "Customers.Email",
+      "expression": "Upper(Trim(Email))",
+      "snowflake": "UPPER(TRIM(Email))",
+      "review": []
+    },
+    {
+      "target": "Customers.Country",
+      "expression": "ApplyMap('CountryMap', CountryCode, 'N/A')",
+      "snowflake": "{{ apply_map('CountryMap', \"CountryCode\", \"'N/A'\") }}",
+      "review": [
+        "ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated."
+      ]
+    },
+    {
+      "target": "Customers.AreaCode",
+      "expression": "Left(Phone, 3)",
+      "snowflake": "LEFT(Phone, 3)",
+      "review": []
+    },
+    {
+      "target": "Customers.CreditLimit",
+      "expression": "if(IsNull(CreditLimit), 0, CreditLimit)",
+      "snowflake": "CASE WHEN CreditLimit IS NULL THEN 0 ELSE CreditLimit END",
+      "review": []
+    },
+    {
+      "target": "Customers.SignupDate",
+      "expression": "Date(SignupDate, 'YYYY-MM-DD')",
+      "snowflake": "TO_DATE(SignupDate, 'YYYY-MM-DD')",
+      "review": []
+    },
+    {
+      "target": "Customers.RenewalDate",
+      "expression": "AddYears(SignupDate, 1)",
+      "snowflake": "DATEADD('YEAR', 1, SignupDate)",
+      "review": []
+    },
+    {
+      "target": "Customers.BalanceSign",
+      "expression": "Sign(Balance)",
+      "snowflake": "SIGN(Balance)",
+      "review": []
+    },
+    {
+      "target": "Orders.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "Orders.CustomerID",
+      "expression": "CustomerID",
+      "snowflake": "CustomerID",
+      "review": []
+    },
+    {
+      "target": "Orders.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "Orders.Quantity",
+      "expression": "Num(Quantity)",
+      "snowflake": "TO_NUMBER(Quantity)",
+      "review": []
+    },
+    {
+      "target": "Orders.GrossAmount",
+      "expression": "Num(UnitPrice) * Num(Quantity)",
+      "snowflake": "TO_NUMBER(UnitPrice) * TO_NUMBER(Quantity)",
+      "review": []
+    },
+    {
+      "target": "Orders.MaxDiscount",
+      "expression": "RangeMax(Discount1, Discount2)",
+      "snowflake": "GREATEST(Discount1, Discount2)",
+      "review": []
+    },
+    {
+      "target": "Orders.PrevOrderRef",
+      "expression": "Peek('PrevOrder', -1, 'Orders')",
+      "snowflake": "/* TODO review */ Peek('PrevOrder', -1, 'Orders')",
+      "review": [
+        "Function 'Peek()' requires manual review (no deterministic Snowflake equivalent)."
+      ]
+    },
+    {
+      "target": "Orders.OrderDate",
+      "expression": "Date(OrderDate)",
+      "snowflake": "TO_DATE(OrderDate)",
+      "review": []
+    },
+    {
+      "target": "Orders.OrderMonth",
+      "expression": "MonthStart(OrderDate)",
+      "snowflake": "DATE_TRUNC('MONTH', OrderDate)",
+      "review": []
+    },
+    {
+      "target": "Orders__join3.CustomerID",
+      "expression": "CustomerID",
+      "snowflake": "CustomerID",
+      "review": []
+    },
+    {
+      "target": "Orders__join3.Country",
+      "expression": "Country",
+      "snowflake": "Country",
+      "review": []
+    },
+    {
+      "target": "Orders__join3.CreditLimit",
+      "expression": "CreditLimit",
+      "snowflake": "CreditLimit",
+      "review": []
+    },
+    {
+      "target": "sales_fact.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "sales_fact.Country",
+      "expression": "Country",
+      "snowflake": "Country",
+      "review": []
+    },
+    {
+      "target": "sales_fact.OrderYear",
+      "expression": "Year(OrderDate)",
+      "snowflake": "YEAR(OrderDate)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.OrderMonth",
+      "expression": "Month(OrderDate)",
+      "snowflake": "MONTH(OrderDate)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.TotalRevenue",
+      "expression": "Sum(GrossAmount)",
+      "snowflake": "SUM(GrossAmount)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.OrderCount",
+      "expression": "Count(OrderID)",
+      "snowflake": "COUNT(OrderID)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.AvgOrderValue",
+      "expression": "Avg(GrossAmount)",
+      "snowflake": "AVG(GrossAmount)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.MedianOrderValue",
+      "expression": "Median(GrossAmount)",
+      "snowflake": "MEDIAN(GrossAmount)",
+      "review": []
+    }
+  ],
+  "sources": [
+    {
+      "name": "customers",
+      "kind": "qvd",
+      "locator": "lib://DW/qvd/customers.qvd"
+    },
+    {
+      "name": "orders",
+      "kind": "qvd",
+      "locator": "lib://DW/qvd/orders.qvd"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "control",
+      "reason": "control statement",
+      "raw": "SUB LoadQVD(tableName, fileName)\n    [$(tableName)]:\n    LOAD * FROM [lib://DW/qvd/$(fileName)] (qvd)"
+    },
+    {
+      "kind": "control",
+      "reason": "control statement",
+      "raw": "END SUB\n\nCALL LoadQVD('RawCustomers', 'customers.qvd')"
+    },
+    {
+      "kind": "control",
+      "reason": "control statement",
+      "raw": "FOR EACH vFile IN 'sales_2023.qvd', 'sales_2024.qvd'\n    SalesHist:\n    LOAD OrderID, Amount FROM [lib://DW/qvd/$(vFile)] (qvd)"
+    },
+    {
+      "kind": "control",
+      "reason": "control statement",
+      "raw": "NEXT vFile\n\n\nIF WeekDay(vRunDate) = 0 THEN\n    TRACE Running Monday full load"
+    },
+    {
+      "kind": "store",
+      "reason": "store statement",
+      "raw": "STORE sales_fact INTO [lib://DW/qvd/sales_fact.qvd] (qvd)"
+    },
+    {
+      "kind": "drop",
+      "reason": "drop statement",
+      "raw": "DROP TABLE Orders"
+    },
+    {
+      "kind": "control:sub",
+      "reason": "SUB routine -> convert to a dbt macro (macros/) or a parameterised model; replace CALL sites with the macro/ref.",
+      "raw": "SUB LoadQVD(tableName, fileName)"
+    },
+    {
+      "kind": "control:call",
+      "reason": "SUB invocation -> reference the converted macro/model.",
+      "raw": "CALL LoadQVD('RawCustomers', 'customers.qvd')"
+    },
+    {
+      "kind": "control:for",
+      "reason": "Loop (often over files/QVDs) -> in dbt use an external stage + one COPY/LOAD, or a for-loop over a var/seed that UNIONs sources.",
+      "raw": "FOR EACH vFile IN 'sales_2023.qvd', 'sales_2024.qvd'"
+    },
+    {
+      "kind": "control:if",
+      "reason": "Conditional script branch -> encode with dbt vars / target-based conditional refs; this is not a row-level WHERE.",
+      "raw": "IF WeekDay(vRunDate) = 0 THEN"
+    }
+  ],
+  "dropped_tables": [
+    "Orders"
+  ]
+}

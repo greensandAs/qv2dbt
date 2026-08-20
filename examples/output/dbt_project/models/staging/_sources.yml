@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: qlikview_raw
+    database: LUNDBECK_UKIE
+    schema: raw
+    description: >
+      Raw QlikView-sourced tables (QVD/file/SQL extracts) landed in Snowflake.
+    tables:
+      - name: products
+        description: 'Origin: lib://DataFiles/qvd/products.qvd'
+      - name: sales_2026
+        description: 'Origin: lib://DataFiles/csv/sales_2026.csv'
+      - name: sales_2025
+        description: 'Origin: lib://DataFiles/qvd/sales_2025.qvd'

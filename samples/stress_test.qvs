@@ -1,0 +1,74 @@
+///$tab Vars & Control
+SET vPath = 'lib://DW/qvd/';
+LET vRunDate = Today();
+
+// A SUB routine (control flow -> should be captured, not converted)
+SUB LoadQVD(tableName, fileName)
+    [$(tableName)]:
+    LOAD * FROM [$(vPath)$(fileName)] (qvd);
+END SUB
+
+CALL LoadQVD('RawCustomers', 'customers.qvd');
+
+// A FOR EACH loop over files (control flow -> captured)
+FOR EACH vFile IN 'sales_2023.qvd', 'sales_2024.qvd'
+    SalesHist:
+    LOAD OrderID, Amount FROM [$(vPath)$(vFile)] (qvd);
+NEXT vFile
+
+// A conditional branch (control flow -> captured)
+IF WeekDay(vRunDate) = 0 THEN
+    TRACE Running Monday full load;
+ENDIF
+
+///$tab Dimensions
+CountryMap:
+MAPPING LOAD CountryCode, CountryName
+FROM [$(vPath)country.qvd] (qvd);
+
+Customers:
+LOAD
+    CustomerID,
+    Capitalize(CustomerName)                    as CustomerName,
+    Upper(Trim(Email))                          as Email,
+    ApplyMap('CountryMap', CountryCode, 'N/A')  as Country,
+    Left(Phone, 3)                              as AreaCode,
+    if(IsNull(CreditLimit), 0, CreditLimit)     as CreditLimit,
+    Date(SignupDate, 'YYYY-MM-DD')              as SignupDate,
+    AddYears(SignupDate, 1)                     as RenewalDate,
+    Sign(Balance)                               as BalanceSign
+FROM [$(vPath)customers.qvd] (qvd)
+WHERE Len(CustomerID) > 0;
+
+///$tab Facts
+Orders:
+LOAD
+    OrderID,
+    CustomerID,
+    ProductID,
+    Num(Quantity)                   as Quantity,
+    Num(UnitPrice) * Num(Quantity)  as GrossAmount,
+    RangeMax(Discount1, Discount2)  as MaxDiscount,
+    Peek('PrevOrder', -1, 'Orders') as PrevOrderRef,
+    Date(OrderDate)                 as OrderDate,
+    MonthStart(OrderDate)           as OrderMonth
+FROM [$(vPath)orders.qvd] (qvd);
+
+LEFT JOIN (Orders)
+LOAD CustomerID, Country, CreditLimit RESIDENT Customers;
+
+sales_fact:
+LOAD
+    ProductID,
+    Country,
+    Year(OrderDate)     as OrderYear,
+    Month(OrderDate)    as OrderMonth,
+    Sum(GrossAmount)    as TotalRevenue,
+    Count(OrderID)      as OrderCount,
+    Avg(GrossAmount)    as AvgOrderValue,
+    Median(GrossAmount) as MedianOrderValue
+RESIDENT Orders
+GROUP BY ProductID, Country, Year(OrderDate), Month(OrderDate);
+
+STORE sales_fact INTO [$(vPath)sales_fact.qvd] (qvd);
+DROP TABLE Orders;

@@ -1,0 +1,20 @@
+name: 'lundbeck_qv_migration'
+version: '1.0.0'
+config-version: 2
+profile: 'lundbeck_qv_migration'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+
+models:
+  lundbeck_qv_migration:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts

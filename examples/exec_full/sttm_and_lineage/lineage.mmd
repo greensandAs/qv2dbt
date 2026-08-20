@@ -1,0 +1,78 @@
+flowchart LR
+  subgraph SOURCE
+    n_source_accountgroupmaster["accountgroupmaster\n(qvd)"]
+    n_source_accountmaster["accountmaster\n(qvd)"]
+    n_source_accounts["accounts\n(qvd)"]
+    n_source_arsummary_1["arsummary_1\n(qvd)"]
+    n_source_arsummary["arsummary\n(qvd)"]
+    n_source_budget["budget\n(qvd)"]
+    n_source_calendar_2024["calendar_2024\n(qvd)"]
+    n_source_channelmaster["channelmaster\n(qvd)"]
+    n_source_customeraddressmaster["customeraddressmaster\n(qvd)"]
+    n_source_customermap["customermap\n(qvd)"]
+    n_source_customermaster["customermaster\n(qvd)"]
+    n_source_expenses["expenses\n(qvd)"]
+    n_source_facttable["facttable\n(qvd)"]
+    n_source_historyflag["historyflag\n(qvd)"]
+    n_source_inventorybalances["inventorybalances\n(qvd)"]
+    n_source_itembranchmaster["itembranchmaster\n(qvd)"]
+    n_source_itemmaster["itemmaster\n(qvd)"]
+    n_source_productgroupmaster["productgroupmaster\n(qvd)"]
+    n_source_productsubgroupmaster["productsubgroupmaster\n(qvd)"]
+    n_source_producttypemaster["producttypemaster\n(qvd)"]
+    n_source_salesrepmaster["salesrepmaster\n(qvd)"]
+  end
+  subgraph STAGING
+    n_AccountGroupMaster["AccountGroupMaster"]
+    n_AccountMaster["AccountMaster"]
+    n_Accounts["Accounts"]
+    n_ARSummary_1["ARSummary-1"]
+    n_Budget["Budget"]
+    n_Calendar["Calendar"]
+    n_ChannelMaster["ChannelMaster"]
+    n_CustomerAddressMaster["CustomerAddressMaster"]
+    n_CustomerMap["CustomerMap"]
+    n_CustomerMaster["CustomerMaster"]
+    n_Expenses["Expenses"]
+    n_HistoryFlag["HistoryFlag"]
+    n_InventoryBalances["InventoryBalances"]
+    n_ItemBranchMaster["ItemBranchMaster"]
+    n_ItemMaster["ItemMaster"]
+    n_ProductGroupMaster["ProductGroupMaster"]
+    n_ProductSubGroupMaster["ProductSubGroupMaster"]
+    n_ProductTypeMaster["ProductTypeMaster"]
+    n_SalesRepMaster["SalesRepMaster"]
+    n_table_23["table_23"]
+  end
+  subgraph MART
+    n_ARSummary["ARSummary"]
+    n_FactTable_Init["FactTable Init"]
+    n_FactTable["FactTable"]
+  end
+  n_FactTable_Init --> n_FactTable
+  n_source_accountgroupmaster --> n_AccountGroupMaster
+  n_source_accountgroupmaster --> n_table_23
+  n_source_accountmaster --> n_AccountMaster
+  n_source_accounts --> n_Accounts
+  n_source_arsummary --> n_ARSummary
+  n_source_arsummary_1 --> n_ARSummary_1
+  n_source_budget --> n_Budget
+  n_source_calendar_2024 --> n_Calendar
+  n_source_channelmaster --> n_ChannelMaster
+  n_source_customeraddressmaster --> n_CustomerAddressMaster
+  n_source_customermap --> n_CustomerMap
+  n_source_customermaster --> n_CustomerMaster
+  n_source_expenses --> n_Expenses
+  n_source_facttable --> n_FactTable_Init
+  n_source_historyflag --> n_HistoryFlag
+  n_source_inventorybalances --> n_InventoryBalances
+  n_source_itembranchmaster --> n_ItemBranchMaster
+  n_source_itemmaster --> n_ItemMaster
+  n_source_productgroupmaster --> n_ProductGroupMaster
+  n_source_productsubgroupmaster --> n_ProductSubGroupMaster
+  n_source_producttypemaster --> n_ProductTypeMaster
+  n_source_salesrepmaster --> n_SalesRepMaster
+  classDef source fill:#DDEBF7,stroke:#2E75B6;
+  classDef mart fill:#FCE4D6,stroke:#C55A11;
+  class n_source_accountgroupmaster n_source_accountmaster n_source_accounts n_source_arsummary_1 n_source_arsummary n_source_budget n_source_calendar_2024 n_source_channelmaster n_source_customeraddressmaster n_source_customermap n_source_customermaster n_source_expenses n_source_facttable n_source_historyflag n_source_inventorybalances n_source_itembranchmaster n_source_itemmaster n_source_productgroupmaster n_source_productsubgroupmaster n_source_producttypemaster n_source_salesrepmaster source;
+  class n_ARSummary n_FactTable_Init n_FactTable mart;

@@ -1,0 +1,275 @@
+script: stress_test.qvs
+sources:
+- table: customers
+  kind: qvd
+  locator: lib://DW/qvd/customers.qvd
+  consumed_by:
+  - Customers
+- table: orders
+  kind: qvd
+  locator: lib://DW/qvd/orders.qvd
+  consumed_by:
+  - Orders
+targets:
+- table: Customers
+  layer: staging
+  load_kind: qvd
+  upstream: lib://DW/qvd/customers.qvd
+  columns:
+  - name: CustomerID
+    mapping_type: direct
+    sources:
+    - table: customers
+      column: CustomerID
+    business_logic_qlikview: CustomerID
+    snowflake_sql: CustomerID
+    review_notes: []
+  - name: CustomerName
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: CustomerName
+    business_logic_qlikview: Capitalize(CustomerName)
+    snowflake_sql: INITCAP(CustomerName)
+    review_notes: []
+  - name: Email
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: Email
+    business_logic_qlikview: Upper(Trim(Email))
+    snowflake_sql: UPPER(TRIM(Email))
+    review_notes: []
+  - name: Country
+    mapping_type: lookup
+    sources:
+    - table: customers
+      column: CountryCode
+    business_logic_qlikview: ApplyMap('CountryMap', CountryCode, 'N/A')
+    snowflake_sql: '{{ apply_map(''CountryMap'', "CountryCode", "''N/A''") }}'
+    review_notes:
+    - ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated.
+  - name: AreaCode
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: Phone
+    business_logic_qlikview: Left(Phone, 3)
+    snowflake_sql: LEFT(Phone, 3)
+    review_notes: []
+  - name: CreditLimit
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: CreditLimit
+    business_logic_qlikview: if(IsNull(CreditLimit), 0, CreditLimit)
+    snowflake_sql: CASE WHEN CreditLimit IS NULL THEN 0 ELSE CreditLimit END
+    review_notes: []
+  - name: SignupDate
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: SignupDate
+    business_logic_qlikview: Date(SignupDate, 'YYYY-MM-DD')
+    snowflake_sql: TO_DATE(SignupDate, 'YYYY-MM-DD')
+    review_notes: []
+  - name: RenewalDate
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: SignupDate
+    business_logic_qlikview: AddYears(SignupDate, 1)
+    snowflake_sql: DATEADD('YEAR', 1, SignupDate)
+    review_notes: []
+  - name: BalanceSign
+    mapping_type: derived
+    sources:
+    - table: customers
+      column: Balance
+    business_logic_qlikview: Sign(Balance)
+    snowflake_sql: SIGN(Balance)
+    review_notes: []
+- table: Orders
+  layer: intermediate
+  load_kind: qvd
+  upstream: lib://DW/qvd/orders.qvd
+  columns:
+  - name: OrderID
+    mapping_type: direct
+    sources:
+    - table: orders
+      column: OrderID
+    business_logic_qlikview: OrderID
+    snowflake_sql: OrderID
+    review_notes: []
+  - name: CustomerID
+    mapping_type: join
+    sources:
+    - table: customers
+      column: CustomerID
+    business_logic_qlikview: CustomerID
+    snowflake_sql: CustomerID
+    review_notes: []
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: orders
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: Quantity
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: Quantity
+    business_logic_qlikview: Num(Quantity)
+    snowflake_sql: TO_NUMBER(Quantity)
+    review_notes: []
+  - name: GrossAmount
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: UnitPrice
+    - table: orders
+      column: Quantity
+    business_logic_qlikview: Num(UnitPrice) * Num(Quantity)
+    snowflake_sql: TO_NUMBER(UnitPrice) * TO_NUMBER(Quantity)
+    review_notes: []
+  - name: MaxDiscount
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: Discount1
+    - table: orders
+      column: Discount2
+    business_logic_qlikview: RangeMax(Discount1, Discount2)
+    snowflake_sql: GREATEST(Discount1, Discount2)
+    review_notes: []
+  - name: PrevOrderRef
+    mapping_type: constant
+    sources: []
+    business_logic_qlikview: Peek('PrevOrder', -1, 'Orders')
+    snowflake_sql: /* TODO review */ Peek('PrevOrder', -1, 'Orders')
+    review_notes:
+    - Function 'Peek()' requires manual review (no deterministic Snowflake equivalent).
+  - name: OrderDate
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: OrderDate
+    business_logic_qlikview: Date(OrderDate)
+    snowflake_sql: TO_DATE(OrderDate)
+    review_notes: []
+  - name: OrderMonth
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: OrderDate
+    business_logic_qlikview: MonthStart(OrderDate)
+    snowflake_sql: DATE_TRUNC('MONTH', OrderDate)
+    review_notes: []
+- table: Orders__join3
+  layer: intermediate
+  load_kind: resident
+  upstream: Customers
+  columns:
+  - name: CustomerID
+    mapping_type: direct
+    sources:
+    - table: customers
+      column: CustomerID
+    business_logic_qlikview: CustomerID
+    snowflake_sql: CustomerID
+    review_notes: []
+  - name: Country
+    mapping_type: direct
+    sources:
+    - table: customers
+      column: CountryCode
+    business_logic_qlikview: Country
+    snowflake_sql: Country
+    review_notes: []
+  - name: CreditLimit
+    mapping_type: direct
+    sources:
+    - table: customers
+      column: CreditLimit
+    business_logic_qlikview: CreditLimit
+    snowflake_sql: CreditLimit
+    review_notes: []
+- table: sales_fact
+  layer: mart
+  load_kind: resident
+  upstream: Orders
+  columns:
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: orders
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: Country
+    mapping_type: direct
+    sources:
+    - table: customers
+      column: CountryCode
+    business_logic_qlikview: Country
+    snowflake_sql: Country
+    review_notes: []
+  - name: OrderYear
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: OrderDate
+    business_logic_qlikview: Year(OrderDate)
+    snowflake_sql: YEAR(OrderDate)
+    review_notes: []
+  - name: OrderMonth
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: OrderDate
+    business_logic_qlikview: Month(OrderDate)
+    snowflake_sql: MONTH(OrderDate)
+    review_notes: []
+  - name: TotalRevenue
+    mapping_type: aggregate
+    sources:
+    - table: orders
+      column: UnitPrice
+    - table: orders
+      column: Quantity
+    business_logic_qlikview: Sum(GrossAmount)
+    snowflake_sql: SUM(GrossAmount)
+    review_notes: []
+  - name: OrderCount
+    mapping_type: aggregate
+    sources:
+    - table: orders
+      column: OrderID
+    business_logic_qlikview: Count(OrderID)
+    snowflake_sql: COUNT(OrderID)
+    review_notes: []
+  - name: AvgOrderValue
+    mapping_type: aggregate
+    sources:
+    - table: orders
+      column: UnitPrice
+    - table: orders
+      column: Quantity
+    business_logic_qlikview: Avg(GrossAmount)
+    snowflake_sql: AVG(GrossAmount)
+    review_notes: []
+  - name: MedianOrderValue
+    mapping_type: derived
+    sources:
+    - table: orders
+      column: UnitPrice
+    - table: orders
+      column: Quantity
+    business_logic_qlikview: Median(GrossAmount)
+    snowflake_sql: MEDIAN(GrossAmount)
+    review_notes: []

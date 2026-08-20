@@ -1,0 +1,1184 @@
+script: Executive Dashboard.qvs
+sources:
+- table: accountgroupmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/AccountGroupMaster.qvd
+  consumed_by:
+  - AccountGroupMaster
+  - table_23
+- table: accountmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/AccountMaster.qvd
+  consumed_by:
+  - AccountMaster
+- table: accounts
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/Accounts.qvd
+  consumed_by:
+  - Accounts
+- table: arsummary_1
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ARSummary-1.qvd
+  consumed_by:
+  - ARSummary-1
+- table: arsummary
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ARSummary.qvd
+  consumed_by:
+  - ARSummary
+- table: budget
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/Budget.qvd
+  consumed_by:
+  - Budget
+- table: calendar_2024
+  kind: qvd
+  locator: lib://DataFiles/Calendar_2024.qvd
+  consumed_by:
+  - Calendar
+- table: channelmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ChannelMaster.qvd
+  consumed_by:
+  - ChannelMaster
+- table: customeraddressmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/CustomerAddressMaster.qvd
+  consumed_by:
+  - CustomerAddressMaster
+- table: customermap
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/CustomerMap.qvd
+  consumed_by:
+  - CustomerMap
+- table: customermaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/CustomerMaster.qvd
+  consumed_by:
+  - CustomerMaster
+- table: expenses
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/Expenses.qvd
+  consumed_by:
+  - Expenses
+- table: facttable
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/FactTable.qvd
+  consumed_by:
+  - FactTable Init
+- table: historyflag
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/HistoryFlag.qvd
+  consumed_by:
+  - HistoryFlag
+- table: inventorybalances
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/InventoryBalances.qvd
+  consumed_by:
+  - InventoryBalances
+- table: itembranchmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ItemBranchMaster.qvd
+  consumed_by:
+  - ItemBranchMaster
+- table: itemmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ItemMaster.qvd
+  consumed_by:
+  - ItemMaster
+- table: productgroupmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ProductGroupMaster.qvd
+  consumed_by:
+  - ProductGroupMaster
+- table: productsubgroupmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ProductSubGroupMaster.qvd
+  consumed_by:
+  - ProductSubGroupMaster
+- table: producttypemaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/ProductTypeMaster.qvd
+  consumed_by:
+  - ProductTypeMaster
+- table: salesrepmaster
+  kind: qvd
+  locator: lib://Executive Dashboard:DataFiles/SalesRepMaster.qvd
+  consumed_by:
+  - SalesRepMaster
+targets:
+- table: AccountGroupMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/AccountGroupMaster.qvd
+  columns:
+  - name: AccountGroup
+    mapping_type: direct
+    sources:
+    - table: accountgroupmaster
+      column: AccountGroup
+    business_logic_qlikview: AccountGroup
+    snowflake_sql: AccountGroup
+    review_notes: []
+  - name: AccountGroupDesc
+    mapping_type: direct
+    sources:
+    - table: accountgroupmaster
+      column: AccountGroupDesc
+    business_logic_qlikview: AccountGroupDesc
+    snowflake_sql: AccountGroupDesc
+    review_notes: []
+- table: AccountMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/AccountMaster.qvd
+  columns:
+  - name: Account
+    mapping_type: direct
+    sources:
+    - table: accountmaster
+      column: Account
+    business_logic_qlikview: Account
+    snowflake_sql: Account
+    review_notes: []
+  - name: AccountGroup
+    mapping_type: direct
+    sources:
+    - table: accountmaster
+      column: AccountGroup
+    business_logic_qlikview: AccountGroup
+    snowflake_sql: AccountGroup
+    review_notes: []
+- table: Accounts
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/Accounts.qvd
+  columns:
+  - name: Account
+    mapping_type: direct
+    sources:
+    - table: accounts
+      column: Account
+    business_logic_qlikview: Account
+    snowflake_sql: Account
+    review_notes: []
+  - name: AccountDesc
+    mapping_type: direct
+    sources:
+    - table: accounts
+      column: AccountDesc
+    business_logic_qlikview: AccountDesc
+    snowflake_sql: AccountDesc
+    review_notes: []
+- table: ARSummary-1
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ARSummary-1.qvd
+  columns:
+  - name: CustKeyAR
+    mapping_type: direct
+    sources:
+    - table: arsummary_1
+      column: CustKeyAR
+    business_logic_qlikview: CustKeyAR
+    snowflake_sql: CustKeyAR
+    review_notes: []
+  - name: ARAge
+    mapping_type: direct
+    sources:
+    - table: arsummary_1
+      column: ARAge
+    business_logic_qlikview: ARAge
+    snowflake_sql: ARAge
+    review_notes: []
+  - name: ARAgeBal
+    mapping_type: direct
+    sources:
+    - table: arsummary_1
+      column: ARAgeBal
+    business_logic_qlikview: ARAgeBal
+    snowflake_sql: ARAgeBal
+    review_notes: []
+- table: ARSummary
+  layer: mart
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ARSummary.qvd
+  columns:
+  - name: CustKeyAR
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: CustKeyAR
+    business_logic_qlikview: CustKeyAR
+    snowflake_sql: CustKeyAR
+    review_notes: []
+  - name: ARGross
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: ARGross
+    business_logic_qlikview: ARGross
+    snowflake_sql: ARGross
+    review_notes: []
+  - name: AROpen
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: AROpen
+    business_logic_qlikview: AROpen
+    snowflake_sql: AROpen
+    review_notes: []
+  - name: ARCurrent
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: ARCurrent
+    business_logic_qlikview: ARCurrent
+    snowflake_sql: ARCurrent
+    review_notes: []
+  - name: AR1-30
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: AR1-30
+    business_logic_qlikview: '"AR1-30"'
+    snowflake_sql: '"AR1-30"'
+    review_notes: []
+  - name: AR31-60
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: AR31-60
+    business_logic_qlikview: '"AR31-60"'
+    snowflake_sql: '"AR31-60"'
+    review_notes: []
+  - name: AR60+
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: AR60+
+    business_logic_qlikview: '"AR60+"'
+    snowflake_sql: '"AR60+"'
+    review_notes: []
+  - name: ARCredit
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: ARCredit
+    business_logic_qlikview: ARCredit
+    snowflake_sql: ARCredit
+    review_notes: []
+  - name: ARSalesPerDay
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: ARSalesPerDay
+    business_logic_qlikview: ARSalesPerDay
+    snowflake_sql: ARSalesPerDay
+    review_notes: []
+  - name: ARAvgBal
+    mapping_type: direct
+    sources:
+    - table: arsummary
+      column: ARAvgBal
+    business_logic_qlikview: ARAvgBal
+    snowflake_sql: ARAvgBal
+    review_notes: []
+- table: Budget
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/Budget.qvd
+  columns:
+  - name: MonthlyRegionKey
+    mapping_type: direct
+    sources:
+    - table: budget
+      column: MonthlyRegionKey
+    business_logic_qlikview: MonthlyRegionKey
+    snowflake_sql: MonthlyRegionKey
+    review_notes: []
+  - name: Budget Amount
+    mapping_type: direct
+    sources:
+    - table: budget
+      column: Budget Amount
+    business_logic_qlikview: '"Budget Amount"'
+    snowflake_sql: '"Budget Amount"'
+    review_notes: []
+- table: Calendar
+  layer: staging
+  load_kind: qvd
+  upstream: lib://DataFiles/Calendar_2024.qvd
+  columns:
+  - name: Fiscal Quarter
+    mapping_type: direct
+    sources:
+    - table: calendar_2024
+      column: Fiscal Quarter
+    business_logic_qlikview: '"Fiscal Quarter"'
+    snowflake_sql: '"Fiscal Quarter"'
+    review_notes: []
+  - name: FiscalMonthNum
+    mapping_type: direct
+    sources:
+    - table: calendar_2024
+      column: FiscalMonthNum
+    business_logic_qlikview: FiscalMonthNum
+    snowflake_sql: FiscalMonthNum
+    review_notes: []
+  - name: Fiscal Year
+    mapping_type: direct
+    sources:
+    - table: calendar_2024
+      column: Fiscal Year
+    business_logic_qlikview: '"Fiscal Year"'
+    snowflake_sql: '"Fiscal Year"'
+    review_notes: []
+  - name: FiscalMonth
+    mapping_type: direct
+    sources:
+    - table: calendar_2024
+      column: FiscalMonth
+    business_logic_qlikview: FiscalMonth
+    snowflake_sql: FiscalMonth
+    review_notes: []
+  - name: FiscalRollQt
+    mapping_type: direct
+    sources:
+    - table: calendar_2024
+      column: FiscalRollQt
+    business_logic_qlikview: FiscalRollQt
+    snowflake_sql: FiscalRollQt
+    review_notes: []
+  - name: YYYYMM
+    mapping_type: direct
+    sources:
+    - table: calendar_2024
+      column: YYYYMM
+    business_logic_qlikview: YYYYMM
+    snowflake_sql: YYYYMM
+    review_notes: []
+- table: ChannelMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ChannelMaster.qvd
+  columns:
+  - name: Segment
+    mapping_type: direct
+    sources:
+    - table: channelmaster
+      column: Segment
+    business_logic_qlikview: Segment
+    snowflake_sql: Segment
+    review_notes: []
+  - name: SegmentDesc
+    mapping_type: direct
+    sources:
+    - table: channelmaster
+      column: SegmentDesc
+    business_logic_qlikview: SegmentDesc
+    snowflake_sql: SegmentDesc
+    review_notes: []
+  - name: SegmentGroup
+    mapping_type: direct
+    sources:
+    - table: channelmaster
+      column: SegmentGroup
+    business_logic_qlikview: SegmentGroup
+    snowflake_sql: SegmentGroup
+    review_notes: []
+- table: CustomerAddressMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/CustomerAddressMaster.qvd
+  columns:
+  - name: Address Number
+    mapping_type: direct
+    sources:
+    - table: customeraddressmaster
+      column: Address Number
+    business_logic_qlikview: '"Address Number"'
+    snowflake_sql: '"Address Number"'
+    review_notes: []
+  - name: Customer Address 1
+    mapping_type: direct
+    sources:
+    - table: customeraddressmaster
+      column: Customer Address 1
+    business_logic_qlikview: '"Customer Address 1"'
+    snowflake_sql: '"Customer Address 1"'
+    review_notes: []
+  - name: Zip Code
+    mapping_type: direct
+    sources:
+    - table: customeraddressmaster
+      column: Zip Code
+    business_logic_qlikview: '"Zip Code"'
+    snowflake_sql: '"Zip Code"'
+    review_notes: []
+- table: CustomerMap
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/CustomerMap.qvd
+  columns:
+  - name: CustKey
+    mapping_type: direct
+    sources:
+    - table: customermap
+      column: CustKey
+    business_logic_qlikview: CustKey
+    snowflake_sql: CustKey
+    review_notes: []
+  - name: CustKeyAR
+    mapping_type: direct
+    sources:
+    - table: customermap
+      column: CustKeyAR
+    business_logic_qlikview: CustKeyAR
+    snowflake_sql: CustKeyAR
+    review_notes: []
+- table: CustomerMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/CustomerMaster.qvd
+  columns:
+  - name: Address Number
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Address Number
+    business_logic_qlikview: '"Address Number"'
+    snowflake_sql: '"Address Number"'
+    review_notes: []
+  - name: Business Family
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Business Family
+    business_logic_qlikview: '"Business Family"'
+    snowflake_sql: '"Business Family"'
+    review_notes: []
+  - name: Segment
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Segment
+    business_logic_qlikview: Segment
+    snowflake_sql: Segment
+    review_notes: []
+  - name: Customer
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Customer
+    business_logic_qlikview: Customer
+    snowflake_sql: Customer
+    review_notes: []
+  - name: Customer Number
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Customer Number
+    business_logic_qlikview: '"Customer Number"'
+    snowflake_sql: '"Customer Number"'
+    review_notes: []
+  - name: Customer Type
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Customer Type
+    business_logic_qlikview: '"Customer Type"'
+    snowflake_sql: '"Customer Type"'
+    review_notes: []
+  - name: Distribution Channel Mgr
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Distribution Channel Mgr
+    business_logic_qlikview: '"Distribution Channel Mgr"'
+    snowflake_sql: '"Distribution Channel Mgr"'
+    review_notes: []
+  - name: Division
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Division
+    business_logic_qlikview: Division
+    snowflake_sql: Division
+    review_notes: []
+  - name: Phone
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Phone
+    business_logic_qlikview: Phone
+    snowflake_sql: Phone
+    review_notes: []
+  - name: Region Code
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Region Code
+    business_logic_qlikview: '"Region Code"'
+    snowflake_sql: '"Region Code"'
+    review_notes: []
+  - name: Regional Sales Mgr
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Regional Sales Mgr
+    business_logic_qlikview: '"Regional Sales Mgr"'
+    snowflake_sql: '"Regional Sales Mgr"'
+    review_notes: []
+  - name: Zone Mgr
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Zone Mgr
+    business_logic_qlikview: '"Zone Mgr"'
+    snowflake_sql: '"Zone Mgr"'
+    review_notes: []
+  - name: Sales Rep
+    mapping_type: direct
+    sources:
+    - table: customermaster
+      column: Sales Rep
+    business_logic_qlikview: '"Sales Rep"'
+    snowflake_sql: '"Sales Rep"'
+    review_notes: []
+- table: Expenses
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/Expenses.qvd
+  columns:
+  - name: MonthlyRegionKey
+    mapping_type: direct
+    sources:
+    - table: expenses
+      column: MonthlyRegionKey
+    business_logic_qlikview: MonthlyRegionKey
+    snowflake_sql: MonthlyRegionKey
+    review_notes: []
+  - name: Account
+    mapping_type: direct
+    sources:
+    - table: expenses
+      column: Account
+    business_logic_qlikview: Account
+    snowflake_sql: Account
+    review_notes: []
+  - name: ExpenseActual
+    mapping_type: direct
+    sources:
+    - table: expenses
+      column: ExpenseActual
+    business_logic_qlikview: ExpenseActual
+    snowflake_sql: ExpenseActual
+    review_notes: []
+  - name: ExpenseBudget
+    mapping_type: direct
+    sources:
+    - table: expenses
+      column: ExpenseBudget
+    business_logic_qlikview: ExpenseBudget
+    snowflake_sql: ExpenseBudget
+    review_notes: []
+- table: FactTable Init
+  layer: mart
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/FactTable.qvd
+  columns:
+  - name: MonthlyRegionKey
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: MonthlyRegionKey
+    business_logic_qlikview: MonthlyRegionKey
+    snowflake_sql: MonthlyRegionKey
+    review_notes: []
+  - name: Region
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Region
+    business_logic_qlikview: Region
+    snowflake_sql: Region
+    review_notes: []
+  - name: Address Number
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Address Number
+    business_logic_qlikview: '"Address Number"'
+    snowflake_sql: '"Address Number"'
+    review_notes: []
+  - name: CustKey
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: CustKey
+    business_logic_qlikview: CustKey
+    snowflake_sql: CustKey
+    review_notes: []
+  - name: Invoice Number
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Invoice Number
+    business_logic_qlikview: '"Invoice Number"'
+    snowflake_sql: '"Invoice Number"'
+    review_notes: []
+  - name: Item-Branch Key
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Item-Branch Key
+    business_logic_qlikview: '"Item-Branch Key"'
+    snowflake_sql: '"Item-Branch Key"'
+    review_notes: []
+  - name: Late Shipment
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Late Shipment
+    business_logic_qlikview: '"Late Shipment"'
+    snowflake_sql: '"Late Shipment"'
+    review_notes: []
+  - name: Line Desc 1
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Line Desc 1
+    business_logic_qlikview: '"Line Desc 1"'
+    snowflake_sql: '"Line Desc 1"'
+    review_notes: []
+  - name: Open Order Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Open Order Amount
+    business_logic_qlikview: '"Open Order Amount"'
+    snowflake_sql: '"Open Order Amount"'
+    review_notes: []
+  - name: Order Number
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Order Number
+    business_logic_qlikview: '"Order Number"'
+    snowflake_sql: '"Order Number"'
+    review_notes: []
+  - name: Order Status
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Order Status
+    business_logic_qlikview: '"Order Status"'
+    snowflake_sql: '"Order Status"'
+    review_notes: []
+  - name: OrderDate
+    mapping_type: derived
+    sources:
+    - table: facttable
+      column: OrderDate
+    business_logic_qlikview: Addmonths(OrderDate,9)
+    snowflake_sql: DATEADD('MONTH', 9, OrderDate)
+    review_notes: []
+  - name: OrderID
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: OrderID
+    business_logic_qlikview: OrderID
+    snowflake_sql: OrderID
+    review_notes: []
+  - name: OrderStat
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: OrderStat
+    business_logic_qlikview: OrderStat
+    snowflake_sql: OrderStat
+    review_notes: []
+  - name: Promised Delivery Date
+    mapping_type: derived
+    sources:
+    - table: facttable
+      column: Promised Delivery Date
+    business_logic_qlikview: Addmonths("Promised Delivery Date", 9)
+    snowflake_sql: DATEADD('MONTH', 9, "Promised Delivery Date")
+    review_notes: []
+  - name: Sales Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Amount
+    business_logic_qlikview: '"Sales Amount"'
+    snowflake_sql: '"Sales Amount"'
+    review_notes: []
+  - name: Sales Cost Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Cost Amount
+    business_logic_qlikview: '"Sales Cost Amount"'
+    snowflake_sql: '"Sales Cost Amount"'
+    review_notes: []
+  - name: Sales Margin Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Margin Amount
+    business_logic_qlikview: '"Sales Margin Amount"'
+    snowflake_sql: '"Sales Margin Amount"'
+    review_notes: []
+  - name: Sales Price
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Price
+    business_logic_qlikview: '"Sales Price"'
+    snowflake_sql: '"Sales Price"'
+    review_notes: []
+  - name: Sales Quantity
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Quantity
+    business_logic_qlikview: '"Sales Quantity"'
+    snowflake_sql: '"Sales Quantity"'
+    review_notes: []
+  - name: Ship To
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Ship To
+    business_logic_qlikview: '"Ship To"'
+    snowflake_sql: '"Ship To"'
+    review_notes: []
+  - name: YYYYMM
+    mapping_type: derived
+    sources:
+    - table: facttable
+      column: YYYYMM
+    business_logic_qlikview: Addmonths(YYYYMM, 9)
+    snowflake_sql: DATEADD('MONTH', 9, YYYYMM)
+    review_notes: []
+- table: FactTable
+  layer: mart
+  load_kind: resident
+  upstream: FactTable Init
+  columns:
+  - name: MonthlyRegionKey
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: MonthlyRegionKey
+    business_logic_qlikview: MonthlyRegionKey
+    snowflake_sql: MonthlyRegionKey
+    review_notes: []
+  - name: Region
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Region
+    business_logic_qlikview: Region
+    snowflake_sql: Region
+    review_notes: []
+  - name: Address Number
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Address Number
+    business_logic_qlikview: '"Address Number"'
+    snowflake_sql: '"Address Number"'
+    review_notes: []
+  - name: CustKey
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: CustKey
+    business_logic_qlikview: CustKey
+    snowflake_sql: CustKey
+    review_notes: []
+  - name: Invoice Number
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Invoice Number
+    business_logic_qlikview: '"Invoice Number"'
+    snowflake_sql: '"Invoice Number"'
+    review_notes: []
+  - name: Item-Branch Key
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Item-Branch Key
+    business_logic_qlikview: '"Item-Branch Key"'
+    snowflake_sql: '"Item-Branch Key"'
+    review_notes: []
+  - name: Late Shipment
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Late Shipment
+    business_logic_qlikview: '"Late Shipment"'
+    snowflake_sql: '"Late Shipment"'
+    review_notes: []
+  - name: Line Desc 1
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Line Desc 1
+    business_logic_qlikview: '"Line Desc 1"'
+    snowflake_sql: '"Line Desc 1"'
+    review_notes: []
+  - name: Open Order Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Open Order Amount
+    business_logic_qlikview: '"Open Order Amount"'
+    snowflake_sql: '"Open Order Amount"'
+    review_notes: []
+  - name: Order Number
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Order Number
+    business_logic_qlikview: '"Order Number"'
+    snowflake_sql: '"Order Number"'
+    review_notes: []
+  - name: Order Status
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Order Status
+    business_logic_qlikview: '"Order Status"'
+    snowflake_sql: '"Order Status"'
+    review_notes: []
+  - name: OrderDate
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: OrderDate
+    business_logic_qlikview: OrderDate
+    snowflake_sql: OrderDate
+    review_notes: []
+  - name: OrderID
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: OrderID
+    business_logic_qlikview: OrderID
+    snowflake_sql: OrderID
+    review_notes: []
+  - name: OrderStat
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: OrderStat
+    business_logic_qlikview: OrderStat
+    snowflake_sql: OrderStat
+    review_notes: []
+  - name: Promised Delivery Date
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Promised Delivery Date
+    business_logic_qlikview: '"Promised Delivery Date"'
+    snowflake_sql: '"Promised Delivery Date"'
+    review_notes: []
+  - name: Sales Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Amount
+    business_logic_qlikview: '"Sales Amount"'
+    snowflake_sql: '"Sales Amount"'
+    review_notes: []
+  - name: Sales Cost Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Cost Amount
+    business_logic_qlikview: '"Sales Cost Amount"'
+    snowflake_sql: '"Sales Cost Amount"'
+    review_notes: []
+  - name: Sales Margin Amount
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Margin Amount
+    business_logic_qlikview: '"Sales Margin Amount"'
+    snowflake_sql: '"Sales Margin Amount"'
+    review_notes: []
+  - name: Sales Price
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Price
+    business_logic_qlikview: '"Sales Price"'
+    snowflake_sql: '"Sales Price"'
+    review_notes: []
+  - name: Sales Quantity
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Sales Quantity
+    business_logic_qlikview: '"Sales Quantity"'
+    snowflake_sql: '"Sales Quantity"'
+    review_notes: []
+  - name: Ship To
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: Ship To
+    business_logic_qlikview: '"Ship To"'
+    snowflake_sql: '"Ship To"'
+    review_notes: []
+  - name: YYYYMM
+    mapping_type: direct
+    sources:
+    - table: facttable
+      column: YYYYMM
+    business_logic_qlikview: YYYYMM
+    snowflake_sql: YYYYMM
+    review_notes: []
+- table: HistoryFlag
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/HistoryFlag.qvd
+  columns:
+  - name: YYYYMM
+    mapping_type: derived
+    sources:
+    - table: historyflag
+      column: YYYYMM
+    business_logic_qlikview: Addmonths(YYYYMM,9)
+    snowflake_sql: DATEADD('MONTH', 9, YYYYMM)
+    review_notes: []
+  - name: _HistoryFlag
+    mapping_type: direct
+    sources:
+    - table: historyflag
+      column: _HistoryFlag
+    business_logic_qlikview: _HistoryFlag
+    snowflake_sql: _HistoryFlag
+    review_notes: []
+- table: InventoryBalances
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/InventoryBalances.qvd
+  columns:
+  - name: Line Desc 1
+    mapping_type: direct
+    sources:
+    - table: inventorybalances
+      column: Line Desc 1
+    business_logic_qlikview: '"Line Desc 1"'
+    snowflake_sql: '"Line Desc 1"'
+    review_notes: []
+  - name: ClassTurns
+    mapping_type: direct
+    sources:
+    - table: inventorybalances
+      column: ClassTurns
+    business_logic_qlikview: ClassTurns
+    snowflake_sql: ClassTurns
+    review_notes: []
+  - name: ThroughputQty
+    mapping_type: direct
+    sources:
+    - table: inventorybalances
+      column: ThroughputQty
+    business_logic_qlikview: ThroughputQty
+    snowflake_sql: ThroughputQty
+    review_notes: []
+  - name: CostPrice
+    mapping_type: direct
+    sources:
+    - table: inventorybalances
+      column: CostPrice
+    business_logic_qlikview: CostPrice
+    snowflake_sql: CostPrice
+    review_notes: []
+  - name: StockOH
+    mapping_type: direct
+    sources:
+    - table: inventorybalances
+      column: StockOH
+    business_logic_qlikview: StockOH
+    snowflake_sql: StockOH
+    review_notes: []
+- table: ItemBranchMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ItemBranchMaster.qvd
+  columns:
+  - name: Item-Branch Key
+    mapping_type: direct
+    sources:
+    - table: itembranchmaster
+      column: Item-Branch Key
+    business_logic_qlikview: '"Item-Branch Key"'
+    snowflake_sql: '"Item-Branch Key"'
+    review_notes: []
+  - name: Short Name
+    mapping_type: direct
+    sources:
+    - table: itembranchmaster
+      column: Short Name
+    business_logic_qlikview: '"Short Name"'
+    snowflake_sql: '"Short Name"'
+    review_notes: []
+- table: ItemMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ItemMaster.qvd
+  columns:
+  - name: Product Group
+    mapping_type: direct
+    sources:
+    - table: itemmaster
+      column: Product Group
+    business_logic_qlikview: '"Product Group"'
+    snowflake_sql: '"Product Group"'
+    review_notes: []
+  - name: Product Line
+    mapping_type: direct
+    sources:
+    - table: itemmaster
+      column: Product Line
+    business_logic_qlikview: '"Product Line"'
+    snowflake_sql: '"Product Line"'
+    review_notes: []
+  - name: Product Sub Group
+    mapping_type: direct
+    sources:
+    - table: itemmaster
+      column: Product Sub Group
+    business_logic_qlikview: '"Product Sub Group"'
+    snowflake_sql: '"Product Sub Group"'
+    review_notes: []
+  - name: Product Type
+    mapping_type: direct
+    sources:
+    - table: itemmaster
+      column: Product Type
+    business_logic_qlikview: '"Product Type"'
+    snowflake_sql: '"Product Type"'
+    review_notes: []
+  - name: Short Name
+    mapping_type: direct
+    sources:
+    - table: itemmaster
+      column: Short Name
+    business_logic_qlikview: '"Short Name"'
+    snowflake_sql: '"Short Name"'
+    review_notes: []
+- table: ProductGroupMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ProductGroupMaster.qvd
+  columns:
+  - name: Product Group
+    mapping_type: direct
+    sources:
+    - table: productgroupmaster
+      column: Product Group
+    business_logic_qlikview: '"Product Group"'
+    snowflake_sql: '"Product Group"'
+    review_notes: []
+  - name: Product Group Desc
+    mapping_type: direct
+    sources:
+    - table: productgroupmaster
+      column: Product Group Desc
+    business_logic_qlikview: '"Product Group Desc"'
+    snowflake_sql: '"Product Group Desc"'
+    review_notes: []
+- table: ProductSubGroupMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ProductSubGroupMaster.qvd
+  columns:
+  - name: Product Sub Group
+    mapping_type: direct
+    sources:
+    - table: productsubgroupmaster
+      column: Product Sub Group
+    business_logic_qlikview: '"Product Sub Group"'
+    snowflake_sql: '"Product Sub Group"'
+    review_notes: []
+  - name: Product Sub Group Desc
+    mapping_type: direct
+    sources:
+    - table: productsubgroupmaster
+      column: Product Sub Group Desc
+    business_logic_qlikview: '"Product Sub Group Desc"'
+    snowflake_sql: '"Product Sub Group Desc"'
+    review_notes: []
+- table: ProductTypeMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/ProductTypeMaster.qvd
+  columns:
+  - name: Product Type
+    mapping_type: direct
+    sources:
+    - table: producttypemaster
+      column: Product Type
+    business_logic_qlikview: '"Product Type"'
+    snowflake_sql: '"Product Type"'
+    review_notes: []
+  - name: Product Type Desc
+    mapping_type: direct
+    sources:
+    - table: producttypemaster
+      column: Product Type Desc
+    business_logic_qlikview: '"Product Type Desc"'
+    snowflake_sql: '"Product Type Desc"'
+    review_notes: []
+- table: SalesRepMaster
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard:DataFiles/SalesRepMaster.qvd
+  columns:
+  - name: Sales Rep
+    mapping_type: direct
+    sources:
+    - table: salesrepmaster
+      column: Sales Rep
+    business_logic_qlikview: '"Sales Rep"'
+    snowflake_sql: '"Sales Rep"'
+    review_notes: []
+  - name: Sales Rep Name
+    mapping_type: direct
+    sources:
+    - table: salesrepmaster
+      column: Sales Rep Name
+    business_logic_qlikview: '"Sales Rep Name"'
+    snowflake_sql: '"Sales Rep Name"'
+    review_notes: []
+- table: table_23
+  layer: staging
+  load_kind: qvd
+  upstream: lib://Executive Dashboard Data/AccountGroupMaster.qvd
+  columns:
+  - name: AccountGroup
+    mapping_type: direct
+    sources:
+    - table: accountgroupmaster
+      column: AccountGroup
+    business_logic_qlikview: AccountGroup
+    snowflake_sql: AccountGroup
+    review_notes: []
+  - name: AccountGroupDesc
+    mapping_type: direct
+    sources:
+    - table: accountgroupmaster
+      column: AccountGroupDesc
+    business_logic_qlikview: AccountGroupDesc
+    snowflake_sql: AccountGroupDesc
+    review_notes: []

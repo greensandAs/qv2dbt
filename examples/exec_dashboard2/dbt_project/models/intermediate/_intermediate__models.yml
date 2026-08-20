@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: int_fact_table
+    description: >
+      AUTO-MIGRATED. Review notes: Table 'FactTable' is defined by multiple LOADs - QlikView auto-concatenates these; review/merge the generated models (likely UNION ALL).
+    columns:
+      - name: MonthlyRegionKey
+      - name: Region
+      - name: Address Number
+      - name: CustKey
+      - name: Invoice Number
+      - name: Item-Branch Key
+      - name: Late Shipment
+      - name: Line Desc 1
+      - name: Open Order Amount
+      - name: Order Number
+      - name: Order Status
+      - name: OrderDate
+      - name: OrderID
+      - name: OrderStat
+      - name: Promised Delivery Date
+      - name: Sales Amount
+      - name: Sales Cost Amount
+      - name: Sales Margin Amount
+      - name: Sales Price
+      - name: Sales Quantity
+      - name: Ship To
+      - name: YYYYMM
+  - name: int_fact_table_join37
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: MonthlyRegionKey
+      - name: Region
+      - name: YYYYMM
+  - name: int_history_flag
+    description: >
+      AUTO-MIGRATED. Review notes: Table 'HistoryFlag' is defined by multiple LOADs - QlikView auto-concatenates these; review/merge the generated models (likely UNION ALL).
+    columns:
+      - name: DISTINCT
+    YYYYMM
+      - name: _HistoryFlag

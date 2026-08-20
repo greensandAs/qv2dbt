@@ -1,0 +1,1967 @@
+{
+  "summary": {
+    "script": "executive_dashboard.qvs",
+    "tables": 46,
+    "models_generated": 46,
+    "mapping_tables": 0,
+    "external_sources": 24,
+    "variables": 48,
+    "total_fields": 223,
+    "fields_needing_review": 0,
+    "auto_translatable_pct": 100.0,
+    "unsupported_statements": 3
+  },
+  "layers": {
+    "staging": [
+      "AccountGroupMaster",
+      "AccountMaster",
+      "Accounts",
+      "ARSummary-1",
+      "ARSummary",
+      "Budget",
+      "Calendar",
+      "ChannelMaster",
+      "CustomerAddressMaster",
+      "CustomerMap",
+      "CustomerMaster",
+      "Expenses",
+      "FactTable Init",
+      "HistoryFlag",
+      "InventoryBalances",
+      "ItemBranchMaster",
+      "ItemMaster",
+      "ProductGroupMaster",
+      "ProductSubGroupMaster",
+      "ProductTypeMaster",
+      "SalesRepMaster",
+      "table_23",
+      "AccountGroupMaster",
+      "table_25",
+      "AccountMaster",
+      "Budget",
+      "InventoryBalances",
+      "ItemMaster",
+      "ProductSubGroupMaster",
+      "ProductTypeMaster",
+      "ProductGroupMaster",
+      "ItemBranchMaster",
+      "SalesRepMaster",
+      "FactTable",
+      "Expenses",
+      "Accounts",
+      "CustomerAddressMaster",
+      "CustomerMap",
+      "CustomerMaster",
+      "ChannelMaster",
+      "Calendar",
+      "ARSummary",
+      "ARSummary-1"
+    ],
+    "intermediate": [
+      "FactTable",
+      "FactTable__join37",
+      "HistoryFlag"
+    ],
+    "mart": []
+  },
+  "tables": [
+    {
+      "name": "AccountGroupMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/AccountGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "AccountMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/AccountMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Accounts",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/Accounts.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ARSummary-1",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ARSummary-1.qvd",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ARSummary",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ARSummary.qvd",
+      "fields": 10,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Budget",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/Budget.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Calendar",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://DataFiles/Calendar_2024.qvd",
+      "fields": 6,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ChannelMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ChannelMaster.qvd",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "CustomerAddressMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/CustomerAddressMaster.qvd",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "CustomerMap",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/CustomerMap.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "CustomerMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/CustomerMaster.qvd",
+      "fields": 13,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Expenses",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/Expenses.qvd",
+      "fields": 4,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "FactTable Init",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/FactTable.qvd",
+      "fields": 22,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "FactTable",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "FactTable Init",
+      "fields": 22,
+      "joins": [
+        "FactTable__join37"
+      ],
+      "warnings": []
+    },
+    {
+      "name": "HistoryFlag",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/HistoryFlag.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "InventoryBalances",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/InventoryBalances.qvd",
+      "fields": 5,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ItemBranchMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ItemBranchMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ItemMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ItemMaster.qvd",
+      "fields": 5,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ProductGroupMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ProductGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ProductSubGroupMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ProductSubGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ProductTypeMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/ProductTypeMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "SalesRepMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard:DataFiles/SalesRepMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "table_23",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/AccountGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "AccountGroupMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/AccountGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "table_25",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/AccountGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "AccountMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/AccountMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Budget",
+      "layer": "staging",
+      "load_kind": "file",
+      "source": "lib://Executive Dashboard Data/RegionalSales.xlsx",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "InventoryBalances",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/InventoryBalances.qvd",
+      "fields": 5,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ItemMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ItemMaster.qvd",
+      "fields": 5,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ProductSubGroupMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ProductSubGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ProductTypeMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ProductTypeMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ProductGroupMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ProductGroupMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ItemBranchMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ItemBranchMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "SalesRepMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/SalesRepMaster.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "FactTable",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/FactTable.qvd",
+      "fields": 22,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Expenses",
+      "layer": "staging",
+      "load_kind": "file",
+      "source": "lib://Executive Dashboard Data/Expenses.xls",
+      "fields": 6,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "FactTable__join37",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "Expenses",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "HistoryFlag",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "FactTable",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Accounts",
+      "layer": "staging",
+      "load_kind": "file",
+      "source": "lib://Executive Dashboard Data/ExpenseAccounts.xls",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "CustomerAddressMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/CustomerAddressMaster.qvd",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "CustomerMap",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/CustomerMap.qvd",
+      "fields": 2,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "CustomerMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/CustomerMaster.qvd",
+      "fields": 13,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ChannelMaster",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ChannelMaster.qvd",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "Calendar",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/Calendar.qvd",
+      "fields": 6,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ARSummary",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ARSummary.qvd",
+      "fields": 10,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "ARSummary-1",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://Executive Dashboard Data/ARSummary-1.qvd",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    }
+  ],
+  "lineage": [
+    {
+      "target": "AccountGroupMaster.AccountGroup",
+      "expression": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "review": []
+    },
+    {
+      "target": "AccountGroupMaster.AccountGroupDesc",
+      "expression": "AccountGroupDesc",
+      "snowflake": "AccountGroupDesc",
+      "review": []
+    },
+    {
+      "target": "AccountMaster.Account",
+      "expression": "Account",
+      "snowflake": "Account",
+      "review": []
+    },
+    {
+      "target": "AccountMaster.AccountGroup",
+      "expression": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "review": []
+    },
+    {
+      "target": "Accounts.Account",
+      "expression": "Account",
+      "snowflake": "Account",
+      "review": []
+    },
+    {
+      "target": "Accounts.AccountDesc",
+      "expression": "AccountDesc",
+      "snowflake": "AccountDesc",
+      "review": []
+    },
+    {
+      "target": "ARSummary-1.CustKeyAR",
+      "expression": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "review": []
+    },
+    {
+      "target": "ARSummary-1.ARAge",
+      "expression": "ARAge",
+      "snowflake": "ARAge",
+      "review": []
+    },
+    {
+      "target": "ARSummary-1.ARAgeBal",
+      "expression": "ARAgeBal",
+      "snowflake": "ARAgeBal",
+      "review": []
+    },
+    {
+      "target": "ARSummary.CustKeyAR",
+      "expression": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARGross",
+      "expression": "ARGross",
+      "snowflake": "ARGross",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AROpen",
+      "expression": "AROpen",
+      "snowflake": "AROpen",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARCurrent",
+      "expression": "ARCurrent",
+      "snowflake": "ARCurrent",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AR1-30",
+      "expression": "\"AR1-30\"",
+      "snowflake": "\"AR1-30\"",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AR31-60",
+      "expression": "\"AR31-60\"",
+      "snowflake": "\"AR31-60\"",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AR60+",
+      "expression": "\"AR60+\"",
+      "snowflake": "\"AR60+\"",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARCredit",
+      "expression": "ARCredit",
+      "snowflake": "ARCredit",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARSalesPerDay",
+      "expression": "ARSalesPerDay",
+      "snowflake": "ARSalesPerDay",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARAvgBal",
+      "expression": "ARAvgBal",
+      "snowflake": "ARAvgBal",
+      "review": []
+    },
+    {
+      "target": "Budget.MonthlyRegionKey",
+      "expression": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "review": []
+    },
+    {
+      "target": "Budget.Budget Amount",
+      "expression": "\"Budget Amount\"",
+      "snowflake": "\"Budget Amount\"",
+      "review": []
+    },
+    {
+      "target": "Calendar.Fiscal Quarter",
+      "expression": "\"Fiscal Quarter\"",
+      "snowflake": "\"Fiscal Quarter\"",
+      "review": []
+    },
+    {
+      "target": "Calendar.FiscalMonthNum",
+      "expression": "FiscalMonthNum",
+      "snowflake": "FiscalMonthNum",
+      "review": []
+    },
+    {
+      "target": "Calendar.Fiscal Year",
+      "expression": "\"Fiscal Year\"",
+      "snowflake": "\"Fiscal Year\"",
+      "review": []
+    },
+    {
+      "target": "Calendar.FiscalMonth",
+      "expression": "FiscalMonth",
+      "snowflake": "FiscalMonth",
+      "review": []
+    },
+    {
+      "target": "Calendar.FiscalRollQt",
+      "expression": "FiscalRollQt",
+      "snowflake": "FiscalRollQt",
+      "review": []
+    },
+    {
+      "target": "Calendar.YYYYMM",
+      "expression": "YYYYMM",
+      "snowflake": "YYYYMM",
+      "review": []
+    },
+    {
+      "target": "ChannelMaster.Segment",
+      "expression": "Segment",
+      "snowflake": "Segment",
+      "review": []
+    },
+    {
+      "target": "ChannelMaster.SegmentDesc",
+      "expression": "SegmentDesc",
+      "snowflake": "SegmentDesc",
+      "review": []
+    },
+    {
+      "target": "ChannelMaster.SegmentGroup",
+      "expression": "SegmentGroup",
+      "snowflake": "SegmentGroup",
+      "review": []
+    },
+    {
+      "target": "CustomerAddressMaster.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "CustomerAddressMaster.Customer Address 1",
+      "expression": "\"Customer Address 1\"",
+      "snowflake": "\"Customer Address 1\"",
+      "review": []
+    },
+    {
+      "target": "CustomerAddressMaster.Zip Code",
+      "expression": "\"Zip Code\"",
+      "snowflake": "\"Zip Code\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMap.CustKey",
+      "expression": "CustKey",
+      "snowflake": "CustKey",
+      "review": []
+    },
+    {
+      "target": "CustomerMap.CustKeyAR",
+      "expression": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Business Family",
+      "expression": "\"Business Family\"",
+      "snowflake": "\"Business Family\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Segment",
+      "expression": "Segment",
+      "snowflake": "Segment",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Customer",
+      "expression": "Customer",
+      "snowflake": "Customer",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Customer Number",
+      "expression": "\"Customer Number\"",
+      "snowflake": "\"Customer Number\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Customer Type",
+      "expression": "\"Customer Type\"",
+      "snowflake": "\"Customer Type\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Distribution Channel Mgr",
+      "expression": "\"Distribution Channel Mgr\"",
+      "snowflake": "\"Distribution Channel Mgr\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Division",
+      "expression": "Division",
+      "snowflake": "Division",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Phone",
+      "expression": "Phone",
+      "snowflake": "Phone",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Region Code",
+      "expression": "\"Region Code\"",
+      "snowflake": "\"Region Code\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Regional Sales Mgr",
+      "expression": "\"Regional Sales Mgr\"",
+      "snowflake": "\"Regional Sales Mgr\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Zone Mgr",
+      "expression": "\"Zone Mgr\"",
+      "snowflake": "\"Zone Mgr\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Sales Rep",
+      "expression": "\"Sales Rep\"",
+      "snowflake": "\"Sales Rep\"",
+      "review": []
+    },
+    {
+      "target": "Expenses.MonthlyRegionKey",
+      "expression": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "review": []
+    },
+    {
+      "target": "Expenses.Account",
+      "expression": "Account",
+      "snowflake": "Account",
+      "review": []
+    },
+    {
+      "target": "Expenses.ExpenseActual",
+      "expression": "ExpenseActual",
+      "snowflake": "ExpenseActual",
+      "review": []
+    },
+    {
+      "target": "Expenses.ExpenseBudget",
+      "expression": "ExpenseBudget",
+      "snowflake": "ExpenseBudget",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.MonthlyRegionKey",
+      "expression": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Region",
+      "expression": "Region",
+      "snowflake": "Region",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.CustKey",
+      "expression": "CustKey",
+      "snowflake": "CustKey",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Invoice Number",
+      "expression": "\"Invoice Number\"",
+      "snowflake": "\"Invoice Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Item-Branch Key",
+      "expression": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Late Shipment",
+      "expression": "\"Late Shipment\"",
+      "snowflake": "\"Late Shipment\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Line Desc 1",
+      "expression": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Open Order Amount",
+      "expression": "\"Open Order Amount\"",
+      "snowflake": "\"Open Order Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Order Number",
+      "expression": "\"Order Number\"",
+      "snowflake": "\"Order Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Order Status",
+      "expression": "\"Order Status\"",
+      "snowflake": "\"Order Status\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.OrderDate",
+      "expression": "Addmonths(OrderDate,9)",
+      "snowflake": "DATEADD('MONTH', 9, OrderDate)",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.OrderStat",
+      "expression": "OrderStat",
+      "snowflake": "OrderStat",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Promised Delivery Date",
+      "expression": "Addmonths(\"Promised Delivery Date\", 9)",
+      "snowflake": "DATEADD('MONTH', 9, \"Promised Delivery Date\")",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Sales Amount",
+      "expression": "\"Sales Amount\"",
+      "snowflake": "\"Sales Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Sales Cost Amount",
+      "expression": "\"Sales Cost Amount\"",
+      "snowflake": "\"Sales Cost Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Sales Margin Amount",
+      "expression": "\"Sales Margin Amount\"",
+      "snowflake": "\"Sales Margin Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Sales Price",
+      "expression": "\"Sales Price\"",
+      "snowflake": "\"Sales Price\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Sales Quantity",
+      "expression": "\"Sales Quantity\"",
+      "snowflake": "\"Sales Quantity\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.Ship To",
+      "expression": "\"Ship To\"",
+      "snowflake": "\"Ship To\"",
+      "review": []
+    },
+    {
+      "target": "FactTable Init.YYYYMM",
+      "expression": "Addmonths(YYYYMM, 9)",
+      "snowflake": "DATEADD('MONTH', 9, YYYYMM)",
+      "review": []
+    },
+    {
+      "target": "FactTable.noconcatenate LOAD\n    MonthlyRegionKey",
+      "expression": "noconcatenate LOAD\n    MonthlyRegionKey",
+      "snowflake": "noconcatenate LOAD\n    MonthlyRegionKey",
+      "review": []
+    },
+    {
+      "target": "FactTable.Region",
+      "expression": "Region",
+      "snowflake": "Region",
+      "review": []
+    },
+    {
+      "target": "FactTable.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.CustKey",
+      "expression": "CustKey",
+      "snowflake": "CustKey",
+      "review": []
+    },
+    {
+      "target": "FactTable.Invoice Number",
+      "expression": "\"Invoice Number\"",
+      "snowflake": "\"Invoice Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Item-Branch Key",
+      "expression": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Late Shipment",
+      "expression": "\"Late Shipment\"",
+      "snowflake": "\"Late Shipment\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Line Desc 1",
+      "expression": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Open Order Amount",
+      "expression": "\"Open Order Amount\"",
+      "snowflake": "\"Open Order Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Order Number",
+      "expression": "\"Order Number\"",
+      "snowflake": "\"Order Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Order Status",
+      "expression": "\"Order Status\"",
+      "snowflake": "\"Order Status\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.OrderDate",
+      "expression": "OrderDate",
+      "snowflake": "OrderDate",
+      "review": []
+    },
+    {
+      "target": "FactTable.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "FactTable.OrderStat",
+      "expression": "OrderStat",
+      "snowflake": "OrderStat",
+      "review": []
+    },
+    {
+      "target": "FactTable.Promised Delivery Date",
+      "expression": "\"Promised Delivery Date\"",
+      "snowflake": "\"Promised Delivery Date\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Amount",
+      "expression": "\"Sales Amount\"",
+      "snowflake": "\"Sales Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Cost Amount",
+      "expression": "\"Sales Cost Amount\"",
+      "snowflake": "\"Sales Cost Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Margin Amount",
+      "expression": "\"Sales Margin Amount\"",
+      "snowflake": "\"Sales Margin Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Price",
+      "expression": "\"Sales Price\"",
+      "snowflake": "\"Sales Price\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Quantity",
+      "expression": "\"Sales Quantity\"",
+      "snowflake": "\"Sales Quantity\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Ship To",
+      "expression": "\"Ship To\"",
+      "snowflake": "\"Ship To\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.YYYYMM",
+      "expression": "YYYYMM",
+      "snowflake": "YYYYMM",
+      "review": []
+    },
+    {
+      "target": "HistoryFlag.YYYYMM",
+      "expression": "Addmonths(YYYYMM,9)",
+      "snowflake": "DATEADD('MONTH', 9, YYYYMM)",
+      "review": []
+    },
+    {
+      "target": "HistoryFlag._HistoryFlag",
+      "expression": "_HistoryFlag",
+      "snowflake": "_HistoryFlag",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.Line Desc 1",
+      "expression": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.ClassTurns",
+      "expression": "ClassTurns",
+      "snowflake": "ClassTurns",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.ThroughputQty",
+      "expression": "ThroughputQty",
+      "snowflake": "ThroughputQty",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.CostPrice",
+      "expression": "CostPrice",
+      "snowflake": "CostPrice",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.StockOH",
+      "expression": "StockOH",
+      "snowflake": "StockOH",
+      "review": []
+    },
+    {
+      "target": "ItemBranchMaster.Item-Branch Key",
+      "expression": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "review": []
+    },
+    {
+      "target": "ItemBranchMaster.Short Name",
+      "expression": "\"Short Name\"",
+      "snowflake": "\"Short Name\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Group",
+      "expression": "\"Product Group\"",
+      "snowflake": "\"Product Group\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Line",
+      "expression": "\"Product Line\"",
+      "snowflake": "\"Product Line\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Sub Group",
+      "expression": "\"Product Sub Group\"",
+      "snowflake": "\"Product Sub Group\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Type",
+      "expression": "\"Product Type\"",
+      "snowflake": "\"Product Type\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Short Name",
+      "expression": "\"Short Name\"",
+      "snowflake": "\"Short Name\"",
+      "review": []
+    },
+    {
+      "target": "ProductGroupMaster.Product Group",
+      "expression": "\"Product Group\"",
+      "snowflake": "\"Product Group\"",
+      "review": []
+    },
+    {
+      "target": "ProductGroupMaster.Product Group Desc",
+      "expression": "\"Product Group Desc\"",
+      "snowflake": "\"Product Group Desc\"",
+      "review": []
+    },
+    {
+      "target": "ProductSubGroupMaster.Product Sub Group",
+      "expression": "\"Product Sub Group\"",
+      "snowflake": "\"Product Sub Group\"",
+      "review": []
+    },
+    {
+      "target": "ProductSubGroupMaster.Product Sub Group Desc",
+      "expression": "\"Product Sub Group Desc\"",
+      "snowflake": "\"Product Sub Group Desc\"",
+      "review": []
+    },
+    {
+      "target": "ProductTypeMaster.Product Type",
+      "expression": "\"Product Type\"",
+      "snowflake": "\"Product Type\"",
+      "review": []
+    },
+    {
+      "target": "ProductTypeMaster.Product Type Desc",
+      "expression": "\"Product Type Desc\"",
+      "snowflake": "\"Product Type Desc\"",
+      "review": []
+    },
+    {
+      "target": "SalesRepMaster.Sales Rep",
+      "expression": "\"Sales Rep\"",
+      "snowflake": "\"Sales Rep\"",
+      "review": []
+    },
+    {
+      "target": "SalesRepMaster.Sales Rep Name",
+      "expression": "\"Sales Rep Name\"",
+      "snowflake": "\"Sales Rep Name\"",
+      "review": []
+    },
+    {
+      "target": "table_23.AccountGroup",
+      "expression": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "review": []
+    },
+    {
+      "target": "table_23.AccountGroupDesc",
+      "expression": "AccountGroupDesc",
+      "snowflake": "AccountGroupDesc",
+      "review": []
+    },
+    {
+      "target": "AccountGroupMaster.AccountGroup",
+      "expression": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "review": []
+    },
+    {
+      "target": "AccountGroupMaster.AccountGroupDesc",
+      "expression": "AccountGroupDesc",
+      "snowflake": "AccountGroupDesc",
+      "review": []
+    },
+    {
+      "target": "table_25.AccountGroup",
+      "expression": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "review": []
+    },
+    {
+      "target": "table_25.AccountGroupDesc",
+      "expression": "AccountGroupDesc",
+      "snowflake": "AccountGroupDesc",
+      "review": []
+    },
+    {
+      "target": "AccountMaster.Account",
+      "expression": "Account",
+      "snowflake": "Account",
+      "review": []
+    },
+    {
+      "target": "AccountMaster.AccountGroup",
+      "expression": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "review": []
+    },
+    {
+      "target": "Budget.MonthlyRegionKey",
+      "expression": "Region & '_' & Date(Addmonths(Month, 12), 'YYYYMM')",
+      "snowflake": "Region  ||  '_'  ||  TO_DATE(DATEADD('MONTH', 12, Month), 'YYYYMM')",
+      "review": []
+    },
+    {
+      "target": "Budget.Budget Amount",
+      "expression": "Budget",
+      "snowflake": "Budget",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.Line Desc 1",
+      "expression": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.ClassTurns",
+      "expression": "ClassTurns",
+      "snowflake": "ClassTurns",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.ThroughputQty",
+      "expression": "ThroughputQty",
+      "snowflake": "ThroughputQty",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.CostPrice",
+      "expression": "CostPrice",
+      "snowflake": "CostPrice",
+      "review": []
+    },
+    {
+      "target": "InventoryBalances.StockOH",
+      "expression": "StockOH",
+      "snowflake": "StockOH",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Group",
+      "expression": "\"Product Group\"",
+      "snowflake": "\"Product Group\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Line",
+      "expression": "\"Product Line\"",
+      "snowflake": "\"Product Line\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Sub Group",
+      "expression": "\"Product Sub Group\"",
+      "snowflake": "\"Product Sub Group\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Product Type",
+      "expression": "\"Product Type\"",
+      "snowflake": "\"Product Type\"",
+      "review": []
+    },
+    {
+      "target": "ItemMaster.Short Name",
+      "expression": "\"Short Name\"",
+      "snowflake": "\"Short Name\"",
+      "review": []
+    },
+    {
+      "target": "ProductSubGroupMaster.Product Sub Group",
+      "expression": "\"Product Sub Group\"",
+      "snowflake": "\"Product Sub Group\"",
+      "review": []
+    },
+    {
+      "target": "ProductSubGroupMaster.Product Sub Group Desc",
+      "expression": "\"Product Sub Group Desc\"",
+      "snowflake": "\"Product Sub Group Desc\"",
+      "review": []
+    },
+    {
+      "target": "ProductTypeMaster.Product Type",
+      "expression": "\"Product Type\"",
+      "snowflake": "\"Product Type\"",
+      "review": []
+    },
+    {
+      "target": "ProductTypeMaster.Product Type Desc",
+      "expression": "\"Product Type Desc\"",
+      "snowflake": "\"Product Type Desc\"",
+      "review": []
+    },
+    {
+      "target": "ProductGroupMaster.Product Group",
+      "expression": "\"Product Group\"",
+      "snowflake": "\"Product Group\"",
+      "review": []
+    },
+    {
+      "target": "ProductGroupMaster.Product Group Desc",
+      "expression": "\"Product Group Desc\"",
+      "snowflake": "\"Product Group Desc\"",
+      "review": []
+    },
+    {
+      "target": "ItemBranchMaster.Item-Branch Key",
+      "expression": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "review": []
+    },
+    {
+      "target": "ItemBranchMaster.Short Name",
+      "expression": "\"Short Name\"",
+      "snowflake": "\"Short Name\"",
+      "review": []
+    },
+    {
+      "target": "SalesRepMaster.Sales Rep",
+      "expression": "\"Sales Rep\"",
+      "snowflake": "\"Sales Rep\"",
+      "review": []
+    },
+    {
+      "target": "SalesRepMaster.Sales Rep Name",
+      "expression": "\"Sales Rep Name\"",
+      "snowflake": "\"Sales Rep Name\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.MonthlyRegionKey",
+      "expression": "Region  & '_' & Date(addmonths(YYYYMM, 12), 'YYYYMM')",
+      "snowflake": "Region   ||  '_'  ||  TO_DATE(DATEADD('MONTH', 12, YYYYMM), 'YYYYMM')",
+      "review": []
+    },
+    {
+      "target": "FactTable.Region",
+      "expression": "Region",
+      "snowflake": "Region",
+      "review": []
+    },
+    {
+      "target": "FactTable.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.CustKey",
+      "expression": "CustKey",
+      "snowflake": "CustKey",
+      "review": []
+    },
+    {
+      "target": "FactTable.Invoice Number",
+      "expression": "\"Invoice Number\"",
+      "snowflake": "\"Invoice Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Item-Branch Key",
+      "expression": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Late Shipment",
+      "expression": "\"Late Shipment\"",
+      "snowflake": "\"Late Shipment\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Line Desc 1",
+      "expression": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Open Order Amount",
+      "expression": "\"Open Order Amount\"",
+      "snowflake": "\"Open Order Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Order Number",
+      "expression": "\"Order Number\"",
+      "snowflake": "\"Order Number\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Order Status",
+      "expression": "\"Order Status\"",
+      "snowflake": "\"Order Status\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.OrderDate",
+      "expression": "Date(Addmonths(OrderDate, 24))",
+      "snowflake": "TO_DATE(DATEADD('MONTH', 24, OrderDate))",
+      "review": []
+    },
+    {
+      "target": "FactTable.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "FactTable.OrderStat",
+      "expression": "OrderStat",
+      "snowflake": "OrderStat",
+      "review": []
+    },
+    {
+      "target": "FactTable.Promised Delivery Date",
+      "expression": "Addmonths(\"Promised Delivery Date\",24)",
+      "snowflake": "DATEADD('MONTH', 24, \"Promised Delivery Date\")",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Amount",
+      "expression": "\"Sales Amount\"",
+      "snowflake": "\"Sales Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Cost Amount",
+      "expression": "\"Sales Cost Amount\"",
+      "snowflake": "\"Sales Cost Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Margin Amount",
+      "expression": "\"Sales Margin Amount\"",
+      "snowflake": "\"Sales Margin Amount\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Price",
+      "expression": "\"Sales Price\"",
+      "snowflake": "\"Sales Price\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Sales Quantity",
+      "expression": "\"Sales Quantity\"",
+      "snowflake": "\"Sales Quantity\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.Ship To",
+      "expression": "\"Ship To\"",
+      "snowflake": "\"Ship To\"",
+      "review": []
+    },
+    {
+      "target": "FactTable.YYYYMM",
+      "expression": "Addmonths(YYYYMM, 12)",
+      "snowflake": "DATEADD('MONTH', 12, YYYYMM)",
+      "review": []
+    },
+    {
+      "target": "Expenses.MonthlyRegionKey",
+      "expression": "Region & '_' & Date(Addmonths(YYYYMM,12), 'YYYYMM')",
+      "snowflake": "Region  ||  '_'  ||  TO_DATE(DATEADD('MONTH', 12, YYYYMM), 'YYYYMM')",
+      "review": []
+    },
+    {
+      "target": "Expenses.Region",
+      "expression": "Region",
+      "snowflake": "Region",
+      "review": []
+    },
+    {
+      "target": "Expenses.Account",
+      "expression": "Account",
+      "snowflake": "Account",
+      "review": []
+    },
+    {
+      "target": "Expenses.YYYYMM",
+      "expression": "Addmonths(YYYYMM, 12)",
+      "snowflake": "DATEADD('MONTH', 12, YYYYMM)",
+      "review": []
+    },
+    {
+      "target": "Expenses.ExpenseActual",
+      "expression": "ExpenseActual",
+      "snowflake": "ExpenseActual",
+      "review": []
+    },
+    {
+      "target": "Expenses.ExpenseBudget",
+      "expression": "ExpeenseBudget",
+      "snowflake": "ExpeenseBudget",
+      "review": []
+    },
+    {
+      "target": "FactTable__join37.MonthlyRegionKey",
+      "expression": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "review": []
+    },
+    {
+      "target": "FactTable__join37.Region",
+      "expression": "Region",
+      "snowflake": "Region",
+      "review": []
+    },
+    {
+      "target": "FactTable__join37.YYYYMM",
+      "expression": "YYYYMM",
+      "snowflake": "YYYYMM",
+      "review": []
+    },
+    {
+      "target": "HistoryFlag.YYYYMM",
+      "expression": "YYYYMM",
+      "snowflake": "YYYYMM",
+      "review": []
+    },
+    {
+      "target": "HistoryFlag._HistoryFlag",
+      "expression": "if(YYYYMM <= monthstart(num(makedate(2013,5,31))), 1, 0)",
+      "snowflake": "CASE WHEN YYYYMM <= DATE_TRUNC('MONTH', TO_NUMBER(DATE_FROM_PARTS(2013, 5, 31))) THEN 1 ELSE 0 END",
+      "review": []
+    },
+    {
+      "target": "Accounts.Account",
+      "expression": "Account",
+      "snowflake": "Account",
+      "review": []
+    },
+    {
+      "target": "Accounts.AccountDesc",
+      "expression": "AccountDesc",
+      "snowflake": "AccountDesc",
+      "review": []
+    },
+    {
+      "target": "CustomerAddressMaster.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "CustomerAddressMaster.Customer Address 1",
+      "expression": "\"Customer Address 1\"",
+      "snowflake": "\"Customer Address 1\"",
+      "review": []
+    },
+    {
+      "target": "CustomerAddressMaster.Zip Code",
+      "expression": "\"Zip Code\"",
+      "snowflake": "\"Zip Code\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMap.CustKey",
+      "expression": "CustKey",
+      "snowflake": "CustKey",
+      "review": []
+    },
+    {
+      "target": "CustomerMap.CustKeyAR",
+      "expression": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Address Number",
+      "expression": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Business Family",
+      "expression": "\"Business Family\"",
+      "snowflake": "\"Business Family\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Segment",
+      "expression": "Segment",
+      "snowflake": "Segment",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Customer",
+      "expression": "Customer",
+      "snowflake": "Customer",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Customer Number",
+      "expression": "\"Customer Number\"",
+      "snowflake": "\"Customer Number\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Customer Type",
+      "expression": "\"Customer Type\"",
+      "snowflake": "\"Customer Type\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Distribution Channel Mgr",
+      "expression": "\"Distribution Channel Mgr\"",
+      "snowflake": "\"Distribution Channel Mgr\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Division",
+      "expression": "Division",
+      "snowflake": "Division",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Phone",
+      "expression": "Phone",
+      "snowflake": "Phone",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Region Code",
+      "expression": "\"Region Code\"",
+      "snowflake": "\"Region Code\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Regional Sales Mgr",
+      "expression": "\"Regional Sales Mgr\"",
+      "snowflake": "\"Regional Sales Mgr\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Zone Mgr",
+      "expression": "\"Zone Mgr\"",
+      "snowflake": "\"Zone Mgr\"",
+      "review": []
+    },
+    {
+      "target": "CustomerMaster.Sales Rep",
+      "expression": "\"Sales Rep\"",
+      "snowflake": "\"Sales Rep\"",
+      "review": []
+    },
+    {
+      "target": "ChannelMaster.Segment",
+      "expression": "Segment",
+      "snowflake": "Segment",
+      "review": []
+    },
+    {
+      "target": "ChannelMaster.SegmentDesc",
+      "expression": "SegmentDesc",
+      "snowflake": "SegmentDesc",
+      "review": []
+    },
+    {
+      "target": "ChannelMaster.SegmentGroup",
+      "expression": "SegmentGroup",
+      "snowflake": "SegmentGroup",
+      "review": []
+    },
+    {
+      "target": "Calendar.Fiscal Quarter",
+      "expression": "\"Fiscal Quarter\"",
+      "snowflake": "\"Fiscal Quarter\"",
+      "review": []
+    },
+    {
+      "target": "Calendar.Fiscal Year",
+      "expression": "\"Fiscal Year\"+1",
+      "snowflake": "\"Fiscal Year\"+1",
+      "review": []
+    },
+    {
+      "target": "Calendar.FiscalMonth",
+      "expression": "Month(addmonths(YYYYMM, 12))",
+      "snowflake": "MONTH(DATEADD('MONTH', 12, YYYYMM))",
+      "review": []
+    },
+    {
+      "target": "Calendar.FiscalMonthNum",
+      "expression": "Num(Month(addmonths(YYYYMM,12)))",
+      "snowflake": "TO_NUMBER(MONTH(DATEADD('MONTH', 12, YYYYMM)))",
+      "review": []
+    },
+    {
+      "target": "Calendar.FiscalRollQt",
+      "expression": "FiscalRollQt",
+      "snowflake": "FiscalRollQt",
+      "review": []
+    },
+    {
+      "target": "Calendar.YYYYMM",
+      "expression": "addmonths(YYYYMM, 12)",
+      "snowflake": "DATEADD('MONTH', 12, YYYYMM)",
+      "review": []
+    },
+    {
+      "target": "ARSummary.CustKeyAR",
+      "expression": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARGross",
+      "expression": "ARGross",
+      "snowflake": "ARGross",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AROpen",
+      "expression": "AROpen",
+      "snowflake": "AROpen",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARCurrent",
+      "expression": "ARCurrent",
+      "snowflake": "ARCurrent",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AR1-30",
+      "expression": "\"AR1-30\"",
+      "snowflake": "\"AR1-30\"",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AR31-60",
+      "expression": "\"AR31-60\"",
+      "snowflake": "\"AR31-60\"",
+      "review": []
+    },
+    {
+      "target": "ARSummary.AR60+",
+      "expression": "\"AR60+\"",
+      "snowflake": "\"AR60+\"",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARCredit",
+      "expression": "ARCredit",
+      "snowflake": "ARCredit",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARSalesPerDay",
+      "expression": "ARSalesPerDay",
+      "snowflake": "ARSalesPerDay",
+      "review": []
+    },
+    {
+      "target": "ARSummary.ARAvgBal",
+      "expression": "ARAvgBal",
+      "snowflake": "ARAvgBal",
+      "review": []
+    },
+    {
+      "target": "ARSummary-1.CustKeyAR",
+      "expression": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "review": []
+    },
+    {
+      "target": "ARSummary-1.ARAge",
+      "expression": "ARAge",
+      "snowflake": "ARAge",
+      "review": []
+    },
+    {
+      "target": "ARSummary-1.ARAgeBal",
+      "expression": "ARAgeBal",
+      "snowflake": "ARAgeBal",
+      "review": []
+    }
+  ],
+  "sources": [
+    {
+      "name": "accountgroupmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/AccountGroupMaster.qvd"
+    },
+    {
+      "name": "accountmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/AccountMaster.qvd"
+    },
+    {
+      "name": "accounts",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/Accounts.qvd"
+    },
+    {
+      "name": "arsummary_1",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ARSummary-1.qvd"
+    },
+    {
+      "name": "arsummary",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ARSummary.qvd"
+    },
+    {
+      "name": "budget",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/Budget.qvd"
+    },
+    {
+      "name": "calendar_2024",
+      "kind": "qvd",
+      "locator": "lib://DataFiles/Calendar_2024.qvd"
+    },
+    {
+      "name": "channelmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ChannelMaster.qvd"
+    },
+    {
+      "name": "customeraddressmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/CustomerAddressMaster.qvd"
+    },
+    {
+      "name": "customermap",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/CustomerMap.qvd"
+    },
+    {
+      "name": "customermaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/CustomerMaster.qvd"
+    },
+    {
+      "name": "expenses",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/Expenses.qvd"
+    },
+    {
+      "name": "facttable",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/FactTable.qvd"
+    },
+    {
+      "name": "historyflag",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/HistoryFlag.qvd"
+    },
+    {
+      "name": "inventorybalances",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/InventoryBalances.qvd"
+    },
+    {
+      "name": "itembranchmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ItemBranchMaster.qvd"
+    },
+    {
+      "name": "itemmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ItemMaster.qvd"
+    },
+    {
+      "name": "productgroupmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ProductGroupMaster.qvd"
+    },
+    {
+      "name": "productsubgroupmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ProductSubGroupMaster.qvd"
+    },
+    {
+      "name": "producttypemaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/ProductTypeMaster.qvd"
+    },
+    {
+      "name": "salesrepmaster",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard:DataFiles/SalesRepMaster.qvd"
+    },
+    {
+      "name": "regionalsales",
+      "kind": "file",
+      "locator": "lib://Executive Dashboard Data/RegionalSales.xlsx"
+    },
+    {
+      "name": "expenseaccounts",
+      "kind": "file",
+      "locator": "lib://Executive Dashboard Data/ExpenseAccounts.xls"
+    },
+    {
+      "name": "calendar",
+      "kind": "qvd",
+      "locator": "lib://Executive Dashboard Data/Calendar.qvd"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "drop",
+      "reason": "drop statement",
+      "raw": "drop table [FactTable Init]"
+    },
+    {
+      "kind": "control",
+      "reason": "control statement",
+      "raw": "Exit Script"
+    },
+    {
+      "kind": "drop",
+      "reason": "drop statement",
+      "raw": "DROP FIELDS Region, YYYYMM FROM Expenses"
+    }
+  ],
+  "dropped_tables": [
+    "FactTable Init"
+  ]
+}

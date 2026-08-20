@@ -1,0 +1,14 @@
+# Copy to ~/.dbt/profiles.yml and fill in credentials.
+lundbeck_qv_migration:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "<your_account>"
+      user: "<your_user>"
+      authenticator: externalbrowser
+      role: "<your_role>"
+      database: LUNDBECK_UKIE
+      warehouse: "<your_wh>"
+      schema: staging
+      threads: 4

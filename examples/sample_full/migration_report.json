@@ -1,0 +1,364 @@
+{
+  "summary": {
+    "script": "sales_pipeline.qvs",
+    "tables": 7,
+    "models_generated": 7,
+    "mapping_tables": 1,
+    "external_sources": 3,
+    "variables": 2,
+    "total_fields": 38,
+    "fields_needing_review": 1,
+    "auto_translatable_pct": 97.4,
+    "unsupported_statements": 2
+  },
+  "layers": {
+    "staging": [
+      "Products",
+      "SalesPY"
+    ],
+    "intermediate": [
+      "SalesRaw",
+      "SalesRaw__join4",
+      "SalesEnriched",
+      "SalesEnriched__join6"
+    ],
+    "mart": [
+      "sales_fact"
+    ]
+  },
+  "tables": [
+    {
+      "name": "Products",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://DataFiles/qvd/products.qvd",
+      "fields": 5,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "SalesRaw",
+      "layer": "intermediate",
+      "load_kind": "file",
+      "source": "lib://DataFiles/csv/sales_2026.csv",
+      "fields": 9,
+      "joins": [
+        "SalesRaw__join4"
+      ],
+      "warnings": []
+    },
+    {
+      "name": "SalesPY",
+      "layer": "staging",
+      "load_kind": "qvd",
+      "source": "lib://DataFiles/qvd/sales_2025.qvd",
+      "fields": 7,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "SalesRaw__join4",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "SalesPY",
+      "fields": 1,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "SalesEnriched",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "SalesRaw",
+      "fields": 7,
+      "joins": [
+        "SalesEnriched__join6"
+      ],
+      "warnings": []
+    },
+    {
+      "name": "SalesEnriched__join6",
+      "layer": "intermediate",
+      "load_kind": "resident",
+      "source": "Products",
+      "fields": 3,
+      "joins": [],
+      "warnings": []
+    },
+    {
+      "name": "sales_fact",
+      "layer": "mart",
+      "load_kind": "resident",
+      "source": "SalesEnriched",
+      "fields": 6,
+      "joins": [],
+      "warnings": [
+        "Aggregating LOAD (GROUP BY) - verify aggregate expressions."
+      ]
+    }
+  ],
+  "lineage": [
+    {
+      "target": "Products.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "Products.ProductName",
+      "expression": "ProductName",
+      "snowflake": "ProductName",
+      "review": []
+    },
+    {
+      "target": "Products.TherapeuticArea",
+      "expression": "[Therapeutic Area]",
+      "snowflake": "\"Therapeutic Area\"",
+      "review": []
+    },
+    {
+      "target": "Products.UnitPrice",
+      "expression": "Num(UnitPrice)",
+      "snowflake": "TO_NUMBER(UnitPrice)",
+      "review": []
+    },
+    {
+      "target": "Products.IsDiscontinued",
+      "expression": "if(Discontinued = 1, 'Y', 'N')",
+      "snowflake": "CASE WHEN Discontinued = 1 THEN 'Y' ELSE 'N' END",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.CustomerID",
+      "expression": "CustomerID",
+      "snowflake": "CustomerID",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.CountryCode",
+      "expression": "CountryCode",
+      "snowflake": "CountryCode",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.OrderDate",
+      "expression": "Date(OrderDate, 'YYYY-MM-DD')",
+      "snowflake": "TO_DATE(OrderDate, 'YYYY-MM-DD')",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.Quantity",
+      "expression": "Num(Quantity)",
+      "snowflake": "TO_NUMBER(Quantity)",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.GrossAmount",
+      "expression": "Num(UnitPrice) * Num(Quantity)",
+      "snowflake": "TO_NUMBER(UnitPrice) * TO_NUMBER(Quantity)",
+      "review": []
+    },
+    {
+      "target": "SalesRaw.Country",
+      "expression": "ApplyMap('CountryMap', CountryCode, 'Unknown')",
+      "snowflake": "{{ apply_map('CountryMap', \"CountryCode\", \"'Unknown'\") }}",
+      "review": [
+        "ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated."
+      ]
+    },
+    {
+      "target": "SalesRaw.OrderPrefix",
+      "expression": "Left(OrderID, 4)",
+      "snowflake": "LEFT(OrderID, 4)",
+      "review": []
+    },
+    {
+      "target": "SalesPY.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "SalesPY.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "SalesPY.CustomerID",
+      "expression": "CustomerID",
+      "snowflake": "CustomerID",
+      "review": []
+    },
+    {
+      "target": "SalesPY.CountryCode",
+      "expression": "CountryCode",
+      "snowflake": "CountryCode",
+      "review": []
+    },
+    {
+      "target": "SalesPY.OrderDate",
+      "expression": "Date(OrderDate, 'YYYY-MM-DD')",
+      "snowflake": "TO_DATE(OrderDate, 'YYYY-MM-DD')",
+      "review": []
+    },
+    {
+      "target": "SalesPY.Quantity",
+      "expression": "Num(Quantity)",
+      "snowflake": "TO_NUMBER(Quantity)",
+      "review": []
+    },
+    {
+      "target": "SalesPY.GrossAmount",
+      "expression": "Num(GrossAmount)",
+      "snowflake": "TO_NUMBER(GrossAmount)",
+      "review": []
+    },
+    {
+      "target": "SalesRaw__join4.*",
+      "expression": "*",
+      "snowflake": "*",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.OrderID",
+      "expression": "OrderID",
+      "snowflake": "OrderID",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.CustomerID",
+      "expression": "CustomerID",
+      "snowflake": "CustomerID",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.Country",
+      "expression": "Country",
+      "snowflake": "Country",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.OrderDate",
+      "expression": "OrderDate",
+      "snowflake": "OrderDate",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.Quantity",
+      "expression": "Quantity",
+      "snowflake": "Quantity",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched.GrossAmount",
+      "expression": "GrossAmount",
+      "snowflake": "GrossAmount",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched__join6.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched__join6.ProductName",
+      "expression": "ProductName",
+      "snowflake": "ProductName",
+      "review": []
+    },
+    {
+      "target": "SalesEnriched__join6.TherapeuticArea",
+      "expression": "TherapeuticArea",
+      "snowflake": "TherapeuticArea",
+      "review": []
+    },
+    {
+      "target": "sales_fact.ProductID",
+      "expression": "ProductID",
+      "snowflake": "ProductID",
+      "review": []
+    },
+    {
+      "target": "sales_fact.Country",
+      "expression": "Country",
+      "snowflake": "Country",
+      "review": []
+    },
+    {
+      "target": "sales_fact.TherapeuticArea",
+      "expression": "TherapeuticArea",
+      "snowflake": "TherapeuticArea",
+      "review": []
+    },
+    {
+      "target": "sales_fact.OrderYear",
+      "expression": "Year(OrderDate)",
+      "snowflake": "YEAR(OrderDate)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.TotalRevenue",
+      "expression": "Sum(GrossAmount)",
+      "snowflake": "SUM(GrossAmount)",
+      "review": []
+    },
+    {
+      "target": "sales_fact.TotalUnits",
+      "expression": "Sum(Quantity)",
+      "snowflake": "SUM(Quantity)",
+      "review": []
+    }
+  ],
+  "sources": [
+    {
+      "name": "products",
+      "kind": "qvd",
+      "locator": "lib://DataFiles/qvd/products.qvd"
+    },
+    {
+      "name": "sales_2026",
+      "kind": "file",
+      "locator": "lib://DataFiles/csv/sales_2026.csv"
+    },
+    {
+      "name": "sales_2025",
+      "kind": "qvd",
+      "locator": "lib://DataFiles/qvd/sales_2025.qvd"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "drop",
+      "reason": "drop statement",
+      "raw": "DROP TABLE SalesPY"
+    },
+    {
+      "kind": "store",
+      "reason": "store statement",
+      "raw": "STORE sales_fact INTO [lib://DataFiles/qvd/sales_fact.qvd] (qvd)"
+    }
+  ],
+  "dropped_tables": [
+    "SalesPY"
+  ]
+}

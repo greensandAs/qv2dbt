@@ -1,0 +1,51 @@
+version: 2
+
+sources:
+  - name: qlikview_raw
+    database: LUNDBECK_UKIE
+    schema: raw
+    description: >
+      Raw QlikView-sourced tables (QVD/file/SQL extracts) landed in Snowflake.
+    tables:
+      - name: accountgroupmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/AccountGroupMaster.qvd'
+      - name: accountmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/AccountMaster.qvd'
+      - name: accounts
+        description: 'Origin: lib://Executive Dashboard:DataFiles/Accounts.qvd'
+      - name: arsummary_1
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ARSummary-1.qvd'
+      - name: arsummary
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ARSummary.qvd'
+      - name: budget
+        description: 'Origin: lib://Executive Dashboard:DataFiles/Budget.qvd'
+      - name: calendar_2024
+        description: 'Origin: lib://DataFiles/Calendar_2024.qvd'
+      - name: channelmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ChannelMaster.qvd'
+      - name: customeraddressmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/CustomerAddressMaster.qvd'
+      - name: customermap
+        description: 'Origin: lib://Executive Dashboard:DataFiles/CustomerMap.qvd'
+      - name: customermaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/CustomerMaster.qvd'
+      - name: expenses
+        description: 'Origin: lib://Executive Dashboard:DataFiles/Expenses.qvd'
+      - name: facttable
+        description: 'Origin: lib://Executive Dashboard:DataFiles/FactTable.qvd'
+      - name: historyflag
+        description: 'Origin: lib://Executive Dashboard:DataFiles/HistoryFlag.qvd'
+      - name: inventorybalances
+        description: 'Origin: lib://Executive Dashboard:DataFiles/InventoryBalances.qvd'
+      - name: itembranchmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ItemBranchMaster.qvd'
+      - name: itemmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ItemMaster.qvd'
+      - name: productgroupmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ProductGroupMaster.qvd'
+      - name: productsubgroupmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ProductSubGroupMaster.qvd'
+      - name: producttypemaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/ProductTypeMaster.qvd'
+      - name: salesrepmaster
+        description: 'Origin: lib://Executive Dashboard:DataFiles/SalesRepMaster.qvd'

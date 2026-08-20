@@ -1,0 +1,362 @@
+script: sales_pipeline.qvs
+sources:
+- table: products
+  kind: qvd
+  locator: lib://DataFiles/qvd/products.qvd
+  consumed_by:
+  - Products
+- table: sales_2026
+  kind: file
+  locator: lib://DataFiles/csv/sales_2026.csv
+  consumed_by:
+  - SalesRaw
+- table: sales_2025
+  kind: qvd
+  locator: lib://DataFiles/qvd/sales_2025.qvd
+  consumed_by:
+  - SalesPY
+targets:
+- table: Products
+  layer: staging
+  load_kind: qvd
+  upstream: lib://DataFiles/qvd/products.qvd
+  columns:
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: products
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: ProductName
+    mapping_type: direct
+    sources:
+    - table: products
+      column: ProductName
+    business_logic_qlikview: ProductName
+    snowflake_sql: ProductName
+    review_notes: []
+  - name: TherapeuticArea
+    mapping_type: direct
+    sources:
+    - table: products
+      column: Therapeutic Area
+    business_logic_qlikview: '[Therapeutic Area]'
+    snowflake_sql: '"Therapeutic Area"'
+    review_notes: []
+  - name: UnitPrice
+    mapping_type: derived
+    sources:
+    - table: products
+      column: UnitPrice
+    business_logic_qlikview: Num(UnitPrice)
+    snowflake_sql: TO_NUMBER(UnitPrice)
+    review_notes: []
+  - name: IsDiscontinued
+    mapping_type: derived
+    sources:
+    - table: products
+      column: Discontinued
+    business_logic_qlikview: if(Discontinued = 1, 'Y', 'N')
+    snowflake_sql: CASE WHEN Discontinued = 1 THEN 'Y' ELSE 'N' END
+    review_notes: []
+- table: SalesRaw
+  layer: intermediate
+  load_kind: file
+  upstream: lib://DataFiles/csv/sales_2026.csv
+  columns:
+  - name: OrderID
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: OrderID
+    business_logic_qlikview: OrderID
+    snowflake_sql: OrderID
+    review_notes: []
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: CustomerID
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: CustomerID
+    business_logic_qlikview: CustomerID
+    snowflake_sql: CustomerID
+    review_notes: []
+  - name: CountryCode
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: CountryCode
+    business_logic_qlikview: CountryCode
+    snowflake_sql: CountryCode
+    review_notes: []
+  - name: OrderDate
+    mapping_type: derived
+    sources:
+    - table: sales_2026
+      column: OrderDate
+    business_logic_qlikview: Date(OrderDate, 'YYYY-MM-DD')
+    snowflake_sql: TO_DATE(OrderDate, 'YYYY-MM-DD')
+    review_notes: []
+  - name: Quantity
+    mapping_type: derived
+    sources:
+    - table: sales_2026
+      column: Quantity
+    business_logic_qlikview: Num(Quantity)
+    snowflake_sql: TO_NUMBER(Quantity)
+    review_notes: []
+  - name: GrossAmount
+    mapping_type: derived
+    sources:
+    - table: sales_2026
+      column: UnitPrice
+    - table: sales_2026
+      column: Quantity
+    business_logic_qlikview: Num(UnitPrice) * Num(Quantity)
+    snowflake_sql: TO_NUMBER(UnitPrice) * TO_NUMBER(Quantity)
+    review_notes: []
+  - name: Country
+    mapping_type: lookup
+    sources:
+    - table: sales_2026
+      column: CountryCode
+    business_logic_qlikview: ApplyMap('CountryMap', CountryCode, 'Unknown')
+    snowflake_sql: '{{ apply_map(''CountryMap'', "CountryCode", "''Unknown''") }}'
+    review_notes:
+    - ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated.
+  - name: OrderPrefix
+    mapping_type: derived
+    sources:
+    - table: sales_2026
+      column: OrderID
+    business_logic_qlikview: Left(OrderID, 4)
+    snowflake_sql: LEFT(OrderID, 4)
+    review_notes: []
+- table: SalesPY
+  layer: staging
+  load_kind: qvd
+  upstream: lib://DataFiles/qvd/sales_2025.qvd
+  columns:
+  - name: OrderID
+    mapping_type: direct
+    sources:
+    - table: sales_2025
+      column: OrderID
+    business_logic_qlikview: OrderID
+    snowflake_sql: OrderID
+    review_notes: []
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: sales_2025
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: CustomerID
+    mapping_type: direct
+    sources:
+    - table: sales_2025
+      column: CustomerID
+    business_logic_qlikview: CustomerID
+    snowflake_sql: CustomerID
+    review_notes: []
+  - name: CountryCode
+    mapping_type: direct
+    sources:
+    - table: sales_2025
+      column: CountryCode
+    business_logic_qlikview: CountryCode
+    snowflake_sql: CountryCode
+    review_notes: []
+  - name: OrderDate
+    mapping_type: derived
+    sources:
+    - table: sales_2025
+      column: OrderDate
+    business_logic_qlikview: Date(OrderDate, 'YYYY-MM-DD')
+    snowflake_sql: TO_DATE(OrderDate, 'YYYY-MM-DD')
+    review_notes: []
+  - name: Quantity
+    mapping_type: derived
+    sources:
+    - table: sales_2025
+      column: Quantity
+    business_logic_qlikview: Num(Quantity)
+    snowflake_sql: TO_NUMBER(Quantity)
+    review_notes: []
+  - name: GrossAmount
+    mapping_type: derived
+    sources:
+    - table: sales_2025
+      column: GrossAmount
+    business_logic_qlikview: Num(GrossAmount)
+    snowflake_sql: TO_NUMBER(GrossAmount)
+    review_notes: []
+- table: SalesRaw__join4
+  layer: intermediate
+  load_kind: resident
+  upstream: SalesPY
+  columns:
+  - name: '*'
+    mapping_type: constant
+    sources: []
+    business_logic_qlikview: '*'
+    snowflake_sql: '*'
+    review_notes: []
+- table: SalesEnriched
+  layer: intermediate
+  load_kind: resident
+  upstream: SalesRaw
+  columns:
+  - name: OrderID
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: OrderID
+    business_logic_qlikview: OrderID
+    snowflake_sql: OrderID
+    review_notes: []
+  - name: ProductID
+    mapping_type: join
+    sources:
+    - table: products
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: CustomerID
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: CustomerID
+    business_logic_qlikview: CustomerID
+    snowflake_sql: CustomerID
+    review_notes: []
+  - name: Country
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: CountryCode
+    business_logic_qlikview: Country
+    snowflake_sql: Country
+    review_notes: []
+  - name: OrderDate
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: OrderDate
+    business_logic_qlikview: OrderDate
+    snowflake_sql: OrderDate
+    review_notes: []
+  - name: Quantity
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: Quantity
+    business_logic_qlikview: Quantity
+    snowflake_sql: Quantity
+    review_notes: []
+  - name: GrossAmount
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: UnitPrice
+    - table: sales_2026
+      column: Quantity
+    business_logic_qlikview: GrossAmount
+    snowflake_sql: GrossAmount
+    review_notes: []
+- table: SalesEnriched__join6
+  layer: intermediate
+  load_kind: resident
+  upstream: Products
+  columns:
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: products
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: ProductName
+    mapping_type: direct
+    sources:
+    - table: products
+      column: ProductName
+    business_logic_qlikview: ProductName
+    snowflake_sql: ProductName
+    review_notes: []
+  - name: TherapeuticArea
+    mapping_type: direct
+    sources:
+    - table: products
+      column: Therapeutic Area
+    business_logic_qlikview: TherapeuticArea
+    snowflake_sql: TherapeuticArea
+    review_notes: []
+- table: sales_fact
+  layer: mart
+  load_kind: resident
+  upstream: SalesEnriched
+  columns:
+  - name: ProductID
+    mapping_type: direct
+    sources:
+    - table: products
+      column: ProductID
+    business_logic_qlikview: ProductID
+    snowflake_sql: ProductID
+    review_notes: []
+  - name: Country
+    mapping_type: direct
+    sources:
+    - table: sales_2026
+      column: CountryCode
+    business_logic_qlikview: Country
+    snowflake_sql: Country
+    review_notes: []
+  - name: TherapeuticArea
+    mapping_type: direct
+    sources:
+    - table: products
+      column: Therapeutic Area
+    business_logic_qlikview: TherapeuticArea
+    snowflake_sql: TherapeuticArea
+    review_notes: []
+  - name: OrderYear
+    mapping_type: derived
+    sources:
+    - table: sales_2026
+      column: OrderDate
+    business_logic_qlikview: Year(OrderDate)
+    snowflake_sql: YEAR(OrderDate)
+    review_notes: []
+  - name: TotalRevenue
+    mapping_type: aggregate
+    sources:
+    - table: sales_2026
+      column: UnitPrice
+    - table: sales_2026
+      column: Quantity
+    business_logic_qlikview: Sum(GrossAmount)
+    snowflake_sql: SUM(GrossAmount)
+    review_notes: []
+  - name: TotalUnits
+    mapping_type: aggregate
+    sources:
+    - table: sales_2026
+      column: Quantity
+    business_logic_qlikview: Sum(Quantity)
+    snowflake_sql: SUM(Quantity)
+    review_notes: []

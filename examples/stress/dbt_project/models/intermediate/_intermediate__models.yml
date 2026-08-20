@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: int_orders
+    description: >
+      AUTO-MIGRATED. Review notes: Function 'Peek()' requires manual review (no deterministic Snowflake equivalent).
+    columns:
+      - name: OrderID
+      - name: CustomerID
+      - name: ProductID
+      - name: Quantity
+      - name: GrossAmount
+      - name: MaxDiscount
+      - name: PrevOrderRef
+      - name: OrderDate
+      - name: OrderMonth
+  - name: int_orders_join3
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: CustomerID
+      - name: Country
+      - name: CreditLimit

@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: ProductID
+      - name: ProductName
+      - name: TherapeuticArea
+      - name: UnitPrice
+      - name: IsDiscontinued
+  - name: stg_sales_py
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: OrderID
+      - name: ProductID
+      - name: CustomerID
+      - name: CountryCode
+      - name: OrderDate
+      - name: Quantity
+      - name: GrossAmount

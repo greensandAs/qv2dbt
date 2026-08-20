@@ -1,0 +1,2965 @@
+{
+  "script": "Executive Dashboard.qvs",
+  "nodes": {
+    "sources": {
+      "source:accountgroupmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/AccountGroupMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:accountmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/AccountMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:accounts": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/Accounts.qvd",
+        "kind": "qvd"
+      },
+      "source:arsummary_1": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ARSummary-1.qvd",
+        "kind": "qvd"
+      },
+      "source:arsummary": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ARSummary.qvd",
+        "kind": "qvd"
+      },
+      "source:budget": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/Budget.qvd",
+        "kind": "qvd"
+      },
+      "source:calendar_2024": {
+        "role": "source",
+        "locator": "lib://DataFiles/Calendar_2024.qvd",
+        "kind": "qvd"
+      },
+      "source:channelmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ChannelMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:customeraddressmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/CustomerAddressMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:customermap": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/CustomerMap.qvd",
+        "kind": "qvd"
+      },
+      "source:customermaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/CustomerMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:expenses": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/Expenses.qvd",
+        "kind": "qvd"
+      },
+      "source:facttable": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/FactTable.qvd",
+        "kind": "qvd"
+      },
+      "source:historyflag": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/HistoryFlag.qvd",
+        "kind": "qvd"
+      },
+      "source:inventorybalances": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/InventoryBalances.qvd",
+        "kind": "qvd"
+      },
+      "source:itembranchmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ItemBranchMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:itemmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ItemMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:productgroupmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ProductGroupMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:productsubgroupmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ProductSubGroupMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:producttypemaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/ProductTypeMaster.qvd",
+        "kind": "qvd"
+      },
+      "source:salesrepmaster": {
+        "role": "source",
+        "locator": "lib://Executive Dashboard:DataFiles/SalesRepMaster.qvd",
+        "kind": "qvd"
+      }
+    },
+    "tables": {
+      "AccountGroupMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "AccountMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "Accounts": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ARSummary-1": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ARSummary": {
+        "role": "mart",
+        "layer": "mart",
+        "kind": "qvd"
+      },
+      "Budget": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "Calendar": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ChannelMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "CustomerAddressMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "CustomerMap": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "CustomerMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "Expenses": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "FactTable Init": {
+        "role": "mart",
+        "layer": "mart",
+        "kind": "qvd"
+      },
+      "FactTable": {
+        "role": "mart",
+        "layer": "mart",
+        "kind": "resident"
+      },
+      "HistoryFlag": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "InventoryBalances": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ItemBranchMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ItemMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ProductGroupMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ProductSubGroupMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "ProductTypeMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "SalesRepMaster": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "table_23": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      }
+    }
+  },
+  "table_edges": [
+    {
+      "from": "FactTable Init",
+      "to": "FactTable"
+    },
+    {
+      "from": "source:accountgroupmaster",
+      "to": "AccountGroupMaster"
+    },
+    {
+      "from": "source:accountgroupmaster",
+      "to": "table_23"
+    },
+    {
+      "from": "source:accountmaster",
+      "to": "AccountMaster"
+    },
+    {
+      "from": "source:accounts",
+      "to": "Accounts"
+    },
+    {
+      "from": "source:arsummary",
+      "to": "ARSummary"
+    },
+    {
+      "from": "source:arsummary_1",
+      "to": "ARSummary-1"
+    },
+    {
+      "from": "source:budget",
+      "to": "Budget"
+    },
+    {
+      "from": "source:calendar_2024",
+      "to": "Calendar"
+    },
+    {
+      "from": "source:channelmaster",
+      "to": "ChannelMaster"
+    },
+    {
+      "from": "source:customeraddressmaster",
+      "to": "CustomerAddressMaster"
+    },
+    {
+      "from": "source:customermap",
+      "to": "CustomerMap"
+    },
+    {
+      "from": "source:customermaster",
+      "to": "CustomerMaster"
+    },
+    {
+      "from": "source:expenses",
+      "to": "Expenses"
+    },
+    {
+      "from": "source:facttable",
+      "to": "FactTable Init"
+    },
+    {
+      "from": "source:historyflag",
+      "to": "HistoryFlag"
+    },
+    {
+      "from": "source:inventorybalances",
+      "to": "InventoryBalances"
+    },
+    {
+      "from": "source:itembranchmaster",
+      "to": "ItemBranchMaster"
+    },
+    {
+      "from": "source:itemmaster",
+      "to": "ItemMaster"
+    },
+    {
+      "from": "source:productgroupmaster",
+      "to": "ProductGroupMaster"
+    },
+    {
+      "from": "source:productsubgroupmaster",
+      "to": "ProductSubGroupMaster"
+    },
+    {
+      "from": "source:producttypemaster",
+      "to": "ProductTypeMaster"
+    },
+    {
+      "from": "source:salesrepmaster",
+      "to": "SalesRepMaster"
+    }
+  ],
+  "columns": [
+    {
+      "table": "AccountGroupMaster",
+      "column": "AccountGroup",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accountgroupmaster",
+          "column": "AccountGroup",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accountgroupmaster",
+          "column": "AccountGroup"
+        }
+      ],
+      "qlikview": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "notes": []
+    },
+    {
+      "table": "AccountGroupMaster",
+      "column": "AccountGroupDesc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accountgroupmaster",
+          "column": "AccountGroupDesc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accountgroupmaster",
+          "column": "AccountGroupDesc"
+        }
+      ],
+      "qlikview": "AccountGroupDesc",
+      "snowflake": "AccountGroupDesc",
+      "notes": []
+    },
+    {
+      "table": "AccountMaster",
+      "column": "Account",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accountmaster",
+          "column": "Account",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accountmaster",
+          "column": "Account"
+        }
+      ],
+      "qlikview": "Account",
+      "snowflake": "Account",
+      "notes": []
+    },
+    {
+      "table": "AccountMaster",
+      "column": "AccountGroup",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accountmaster",
+          "column": "AccountGroup",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accountmaster",
+          "column": "AccountGroup"
+        }
+      ],
+      "qlikview": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "notes": []
+    },
+    {
+      "table": "Accounts",
+      "column": "Account",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accounts",
+          "column": "Account",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accounts",
+          "column": "Account"
+        }
+      ],
+      "qlikview": "Account",
+      "snowflake": "Account",
+      "notes": []
+    },
+    {
+      "table": "Accounts",
+      "column": "AccountDesc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accounts",
+          "column": "AccountDesc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accounts",
+          "column": "AccountDesc"
+        }
+      ],
+      "qlikview": "AccountDesc",
+      "snowflake": "AccountDesc",
+      "notes": []
+    },
+    {
+      "table": "ARSummary-1",
+      "column": "CustKeyAR",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary_1",
+          "column": "CustKeyAR",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary_1",
+          "column": "CustKeyAR"
+        }
+      ],
+      "qlikview": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "notes": []
+    },
+    {
+      "table": "ARSummary-1",
+      "column": "ARAge",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary_1",
+          "column": "ARAge",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary_1",
+          "column": "ARAge"
+        }
+      ],
+      "qlikview": "ARAge",
+      "snowflake": "ARAge",
+      "notes": []
+    },
+    {
+      "table": "ARSummary-1",
+      "column": "ARAgeBal",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary_1",
+          "column": "ARAgeBal",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary_1",
+          "column": "ARAgeBal"
+        }
+      ],
+      "qlikview": "ARAgeBal",
+      "snowflake": "ARAgeBal",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "CustKeyAR",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "CustKeyAR",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "CustKeyAR"
+        }
+      ],
+      "qlikview": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "ARGross",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "ARGross",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "ARGross"
+        }
+      ],
+      "qlikview": "ARGross",
+      "snowflake": "ARGross",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "AROpen",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "AROpen",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "AROpen"
+        }
+      ],
+      "qlikview": "AROpen",
+      "snowflake": "AROpen",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "ARCurrent",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "ARCurrent",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "ARCurrent"
+        }
+      ],
+      "qlikview": "ARCurrent",
+      "snowflake": "ARCurrent",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "AR1-30",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "AR1-30",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "AR1-30"
+        }
+      ],
+      "qlikview": "\"AR1-30\"",
+      "snowflake": "\"AR1-30\"",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "AR31-60",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "AR31-60",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "AR31-60"
+        }
+      ],
+      "qlikview": "\"AR31-60\"",
+      "snowflake": "\"AR31-60\"",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "AR60+",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "AR60+",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "AR60+"
+        }
+      ],
+      "qlikview": "\"AR60+\"",
+      "snowflake": "\"AR60+\"",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "ARCredit",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "ARCredit",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "ARCredit"
+        }
+      ],
+      "qlikview": "ARCredit",
+      "snowflake": "ARCredit",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "ARSalesPerDay",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "ARSalesPerDay",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "ARSalesPerDay"
+        }
+      ],
+      "qlikview": "ARSalesPerDay",
+      "snowflake": "ARSalesPerDay",
+      "notes": []
+    },
+    {
+      "table": "ARSummary",
+      "column": "ARAvgBal",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:arsummary",
+          "column": "ARAvgBal",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "arsummary",
+          "column": "ARAvgBal"
+        }
+      ],
+      "qlikview": "ARAvgBal",
+      "snowflake": "ARAvgBal",
+      "notes": []
+    },
+    {
+      "table": "Budget",
+      "column": "MonthlyRegionKey",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:budget",
+          "column": "MonthlyRegionKey",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "budget",
+          "column": "MonthlyRegionKey"
+        }
+      ],
+      "qlikview": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "notes": []
+    },
+    {
+      "table": "Budget",
+      "column": "Budget Amount",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:budget",
+          "column": "Budget Amount",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "budget",
+          "column": "Budget Amount"
+        }
+      ],
+      "qlikview": "\"Budget Amount\"",
+      "snowflake": "\"Budget Amount\"",
+      "notes": []
+    },
+    {
+      "table": "Calendar",
+      "column": "Fiscal Quarter",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:calendar_2024",
+          "column": "Fiscal Quarter",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "calendar_2024",
+          "column": "Fiscal Quarter"
+        }
+      ],
+      "qlikview": "\"Fiscal Quarter\"",
+      "snowflake": "\"Fiscal Quarter\"",
+      "notes": []
+    },
+    {
+      "table": "Calendar",
+      "column": "FiscalMonthNum",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:calendar_2024",
+          "column": "FiscalMonthNum",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "calendar_2024",
+          "column": "FiscalMonthNum"
+        }
+      ],
+      "qlikview": "FiscalMonthNum",
+      "snowflake": "FiscalMonthNum",
+      "notes": []
+    },
+    {
+      "table": "Calendar",
+      "column": "Fiscal Year",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:calendar_2024",
+          "column": "Fiscal Year",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "calendar_2024",
+          "column": "Fiscal Year"
+        }
+      ],
+      "qlikview": "\"Fiscal Year\"",
+      "snowflake": "\"Fiscal Year\"",
+      "notes": []
+    },
+    {
+      "table": "Calendar",
+      "column": "FiscalMonth",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:calendar_2024",
+          "column": "FiscalMonth",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "calendar_2024",
+          "column": "FiscalMonth"
+        }
+      ],
+      "qlikview": "FiscalMonth",
+      "snowflake": "FiscalMonth",
+      "notes": []
+    },
+    {
+      "table": "Calendar",
+      "column": "FiscalRollQt",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:calendar_2024",
+          "column": "FiscalRollQt",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "calendar_2024",
+          "column": "FiscalRollQt"
+        }
+      ],
+      "qlikview": "FiscalRollQt",
+      "snowflake": "FiscalRollQt",
+      "notes": []
+    },
+    {
+      "table": "Calendar",
+      "column": "YYYYMM",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:calendar_2024",
+          "column": "YYYYMM",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "calendar_2024",
+          "column": "YYYYMM"
+        }
+      ],
+      "qlikview": "YYYYMM",
+      "snowflake": "YYYYMM",
+      "notes": []
+    },
+    {
+      "table": "ChannelMaster",
+      "column": "Segment",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:channelmaster",
+          "column": "Segment",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "channelmaster",
+          "column": "Segment"
+        }
+      ],
+      "qlikview": "Segment",
+      "snowflake": "Segment",
+      "notes": []
+    },
+    {
+      "table": "ChannelMaster",
+      "column": "SegmentDesc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:channelmaster",
+          "column": "SegmentDesc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "channelmaster",
+          "column": "SegmentDesc"
+        }
+      ],
+      "qlikview": "SegmentDesc",
+      "snowflake": "SegmentDesc",
+      "notes": []
+    },
+    {
+      "table": "ChannelMaster",
+      "column": "SegmentGroup",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:channelmaster",
+          "column": "SegmentGroup",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "channelmaster",
+          "column": "SegmentGroup"
+        }
+      ],
+      "qlikview": "SegmentGroup",
+      "snowflake": "SegmentGroup",
+      "notes": []
+    },
+    {
+      "table": "CustomerAddressMaster",
+      "column": "Address Number",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customeraddressmaster",
+          "column": "Address Number",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customeraddressmaster",
+          "column": "Address Number"
+        }
+      ],
+      "qlikview": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerAddressMaster",
+      "column": "Customer Address 1",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customeraddressmaster",
+          "column": "Customer Address 1",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customeraddressmaster",
+          "column": "Customer Address 1"
+        }
+      ],
+      "qlikview": "\"Customer Address 1\"",
+      "snowflake": "\"Customer Address 1\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerAddressMaster",
+      "column": "Zip Code",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customeraddressmaster",
+          "column": "Zip Code",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customeraddressmaster",
+          "column": "Zip Code"
+        }
+      ],
+      "qlikview": "\"Zip Code\"",
+      "snowflake": "\"Zip Code\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMap",
+      "column": "CustKey",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermap",
+          "column": "CustKey",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermap",
+          "column": "CustKey"
+        }
+      ],
+      "qlikview": "CustKey",
+      "snowflake": "CustKey",
+      "notes": []
+    },
+    {
+      "table": "CustomerMap",
+      "column": "CustKeyAR",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermap",
+          "column": "CustKeyAR",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermap",
+          "column": "CustKeyAR"
+        }
+      ],
+      "qlikview": "CustKeyAR",
+      "snowflake": "CustKeyAR",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Address Number",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Address Number",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Address Number"
+        }
+      ],
+      "qlikview": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Business Family",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Business Family",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Business Family"
+        }
+      ],
+      "qlikview": "\"Business Family\"",
+      "snowflake": "\"Business Family\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Segment",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Segment",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Segment"
+        }
+      ],
+      "qlikview": "Segment",
+      "snowflake": "Segment",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Customer",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Customer",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Customer"
+        }
+      ],
+      "qlikview": "Customer",
+      "snowflake": "Customer",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Customer Number",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Customer Number",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Customer Number"
+        }
+      ],
+      "qlikview": "\"Customer Number\"",
+      "snowflake": "\"Customer Number\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Customer Type",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Customer Type",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Customer Type"
+        }
+      ],
+      "qlikview": "\"Customer Type\"",
+      "snowflake": "\"Customer Type\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Distribution Channel Mgr",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Distribution Channel Mgr",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Distribution Channel Mgr"
+        }
+      ],
+      "qlikview": "\"Distribution Channel Mgr\"",
+      "snowflake": "\"Distribution Channel Mgr\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Division",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Division",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Division"
+        }
+      ],
+      "qlikview": "Division",
+      "snowflake": "Division",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Phone",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Phone",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Phone"
+        }
+      ],
+      "qlikview": "Phone",
+      "snowflake": "Phone",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Region Code",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Region Code",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Region Code"
+        }
+      ],
+      "qlikview": "\"Region Code\"",
+      "snowflake": "\"Region Code\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Regional Sales Mgr",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Regional Sales Mgr",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Regional Sales Mgr"
+        }
+      ],
+      "qlikview": "\"Regional Sales Mgr\"",
+      "snowflake": "\"Regional Sales Mgr\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Zone Mgr",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Zone Mgr",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Zone Mgr"
+        }
+      ],
+      "qlikview": "\"Zone Mgr\"",
+      "snowflake": "\"Zone Mgr\"",
+      "notes": []
+    },
+    {
+      "table": "CustomerMaster",
+      "column": "Sales Rep",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customermaster",
+          "column": "Sales Rep",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customermaster",
+          "column": "Sales Rep"
+        }
+      ],
+      "qlikview": "\"Sales Rep\"",
+      "snowflake": "\"Sales Rep\"",
+      "notes": []
+    },
+    {
+      "table": "Expenses",
+      "column": "MonthlyRegionKey",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:expenses",
+          "column": "MonthlyRegionKey",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "expenses",
+          "column": "MonthlyRegionKey"
+        }
+      ],
+      "qlikview": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "notes": []
+    },
+    {
+      "table": "Expenses",
+      "column": "Account",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:expenses",
+          "column": "Account",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "expenses",
+          "column": "Account"
+        }
+      ],
+      "qlikview": "Account",
+      "snowflake": "Account",
+      "notes": []
+    },
+    {
+      "table": "Expenses",
+      "column": "ExpenseActual",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:expenses",
+          "column": "ExpenseActual",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "expenses",
+          "column": "ExpenseActual"
+        }
+      ],
+      "qlikview": "ExpenseActual",
+      "snowflake": "ExpenseActual",
+      "notes": []
+    },
+    {
+      "table": "Expenses",
+      "column": "ExpenseBudget",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:expenses",
+          "column": "ExpenseBudget",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "expenses",
+          "column": "ExpenseBudget"
+        }
+      ],
+      "qlikview": "ExpenseBudget",
+      "snowflake": "ExpenseBudget",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "MonthlyRegionKey",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "MonthlyRegionKey",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "MonthlyRegionKey"
+        }
+      ],
+      "qlikview": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Region",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Region",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Region"
+        }
+      ],
+      "qlikview": "Region",
+      "snowflake": "Region",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Address Number",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Address Number",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Address Number"
+        }
+      ],
+      "qlikview": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "CustKey",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "CustKey",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "CustKey"
+        }
+      ],
+      "qlikview": "CustKey",
+      "snowflake": "CustKey",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Invoice Number",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Invoice Number",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Invoice Number"
+        }
+      ],
+      "qlikview": "\"Invoice Number\"",
+      "snowflake": "\"Invoice Number\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Item-Branch Key",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Item-Branch Key",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Item-Branch Key"
+        }
+      ],
+      "qlikview": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Late Shipment",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Late Shipment",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Late Shipment"
+        }
+      ],
+      "qlikview": "\"Late Shipment\"",
+      "snowflake": "\"Late Shipment\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Line Desc 1",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Line Desc 1",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Line Desc 1"
+        }
+      ],
+      "qlikview": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Open Order Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Open Order Amount",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Open Order Amount"
+        }
+      ],
+      "qlikview": "\"Open Order Amount\"",
+      "snowflake": "\"Open Order Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Order Number",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Order Number",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Order Number"
+        }
+      ],
+      "qlikview": "\"Order Number\"",
+      "snowflake": "\"Order Number\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Order Status",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Order Status",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Order Status"
+        }
+      ],
+      "qlikview": "\"Order Status\"",
+      "snowflake": "\"Order Status\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "OrderDate",
+      "layer": "mart",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "OrderDate",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "OrderDate"
+        }
+      ],
+      "qlikview": "Addmonths(OrderDate,9)",
+      "snowflake": "DATEADD('MONTH', 9, OrderDate)",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "OrderID",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "OrderID",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "OrderID"
+        }
+      ],
+      "qlikview": "OrderID",
+      "snowflake": "OrderID",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "OrderStat",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "OrderStat",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "OrderStat"
+        }
+      ],
+      "qlikview": "OrderStat",
+      "snowflake": "OrderStat",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Promised Delivery Date",
+      "layer": "mart",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Promised Delivery Date",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Promised Delivery Date"
+        }
+      ],
+      "qlikview": "Addmonths(\"Promised Delivery Date\", 9)",
+      "snowflake": "DATEADD('MONTH', 9, \"Promised Delivery Date\")",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Sales Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Sales Amount",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Amount"
+        }
+      ],
+      "qlikview": "\"Sales Amount\"",
+      "snowflake": "\"Sales Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Sales Cost Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Sales Cost Amount",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Cost Amount"
+        }
+      ],
+      "qlikview": "\"Sales Cost Amount\"",
+      "snowflake": "\"Sales Cost Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Sales Margin Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Sales Margin Amount",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Margin Amount"
+        }
+      ],
+      "qlikview": "\"Sales Margin Amount\"",
+      "snowflake": "\"Sales Margin Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Sales Price",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Sales Price",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Price"
+        }
+      ],
+      "qlikview": "\"Sales Price\"",
+      "snowflake": "\"Sales Price\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Sales Quantity",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Sales Quantity",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Quantity"
+        }
+      ],
+      "qlikview": "\"Sales Quantity\"",
+      "snowflake": "\"Sales Quantity\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "Ship To",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "Ship To",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Ship To"
+        }
+      ],
+      "qlikview": "\"Ship To\"",
+      "snowflake": "\"Ship To\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable Init",
+      "column": "YYYYMM",
+      "layer": "mart",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:facttable",
+          "column": "YYYYMM",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "YYYYMM"
+        }
+      ],
+      "qlikview": "Addmonths(YYYYMM, 9)",
+      "snowflake": "DATEADD('MONTH', 9, YYYYMM)",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "MonthlyRegionKey",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "MonthlyRegionKey",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "MonthlyRegionKey"
+        }
+      ],
+      "qlikview": "MonthlyRegionKey",
+      "snowflake": "MonthlyRegionKey",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Region",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Region",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Region"
+        }
+      ],
+      "qlikview": "Region",
+      "snowflake": "Region",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Address Number",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Address Number",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Address Number"
+        }
+      ],
+      "qlikview": "\"Address Number\"",
+      "snowflake": "\"Address Number\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "CustKey",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "CustKey",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "CustKey"
+        }
+      ],
+      "qlikview": "CustKey",
+      "snowflake": "CustKey",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Invoice Number",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Invoice Number",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Invoice Number"
+        }
+      ],
+      "qlikview": "\"Invoice Number\"",
+      "snowflake": "\"Invoice Number\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Item-Branch Key",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Item-Branch Key",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Item-Branch Key"
+        }
+      ],
+      "qlikview": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Late Shipment",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Late Shipment",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Late Shipment"
+        }
+      ],
+      "qlikview": "\"Late Shipment\"",
+      "snowflake": "\"Late Shipment\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Line Desc 1",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Line Desc 1",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Line Desc 1"
+        }
+      ],
+      "qlikview": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Open Order Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Open Order Amount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Open Order Amount"
+        }
+      ],
+      "qlikview": "\"Open Order Amount\"",
+      "snowflake": "\"Open Order Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Order Number",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Order Number",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Order Number"
+        }
+      ],
+      "qlikview": "\"Order Number\"",
+      "snowflake": "\"Order Number\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Order Status",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Order Status",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Order Status"
+        }
+      ],
+      "qlikview": "\"Order Status\"",
+      "snowflake": "\"Order Status\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "OrderDate",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "OrderDate",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "OrderDate"
+        }
+      ],
+      "qlikview": "OrderDate",
+      "snowflake": "OrderDate",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "OrderID",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "OrderID",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "OrderID"
+        }
+      ],
+      "qlikview": "OrderID",
+      "snowflake": "OrderID",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "OrderStat",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "OrderStat",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "OrderStat"
+        }
+      ],
+      "qlikview": "OrderStat",
+      "snowflake": "OrderStat",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Promised Delivery Date",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Promised Delivery Date",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Promised Delivery Date"
+        }
+      ],
+      "qlikview": "\"Promised Delivery Date\"",
+      "snowflake": "\"Promised Delivery Date\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Sales Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Sales Amount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Amount"
+        }
+      ],
+      "qlikview": "\"Sales Amount\"",
+      "snowflake": "\"Sales Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Sales Cost Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Sales Cost Amount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Cost Amount"
+        }
+      ],
+      "qlikview": "\"Sales Cost Amount\"",
+      "snowflake": "\"Sales Cost Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Sales Margin Amount",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Sales Margin Amount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Margin Amount"
+        }
+      ],
+      "qlikview": "\"Sales Margin Amount\"",
+      "snowflake": "\"Sales Margin Amount\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Sales Price",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Sales Price",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Price"
+        }
+      ],
+      "qlikview": "\"Sales Price\"",
+      "snowflake": "\"Sales Price\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Sales Quantity",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Sales Quantity",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Sales Quantity"
+        }
+      ],
+      "qlikview": "\"Sales Quantity\"",
+      "snowflake": "\"Sales Quantity\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "Ship To",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "Ship To",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "Ship To"
+        }
+      ],
+      "qlikview": "\"Ship To\"",
+      "snowflake": "\"Ship To\"",
+      "notes": []
+    },
+    {
+      "table": "FactTable",
+      "column": "YYYYMM",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "FactTable Init",
+          "column": "YYYYMM",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "facttable",
+          "column": "YYYYMM"
+        }
+      ],
+      "qlikview": "YYYYMM",
+      "snowflake": "YYYYMM",
+      "notes": []
+    },
+    {
+      "table": "HistoryFlag",
+      "column": "YYYYMM",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:historyflag",
+          "column": "YYYYMM",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "historyflag",
+          "column": "YYYYMM"
+        }
+      ],
+      "qlikview": "Addmonths(YYYYMM,9)",
+      "snowflake": "DATEADD('MONTH', 9, YYYYMM)",
+      "notes": []
+    },
+    {
+      "table": "HistoryFlag",
+      "column": "_HistoryFlag",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:historyflag",
+          "column": "_HistoryFlag",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "historyflag",
+          "column": "_HistoryFlag"
+        }
+      ],
+      "qlikview": "_HistoryFlag",
+      "snowflake": "_HistoryFlag",
+      "notes": []
+    },
+    {
+      "table": "InventoryBalances",
+      "column": "Line Desc 1",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:inventorybalances",
+          "column": "Line Desc 1",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "inventorybalances",
+          "column": "Line Desc 1"
+        }
+      ],
+      "qlikview": "\"Line Desc 1\"",
+      "snowflake": "\"Line Desc 1\"",
+      "notes": []
+    },
+    {
+      "table": "InventoryBalances",
+      "column": "ClassTurns",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:inventorybalances",
+          "column": "ClassTurns",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "inventorybalances",
+          "column": "ClassTurns"
+        }
+      ],
+      "qlikview": "ClassTurns",
+      "snowflake": "ClassTurns",
+      "notes": []
+    },
+    {
+      "table": "InventoryBalances",
+      "column": "ThroughputQty",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:inventorybalances",
+          "column": "ThroughputQty",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "inventorybalances",
+          "column": "ThroughputQty"
+        }
+      ],
+      "qlikview": "ThroughputQty",
+      "snowflake": "ThroughputQty",
+      "notes": []
+    },
+    {
+      "table": "InventoryBalances",
+      "column": "CostPrice",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:inventorybalances",
+          "column": "CostPrice",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "inventorybalances",
+          "column": "CostPrice"
+        }
+      ],
+      "qlikview": "CostPrice",
+      "snowflake": "CostPrice",
+      "notes": []
+    },
+    {
+      "table": "InventoryBalances",
+      "column": "StockOH",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:inventorybalances",
+          "column": "StockOH",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "inventorybalances",
+          "column": "StockOH"
+        }
+      ],
+      "qlikview": "StockOH",
+      "snowflake": "StockOH",
+      "notes": []
+    },
+    {
+      "table": "ItemBranchMaster",
+      "column": "Item-Branch Key",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itembranchmaster",
+          "column": "Item-Branch Key",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itembranchmaster",
+          "column": "Item-Branch Key"
+        }
+      ],
+      "qlikview": "\"Item-Branch Key\"",
+      "snowflake": "\"Item-Branch Key\"",
+      "notes": []
+    },
+    {
+      "table": "ItemBranchMaster",
+      "column": "Short Name",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itembranchmaster",
+          "column": "Short Name",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itembranchmaster",
+          "column": "Short Name"
+        }
+      ],
+      "qlikview": "\"Short Name\"",
+      "snowflake": "\"Short Name\"",
+      "notes": []
+    },
+    {
+      "table": "ItemMaster",
+      "column": "Product Group",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itemmaster",
+          "column": "Product Group",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itemmaster",
+          "column": "Product Group"
+        }
+      ],
+      "qlikview": "\"Product Group\"",
+      "snowflake": "\"Product Group\"",
+      "notes": []
+    },
+    {
+      "table": "ItemMaster",
+      "column": "Product Line",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itemmaster",
+          "column": "Product Line",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itemmaster",
+          "column": "Product Line"
+        }
+      ],
+      "qlikview": "\"Product Line\"",
+      "snowflake": "\"Product Line\"",
+      "notes": []
+    },
+    {
+      "table": "ItemMaster",
+      "column": "Product Sub Group",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itemmaster",
+          "column": "Product Sub Group",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itemmaster",
+          "column": "Product Sub Group"
+        }
+      ],
+      "qlikview": "\"Product Sub Group\"",
+      "snowflake": "\"Product Sub Group\"",
+      "notes": []
+    },
+    {
+      "table": "ItemMaster",
+      "column": "Product Type",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itemmaster",
+          "column": "Product Type",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itemmaster",
+          "column": "Product Type"
+        }
+      ],
+      "qlikview": "\"Product Type\"",
+      "snowflake": "\"Product Type\"",
+      "notes": []
+    },
+    {
+      "table": "ItemMaster",
+      "column": "Short Name",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:itemmaster",
+          "column": "Short Name",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "itemmaster",
+          "column": "Short Name"
+        }
+      ],
+      "qlikview": "\"Short Name\"",
+      "snowflake": "\"Short Name\"",
+      "notes": []
+    },
+    {
+      "table": "ProductGroupMaster",
+      "column": "Product Group",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:productgroupmaster",
+          "column": "Product Group",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "productgroupmaster",
+          "column": "Product Group"
+        }
+      ],
+      "qlikview": "\"Product Group\"",
+      "snowflake": "\"Product Group\"",
+      "notes": []
+    },
+    {
+      "table": "ProductGroupMaster",
+      "column": "Product Group Desc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:productgroupmaster",
+          "column": "Product Group Desc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "productgroupmaster",
+          "column": "Product Group Desc"
+        }
+      ],
+      "qlikview": "\"Product Group Desc\"",
+      "snowflake": "\"Product Group Desc\"",
+      "notes": []
+    },
+    {
+      "table": "ProductSubGroupMaster",
+      "column": "Product Sub Group",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:productsubgroupmaster",
+          "column": "Product Sub Group",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "productsubgroupmaster",
+          "column": "Product Sub Group"
+        }
+      ],
+      "qlikview": "\"Product Sub Group\"",
+      "snowflake": "\"Product Sub Group\"",
+      "notes": []
+    },
+    {
+      "table": "ProductSubGroupMaster",
+      "column": "Product Sub Group Desc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:productsubgroupmaster",
+          "column": "Product Sub Group Desc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "productsubgroupmaster",
+          "column": "Product Sub Group Desc"
+        }
+      ],
+      "qlikview": "\"Product Sub Group Desc\"",
+      "snowflake": "\"Product Sub Group Desc\"",
+      "notes": []
+    },
+    {
+      "table": "ProductTypeMaster",
+      "column": "Product Type",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:producttypemaster",
+          "column": "Product Type",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "producttypemaster",
+          "column": "Product Type"
+        }
+      ],
+      "qlikview": "\"Product Type\"",
+      "snowflake": "\"Product Type\"",
+      "notes": []
+    },
+    {
+      "table": "ProductTypeMaster",
+      "column": "Product Type Desc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:producttypemaster",
+          "column": "Product Type Desc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "producttypemaster",
+          "column": "Product Type Desc"
+        }
+      ],
+      "qlikview": "\"Product Type Desc\"",
+      "snowflake": "\"Product Type Desc\"",
+      "notes": []
+    },
+    {
+      "table": "SalesRepMaster",
+      "column": "Sales Rep",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:salesrepmaster",
+          "column": "Sales Rep",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "salesrepmaster",
+          "column": "Sales Rep"
+        }
+      ],
+      "qlikview": "\"Sales Rep\"",
+      "snowflake": "\"Sales Rep\"",
+      "notes": []
+    },
+    {
+      "table": "SalesRepMaster",
+      "column": "Sales Rep Name",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:salesrepmaster",
+          "column": "Sales Rep Name",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "salesrepmaster",
+          "column": "Sales Rep Name"
+        }
+      ],
+      "qlikview": "\"Sales Rep Name\"",
+      "snowflake": "\"Sales Rep Name\"",
+      "notes": []
+    },
+    {
+      "table": "table_23",
+      "column": "AccountGroup",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accountgroupmaster",
+          "column": "AccountGroup",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accountgroupmaster",
+          "column": "AccountGroup"
+        }
+      ],
+      "qlikview": "AccountGroup",
+      "snowflake": "AccountGroup",
+      "notes": []
+    },
+    {
+      "table": "table_23",
+      "column": "AccountGroupDesc",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:accountgroupmaster",
+          "column": "AccountGroupDesc",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "accountgroupmaster",
+          "column": "AccountGroupDesc"
+        }
+      ],
+      "qlikview": "AccountGroupDesc",
+      "snowflake": "AccountGroupDesc",
+      "notes": []
+    }
+  ]
+}

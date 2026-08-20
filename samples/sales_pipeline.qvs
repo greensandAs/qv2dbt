@@ -1,0 +1,92 @@
+///$tab Sales Pipeline
+// -----------------------------------------------------------------------------
+// Representative QlikView load script (Lundbeck-style sales ETL).
+// Exercises: SET/LET vars, QVD & CSV loads, MAPPING LOAD + ApplyMap,
+// RESIDENT, LEFT JOIN, CONCATENATE, aggregating LOAD, and a fact/dim marts.
+// -----------------------------------------------------------------------------
+
+SET vQVDPath = 'lib://DataFiles/qvd/';
+LET vToday = Today();
+
+/* -------- Mapping table: country code -> country name -------- */
+CountryMap:
+MAPPING LOAD
+    CountryCode,
+    CountryName
+FROM [$(vQVDPath)country_ref.qvd] (qvd);
+
+/* -------- Product dimension from a QVD -------- */
+Products:
+LOAD
+    ProductID,
+    ProductName,
+    [Therapeutic Area]              as TherapeuticArea,
+    Num(UnitPrice)                  as UnitPrice,
+    if(Discontinued = 1, 'Y', 'N')  as IsDiscontinued
+FROM [$(vQVDPath)products.qvd] (qvd);
+
+/* -------- Raw sales transactions from a CSV -------- */
+SalesRaw:
+LOAD
+    OrderID,
+    ProductID,
+    CustomerID,
+    CountryCode,
+    Date(OrderDate, 'YYYY-MM-DD')                    as OrderDate,
+    Num(Quantity)                                    as Quantity,
+    Num(UnitPrice) * Num(Quantity)                   as GrossAmount,
+    ApplyMap('CountryMap', CountryCode, 'Unknown')   as Country,
+    Left(OrderID, 4)                                 as OrderPrefix
+FROM [lib://DataFiles/csv/sales_2026.csv]
+(txt, utf8, embedded labels, delimiter is ',')
+WHERE Len(OrderID) > 0;
+
+/* -------- Prior-year sales concatenated in -------- */
+SalesPY:
+LOAD
+    OrderID,
+    ProductID,
+    CustomerID,
+    CountryCode,
+    Date(OrderDate, 'YYYY-MM-DD')   as OrderDate,
+    Num(Quantity)                   as Quantity,
+    Num(GrossAmount)                as GrossAmount
+FROM [$(vQVDPath)sales_2025.qvd] (qvd);
+
+Concatenate (SalesRaw)
+LOAD * RESIDENT SalesPY;
+
+DROP TABLE SalesPY;
+
+/* -------- Enrich sales with product attributes (auto-join on ProductID) -- */
+SalesEnriched:
+LOAD
+    OrderID,
+    ProductID,
+    CustomerID,
+    Country,
+    OrderDate,
+    Quantity,
+    GrossAmount
+RESIDENT SalesRaw;
+
+LEFT JOIN (SalesEnriched)
+LOAD
+    ProductID,
+    ProductName,
+    TherapeuticArea
+RESIDENT Products;
+
+/* -------- Aggregated sales fact (marts layer via *_fact pattern) -------- */
+sales_fact:
+LOAD
+    ProductID,
+    Country,
+    TherapeuticArea,
+    Year(OrderDate)     as OrderYear,
+    Sum(GrossAmount)    as TotalRevenue,
+    Sum(Quantity)       as TotalUnits
+RESIDENT SalesEnriched
+GROUP BY ProductID, Country, TherapeuticArea, Year(OrderDate);
+
+STORE sales_fact INTO [$(vQVDPath)sales_fact.qvd] (qvd);

@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: mart_sales_fact
+    description: >
+      AUTO-MIGRATED. Review notes: Aggregating LOAD (GROUP BY) - verify aggregate expressions.
+    columns:
+      - name: ProductID
+      - name: Country
+      - name: TherapeuticArea
+      - name: OrderYear
+      - name: TotalRevenue
+      - name: TotalUnits

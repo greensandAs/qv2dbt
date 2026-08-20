@@ -1,0 +1,167 @@
+version: 2
+
+models:
+  - name: stg_account_group_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: AccountGroup
+      - name: AccountGroupDesc
+  - name: stg_account_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Account
+      - name: AccountGroup
+  - name: stg_accounts
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Account
+      - name: AccountDesc
+  - name: stg_arsummary_1
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: CustKeyAR
+      - name: ARAge
+      - name: ARAgeBal
+  - name: stg_arsummary
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: CustKeyAR
+      - name: ARGross
+      - name: AROpen
+      - name: ARCurrent
+      - name: AR1-30
+      - name: AR31-60
+      - name: AR60+
+      - name: ARCredit
+      - name: ARSalesPerDay
+      - name: ARAvgBal
+  - name: stg_budget
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: MonthlyRegionKey
+      - name: Budget Amount
+  - name: stg_calendar
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Fiscal Quarter
+      - name: FiscalMonthNum
+      - name: Fiscal Year
+      - name: FiscalMonth
+      - name: FiscalRollQt
+      - name: YYYYMM
+  - name: stg_channel_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Segment
+      - name: SegmentDesc
+      - name: SegmentGroup
+  - name: stg_customer_address_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Address Number
+      - name: Customer Address 1
+      - name: Zip Code
+  - name: stg_customer_map
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: CustKey
+      - name: CustKeyAR
+  - name: stg_customer_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Address Number
+      - name: Business Family
+      - name: Segment
+      - name: Customer
+      - name: Customer Number
+      - name: Customer Type
+      - name: Distribution Channel Mgr
+      - name: Division
+      - name: Phone
+      - name: Region Code
+      - name: Regional Sales Mgr
+      - name: Zone Mgr
+      - name: Sales Rep
+  - name: stg_expenses
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: MonthlyRegionKey
+      - name: Account
+      - name: ExpenseActual
+      - name: ExpenseBudget
+  - name: stg_fact_table_init
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: MonthlyRegionKey
+      - name: Region
+      - name: Address Number
+      - name: CustKey
+      - name: Invoice Number
+      - name: Item-Branch Key
+      - name: Late Shipment
+      - name: Line Desc 1
+      - name: Open Order Amount
+      - name: Order Number
+      - name: Order Status
+      - name: OrderDate
+      - name: OrderID
+      - name: OrderStat
+      - name: Promised Delivery Date
+      - name: Sales Amount
+      - name: Sales Cost Amount
+      - name: Sales Margin Amount
+      - name: Sales Price
+      - name: Sales Quantity
+      - name: Ship To
+      - name: YYYYMM
+  - name: stg_history_flag
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: YYYYMM
+      - name: _HistoryFlag
+  - name: stg_inventory_balances
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Line Desc 1
+      - name: ClassTurns
+      - name: ThroughputQty
+      - name: CostPrice
+      - name: StockOH
+  - name: stg_item_branch_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Item-Branch Key
+      - name: Short Name
+  - name: stg_item_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Product Group
+      - name: Product Line
+      - name: Product Sub Group
+      - name: Product Type
+      - name: Short Name
+  - name: stg_product_group_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Product Group
+      - name: Product Group Desc
+  - name: stg_product_sub_group_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Product Sub Group
+      - name: Product Sub Group Desc
+  - name: stg_product_type_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Product Type
+      - name: Product Type Desc
+  - name: stg_sales_rep_master
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: Sales Rep
+      - name: Sales Rep Name
+  - name: stg_table_23
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: AccountGroup
+      - name: AccountGroupDesc

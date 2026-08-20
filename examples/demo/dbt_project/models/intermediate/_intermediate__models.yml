@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: int_sales_raw
+    description: >
+      AUTO-MIGRATED. Review notes: ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated.
+    columns:
+      - name: OrderID
+      - name: ProductID
+      - name: CustomerID
+      - name: CountryCode
+      - name: OrderDate
+      - name: Quantity
+      - name: GrossAmount
+      - name: Country
+      - name: OrderPrefix
+  - name: int_sales_raw_join4
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: *
+  - name: int_sales_enriched
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: OrderID
+      - name: ProductID
+      - name: CustomerID
+      - name: Country
+      - name: OrderDate
+      - name: Quantity
+      - name: GrossAmount
+  - name: int_sales_enriched_join6
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: ProductID
+      - name: ProductName
+      - name: TherapeuticArea

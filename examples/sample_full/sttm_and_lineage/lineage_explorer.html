@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lineage Explorer — sales_pipeline.qvs</title>
+<style>
+  :root{--src:#2E75B6;--stg:#548235;--int:#BF9000;--mart:#C55A11;--map:#7030A0;
+        --bg:#f7f8fa;--pane:#fff;--line:#e3e6ea;--txt:#1f2733;--mut:#6b7280;}
+  *{box-sizing:border-box} body{margin:0;font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--txt);background:var(--bg)}
+  header{padding:14px 18px;background:var(--pane);border-bottom:1px solid var(--line)}
+  header h1{font-size:16px;margin:0} header .sub{color:var(--mut);font-size:12px}
+  .wrap{display:flex;height:calc(100vh - 56px)}
+  .side{width:340px;border-right:1px solid var(--line);background:var(--pane);
+    overflow:auto;padding:10px}
+  .main{flex:1;overflow:auto;padding:18px}
+  input,select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;
+    margin-bottom:8px;font-size:13px}
+  .grp{margin:6px 0} .grp>.h{font-weight:600;font-size:11px;text-transform:uppercase;
+    color:var(--mut);letter-spacing:.04em;margin:8px 2px}
+  .tbl{margin:4px 0} .tbl>.tn{font-weight:600;cursor:pointer;padding:3px 6px;border-radius:6px}
+  .tbl>.tn:hover{background:#eef2f7}
+  .col{padding:3px 6px 3px 20px;cursor:pointer;border-radius:6px;color:#374151}
+  .col:hover{background:#eef2f7} .col.active{background:#dbeafe;font-weight:600}
+  .pill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11px;
+    color:#fff;margin-left:6px}
+  .role-source{background:var(--src)}.role-staging{background:var(--stg)}
+  .role-intermediate{background:var(--int)}.role-mart{background:var(--mart)}
+  .role-mapping{background:var(--map)}
+  .mt{background:#374151}
+  .card{background:var(--pane);border:1px solid var(--line);border-radius:12px;
+    padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .card h2{margin:0 0 4px;font-size:16px} .muted{color:var(--mut)}
+  code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  pre{background:#0f172a;color:#e2e8f0;padding:10px 12px;border-radius:8px;overflow:auto}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;margin:8px 0}
+  .kv .k{color:var(--mut)}
+  ul.tree{list-style:none;margin:6px 0;padding-left:14px;border-left:2px solid var(--line)}
+  ul.tree li{margin:3px 0}
+  .node{padding:2px 8px;border-radius:6px;background:#eef2f7;display:inline-block}
+  .node.src{background:#e7f0fb;color:#1d4e89;font-weight:600}
+  .empty{color:var(--mut);padding:40px;text-align:center}
+  .note{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:6px 10px;
+    border-radius:8px;font-size:12.5px;margin-top:8px}
+</style></head><body>
+<header><h1>Column Lineage Explorer</h1>
+  <div class="sub">sales_pipeline.qvs · pick a column to trace it back to source</div></header>
+<div class="wrap">
+  <div class="side">
+    <input id="q" placeholder="Filter tables / columns…">
+    <select id="layerf">
+      <option value="">All layers</option>
+      <option value="staging">staging</option>
+      <option value="intermediate">intermediate</option>
+      <option value="mart">mart</option>
+    </select>
+    <div id="list"></div>
+  </div>
+  <div class="main"><div id="detail" class="empty">Select a column on the left.</div></div>
+</div>
+<script>
+const DATA = {"script": "sales_pipeline.qvs", "nodes": {"sources": {"source:products": {"role": "source", "locator": "lib://DataFiles/qvd/products.qvd", "kind": "qvd"}, "source:sales_2026": {"role": "source", "locator": "lib://DataFiles/csv/sales_2026.csv", "kind": "file"}, "source:sales_2025": {"role": "source", "locator": "lib://DataFiles/qvd/sales_2025.qvd", "kind": "qvd"}}, "tables": {"Products": {"role": "staging", "layer": "staging", "kind": "qvd"}, "SalesRaw": {"role": "intermediate", "layer": "intermediate", "kind": "file"}, "SalesPY": {"role": "staging", "layer": "staging", "kind": "qvd"}, "SalesRaw__join4": {"role": "intermediate", "layer": "intermediate", "kind": "resident"}, "SalesEnriched": {"role": "intermediate", "layer": "intermediate", "kind": "resident"}, "SalesEnriched__join6": {"role": "intermediate", "layer": "intermediate", "kind": "resident"}, "sales_fact": {"role": "mart", "layer": "mart", "kind": "resident"}, "CountryMap": {"role": "mapping", "layer": "staging", "kind": "mapping"}}}, "table_edges": [{"from": "CountryMap", "to": "SalesRaw"}, {"from": "Products", "to": "SalesEnriched__join6"}, {"from": "SalesEnriched", "to": "sales_fact"}, {"from": "SalesEnriched__join6", "to": "SalesEnriched"}, {"from": "SalesRaw", "to": "SalesEnriched"}, {"from": "source:products", "to": "Products"}, {"from": "source:sales_2025", "to": "SalesPY"}, {"from": "source:sales_2026", "to": "SalesRaw"}], "columns": [{"table": "Products", "column": "ProductID", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:products", "column": "ProductID", "external": true}], "ultimate_sources": [{"table": "products", "column": "ProductID"}], "qlikview": "ProductID", "snowflake": "ProductID", "notes": []}, {"table": "Products", "column": "ProductName", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:products", "column": "ProductName", "external": true}], "ultimate_sources": [{"table": "products", "column": "ProductName"}], "qlikview": "ProductName", "snowflake": "ProductName", "notes": []}, {"table": "Products", "column": "TherapeuticArea", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:products", "column": "Therapeutic Area", "external": true}], "ultimate_sources": [{"table": "products", "column": "Therapeutic Area"}], "qlikview": "[Therapeutic Area]", "snowflake": "\"Therapeutic Area\"", "notes": []}, {"table": "Products", "column": "UnitPrice", "layer": "staging", "mapping_type": "derived", "direct_deps": [{"upstream": "source:products", "column": "UnitPrice", "external": true}], "ultimate_sources": [{"table": "products", "column": "UnitPrice"}], "qlikview": "Num(UnitPrice)", "snowflake": "TO_NUMBER(UnitPrice)", "notes": []}, {"table": "Products", "column": "IsDiscontinued", "layer": "staging", "mapping_type": "derived", "direct_deps": [{"upstream": "source:products", "column": "Discontinued", "external": true}], "ultimate_sources": [{"table": "products", "column": "Discontinued"}], "qlikview": "if(Discontinued = 1, 'Y', 'N')", "snowflake": "CASE WHEN Discontinued = 1 THEN 'Y' ELSE 'N' END", "notes": []}, {"table": "SalesRaw", "column": "OrderID", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2026", "column": "OrderID", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "OrderID"}], "qlikview": "OrderID", "snowflake": "OrderID", "notes": []}, {"table": "SalesRaw", "column": "ProductID", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2026", "column": "ProductID", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "ProductID"}], "qlikview": "ProductID", "snowflake": "ProductID", "notes": []}, {"table": "SalesRaw", "column": "CustomerID", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2026", "column": "CustomerID", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "CustomerID"}], "qlikview": "CustomerID", "snowflake": "CustomerID", "notes": []}, {"table": "SalesRaw", "column": "CountryCode", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2026", "column": "CountryCode", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "CountryCode"}], "qlikview": "CountryCode", "snowflake": "CountryCode", "notes": []}, {"table": "SalesRaw", "column": "OrderDate", "layer": "intermediate", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2026", "column": "OrderDate", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "OrderDate"}], "qlikview": "Date(OrderDate, 'YYYY-MM-DD')", "snowflake": "TO_DATE(OrderDate, 'YYYY-MM-DD')", "notes": []}, {"table": "SalesRaw", "column": "Quantity", "layer": "intermediate", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2026", "column": "Quantity", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "Quantity"}], "qlikview": "Num(Quantity)", "snowflake": "TO_NUMBER(Quantity)", "notes": []}, {"table": "SalesRaw", "column": "GrossAmount", "layer": "intermediate", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2026", "column": "UnitPrice", "external": true}, {"upstream": "source:sales_2026", "column": "Quantity", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "UnitPrice"}, {"table": "sales_2026", "column": "Quantity"}], "qlikview": "Num(UnitPrice) * Num(Quantity)", "snowflake": "TO_NUMBER(UnitPrice) * TO_NUMBER(Quantity)", "notes": []}, {"table": "SalesRaw", "column": "Country", "layer": "intermediate", "mapping_type": "lookup", "direct_deps": [{"upstream": "source:sales_2026", "column": "CountryCode", "external": true}, {"upstream": "CountryMap", "column": "mapped_value", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "CountryCode"}], "qlikview": "ApplyMap('CountryMap', CountryCode, 'Unknown')", "snowflake": "{{ apply_map('CountryMap', \"CountryCode\", \"'Unknown'\") }}", "notes": ["ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated."]}, {"table": "SalesRaw", "column": "OrderPrefix", "layer": "intermediate", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2026", "column": "OrderID", "external": true}], "ultimate_sources": [{"table": "sales_2026", "column": "OrderID"}], "qlikview": "Left(OrderID, 4)", "snowflake": "LEFT(OrderID, 4)", "notes": []}, {"table": "SalesPY", "column": "OrderID", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2025", "column": "OrderID", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "OrderID"}], "qlikview": "OrderID", "snowflake": "OrderID", "notes": []}, {"table": "SalesPY", "column": "ProductID", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2025", "column": "ProductID", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "ProductID"}], "qlikview": "ProductID", "snowflake": "ProductID", "notes": []}, {"table": "SalesPY", "column": "CustomerID", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2025", "column": "CustomerID", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "CustomerID"}], "qlikview": "CustomerID", "snowflake": "CustomerID", "notes": []}, {"table": "SalesPY", "column": "CountryCode", "layer": "staging", "mapping_type": "direct", "direct_deps": [{"upstream": "source:sales_2025", "column": "CountryCode", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "CountryCode"}], "qlikview": "CountryCode", "snowflake": "CountryCode", "notes": []}, {"table": "SalesPY", "column": "OrderDate", "layer": "staging", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2025", "column": "OrderDate", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "OrderDate"}], "qlikview": "Date(OrderDate, 'YYYY-MM-DD')", "snowflake": "TO_DATE(OrderDate, 'YYYY-MM-DD')", "notes": []}, {"table": "SalesPY", "column": "Quantity", "layer": "staging", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2025", "column": "Quantity", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "Quantity"}], "qlikview": "Num(Quantity)", "snowflake": "TO_NUMBER(Quantity)", "notes": []}, {"table": "SalesPY", "column": "GrossAmount", "layer": "staging", "mapping_type": "derived", "direct_deps": [{"upstream": "source:sales_2025", "column": "GrossAmount", "external": true}], "ultimate_sources": [{"table": "sales_2025", "column": "GrossAmount"}], "qlikview": "Num(GrossAmount)", "snowflake": "TO_NUMBER(GrossAmount)", "notes": []}, {"table": "SalesRaw__join4", "column": "*", "layer": "intermediate", "mapping_type": "constant", "direct_deps": [], "ultimate_sources": [], "qlikview": "*", "snowflake": "*", "notes": []}, {"table": "SalesEnriched", "column": "OrderID", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesRaw", "column": "OrderID", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "OrderID"}], "qlikview": "OrderID", "snowflake": "OrderID", "notes": []}, {"table": "SalesEnriched", "column": "ProductID", "layer": "intermediate", "mapping_type": "join", "direct_deps": [{"upstream": "SalesEnriched__join6", "column": "ProductID", "external": false}], "ultimate_sources": [{"table": "products", "column": "ProductID"}], "qlikview": "ProductID", "snowflake": "ProductID", "notes": []}, {"table": "SalesEnriched", "column": "CustomerID", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesRaw", "column": "CustomerID", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "CustomerID"}], "qlikview": "CustomerID", "snowflake": "CustomerID", "notes": []}, {"table": "SalesEnriched", "column": "Country", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesRaw", "column": "Country", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "CountryCode"}], "qlikview": "Country", "snowflake": "Country", "notes": []}, {"table": "SalesEnriched", "column": "OrderDate", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesRaw", "column": "OrderDate", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "OrderDate"}], "qlikview": "OrderDate", "snowflake": "OrderDate", "notes": []}, {"table": "SalesEnriched", "column": "Quantity", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesRaw", "column": "Quantity", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "Quantity"}], "qlikview": "Quantity", "snowflake": "Quantity", "notes": []}, {"table": "SalesEnriched", "column": "GrossAmount", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesRaw", "column": "GrossAmount", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "UnitPrice"}, {"table": "sales_2026", "column": "Quantity"}], "qlikview": "GrossAmount", "snowflake": "GrossAmount", "notes": []}, {"table": "SalesEnriched__join6", "column": "ProductID", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "Products", "column": "ProductID", "external": false}], "ultimate_sources": [{"table": "products", "column": "ProductID"}], "qlikview": "ProductID", "snowflake": "ProductID", "notes": []}, {"table": "SalesEnriched__join6", "column": "ProductName", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "Products", "column": "ProductName", "external": false}], "ultimate_sources": [{"table": "products", "column": "ProductName"}], "qlikview": "ProductName", "snowflake": "ProductName", "notes": []}, {"table": "SalesEnriched__join6", "column": "TherapeuticArea", "layer": "intermediate", "mapping_type": "direct", "direct_deps": [{"upstream": "Products", "column": "TherapeuticArea", "external": false}], "ultimate_sources": [{"table": "products", "column": "Therapeutic Area"}], "qlikview": "TherapeuticArea", "snowflake": "TherapeuticArea", "notes": []}, {"table": "sales_fact", "column": "ProductID", "layer": "mart", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesEnriched", "column": "ProductID", "external": false}], "ultimate_sources": [{"table": "products", "column": "ProductID"}], "qlikview": "ProductID", "snowflake": "ProductID", "notes": []}, {"table": "sales_fact", "column": "Country", "layer": "mart", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesEnriched", "column": "Country", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "CountryCode"}], "qlikview": "Country", "snowflake": "Country", "notes": []}, {"table": "sales_fact", "column": "TherapeuticArea", "layer": "mart", "mapping_type": "direct", "direct_deps": [{"upstream": "SalesEnriched", "column": "TherapeuticArea", "external": false}], "ultimate_sources": [{"table": "products", "column": "Therapeutic Area"}], "qlikview": "TherapeuticArea", "snowflake": "TherapeuticArea", "notes": []}, {"table": "sales_fact", "column": "OrderYear", "layer": "mart", "mapping_type": "derived", "direct_deps": [{"upstream": "SalesEnriched", "column": "OrderDate", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "OrderDate"}], "qlikview": "Year(OrderDate)", "snowflake": "YEAR(OrderDate)", "notes": []}, {"table": "sales_fact", "column": "TotalRevenue", "layer": "mart", "mapping_type": "aggregate", "direct_deps": [{"upstream": "SalesEnriched", "column": "GrossAmount", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "UnitPrice"}, {"table": "sales_2026", "column": "Quantity"}], "qlikview": "Sum(GrossAmount)", "snowflake": "SUM(GrossAmount)", "notes": []}, {"table": "sales_fact", "column": "TotalUnits", "layer": "mart", "mapping_type": "aggregate", "direct_deps": [{"upstream": "SalesEnriched", "column": "Quantity", "external": false}], "ultimate_sources": [{"table": "sales_2026", "column": "Quantity"}], "qlikview": "Sum(Quantity)", "snowflake": "SUM(Quantity)", "notes": []}]};
+const cols = DATA.columns;
+const idx = {};
+cols.forEach(c => idx[(c.table+'||'+c.column).toLowerCase()] = c);
+const tableRole = {}; Object.entries(DATA.nodes.tables).forEach(([k,v])=>tableRole[k]=v.role);
+
+function group(){
+  const g={};
+  cols.forEach(c=>{ (g[c.table]=g[c.table]||{layer:c.layer,cols:[]}).cols.push(c); });
+  return g;
+}
+function render(){
+  const q=document.getElementById('q').value.toLowerCase();
+  const lf=document.getElementById('layerf').value;
+  const g=group(); const host=document.getElementById('list'); host.innerHTML='';
+  const order=['mart','intermediate','staging'];
+  const byLayer={}; Object.entries(g).forEach(([t,o])=>{(byLayer[o.layer]=byLayer[o.layer]||[]).push([t,o]);});
+  order.forEach(layer=>{
+    if(lf && lf!==layer) return;
+    const items=(byLayer[layer]||[]).sort((a,b)=>a[0].localeCompare(b[0]));
+    let shown=[];
+    items.forEach(([t,o])=>{
+      const cs=o.cols.filter(c=>!q || t.toLowerCase().includes(q) || c.column.toLowerCase().includes(q));
+      if(!cs.length) return;
+      shown.push([t,o,cs]);
+    });
+    if(!shown.length) return;
+    const grp=document.createElement('div'); grp.className='grp';
+    grp.innerHTML=`<div class="h">${layer}</div>`;
+    shown.forEach(([t,o,cs])=>{
+      const d=document.createElement('div'); d.className='tbl';
+      const tn=document.createElement('div'); tn.className='tn';
+      tn.innerHTML=`${t}<span class="pill role-${o.layer}">${o.layer}</span>`;
+      d.appendChild(tn);
+      cs.forEach(c=>{
+        const cd=document.createElement('div'); cd.className='col';
+        cd.textContent=c.column; cd.dataset.key=(t+'||'+c.column).toLowerCase();
+        cd.onclick=()=>select(cd.dataset.key,cd);
+        d.appendChild(cd);
+      });
+      grp.appendChild(d);
+    });
+    host.appendChild(grp);
+  });
+}
+function tree(key,seen){
+  seen=seen||new Set(); if(seen.has(key)) return '<li class="muted">…cycle…</li>'; seen.add(key);
+  const c=idx[key]; if(!c) return '';
+  let html='';
+  c.direct_deps.forEach(d=>{
+    if(d.external){
+      html+=`<li><span class="node src">${d.upstream.replace('source:','')}.${d.column}</span></li>`;
+    }else{
+      const ck=(d.upstream+'||'+d.column).toLowerCase();
+      const child=idx[ck];
+      const role=tableRole[d.upstream]||'';
+      html+=`<li><span class="node">${d.upstream}.${d.column}`+
+            (role?`<span class="pill role-${role}">${role}</span>`:'')+`</span>`;
+      if(child){ html+=`<ul class="tree">${tree(ck,new Set(seen))}</ul>`; }
+      html+='</li>';
+    }
+  });
+  return html;
+}
+function select(key,el){
+  document.querySelectorAll('.col.active').forEach(x=>x.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const c=idx[key]; const host=document.getElementById('detail'); host.className='';
+  const us=c.ultimate_sources.map(s=>`${s.table}.${s.column}`).join(' , ')||'—';
+  host.innerHTML=`
+    <div class="card">
+      <h2>${c.table}.<b>${c.column}</b> <span class="pill mt">${c.mapping_type}</span>
+        <span class="pill role-${c.layer}">${c.layer}</span></h2>
+      <div class="kv">
+        <div class="k">Ultimate source(s)</div><div>${us}</div>
+        <div class="k">QlikView logic</div><div><code>${esc(c.qlikview)||'—'}</code></div>
+      </div>
+      <div class="k muted">Snowflake SQL</div>
+      <pre>${esc(c.snowflake)||'—'}</pre>
+      ${c.notes && c.notes.length?`<div class="note">⚠ ${c.notes.map(esc).join('<br>')}</div>`:''}
+    </div>
+    <div class="card">
+      <h2>Upstream lineage</h2>
+      <div class="node">${c.table}.${c.column}</div>
+      <ul class="tree">${tree(key)||'<li class="muted">reads directly from source</li>'}</ul>
+    </div>`;
+}
+function esc(s){return (s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+document.getElementById('q').oninput=render;
+document.getElementById('layerf').onchange=render;
+render();
+</script></body></html>

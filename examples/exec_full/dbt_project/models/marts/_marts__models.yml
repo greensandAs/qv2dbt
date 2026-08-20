@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: mart_arsummary
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: CustKeyAR
+      - name: ARGross
+      - name: AROpen
+      - name: ARCurrent
+      - name: AR1-30
+      - name: AR31-60
+      - name: AR60+
+      - name: ARCredit
+      - name: ARSalesPerDay
+      - name: ARAvgBal
+  - name: mart_fact_table_init
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: MonthlyRegionKey
+      - name: Region
+      - name: Address Number
+      - name: CustKey
+      - name: Invoice Number
+      - name: Item-Branch Key
+      - name: Late Shipment
+      - name: Line Desc 1
+      - name: Open Order Amount
+      - name: Order Number
+      - name: Order Status
+      - name: OrderDate
+      - name: OrderID
+      - name: OrderStat
+      - name: Promised Delivery Date
+      - name: Sales Amount
+      - name: Sales Cost Amount
+      - name: Sales Margin Amount
+      - name: Sales Price
+      - name: Sales Quantity
+      - name: Ship To
+      - name: YYYYMM
+  - name: mart_fact_table
+    description: 'Auto-migrated from QlikView.'
+    columns:
+      - name: MonthlyRegionKey
+      - name: Region
+      - name: Address Number
+      - name: CustKey
+      - name: Invoice Number
+      - name: Item-Branch Key
+      - name: Late Shipment
+      - name: Line Desc 1
+      - name: Open Order Amount
+      - name: Order Number
+      - name: Order Status
+      - name: OrderDate
+      - name: OrderID
+      - name: OrderStat
+      - name: Promised Delivery Date
+      - name: Sales Amount
+      - name: Sales Cost Amount
+      - name: Sales Margin Amount
+      - name: Sales Price
+      - name: Sales Quantity
+      - name: Ship To
+      - name: YYYYMM

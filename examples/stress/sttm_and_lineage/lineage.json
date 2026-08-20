@@ -1,0 +1,729 @@
+{
+  "script": "stress_test.qvs",
+  "nodes": {
+    "sources": {
+      "source:customers": {
+        "role": "source",
+        "locator": "lib://DW/qvd/customers.qvd",
+        "kind": "qvd"
+      },
+      "source:orders": {
+        "role": "source",
+        "locator": "lib://DW/qvd/orders.qvd",
+        "kind": "qvd"
+      }
+    },
+    "tables": {
+      "Customers": {
+        "role": "staging",
+        "layer": "staging",
+        "kind": "qvd"
+      },
+      "Orders": {
+        "role": "intermediate",
+        "layer": "intermediate",
+        "kind": "qvd"
+      },
+      "Orders__join3": {
+        "role": "intermediate",
+        "layer": "intermediate",
+        "kind": "resident"
+      },
+      "sales_fact": {
+        "role": "mart",
+        "layer": "mart",
+        "kind": "resident"
+      },
+      "map_1": {
+        "role": "mapping",
+        "layer": "staging",
+        "kind": "mapping"
+      }
+    }
+  },
+  "table_edges": [
+    {
+      "from": "Customers",
+      "to": "Orders__join3"
+    },
+    {
+      "from": "Orders",
+      "to": "sales_fact"
+    },
+    {
+      "from": "Orders__join3",
+      "to": "Orders"
+    },
+    {
+      "from": "source:customers",
+      "to": "Customers"
+    },
+    {
+      "from": "source:orders",
+      "to": "Orders"
+    }
+  ],
+  "columns": [
+    {
+      "table": "Customers",
+      "column": "CustomerID",
+      "layer": "staging",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "CustomerID",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CustomerID"
+        }
+      ],
+      "qlikview": "CustomerID",
+      "snowflake": "CustomerID",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "CustomerName",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "CustomerName",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CustomerName"
+        }
+      ],
+      "qlikview": "Capitalize(CustomerName)",
+      "snowflake": "INITCAP(CustomerName)",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "Email",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "Email",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "Email"
+        }
+      ],
+      "qlikview": "Upper(Trim(Email))",
+      "snowflake": "UPPER(TRIM(Email))",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "Country",
+      "layer": "staging",
+      "mapping_type": "lookup",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "CountryCode",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CountryCode"
+        }
+      ],
+      "qlikview": "ApplyMap('CountryMap', CountryCode, 'N/A')",
+      "snowflake": "{{ apply_map('CountryMap', \"CountryCode\", \"'N/A'\") }}",
+      "notes": [
+        "ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated."
+      ]
+    },
+    {
+      "table": "Customers",
+      "column": "AreaCode",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "Phone",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "Phone"
+        }
+      ],
+      "qlikview": "Left(Phone, 3)",
+      "snowflake": "LEFT(Phone, 3)",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "CreditLimit",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "CreditLimit",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CreditLimit"
+        }
+      ],
+      "qlikview": "if(IsNull(CreditLimit), 0, CreditLimit)",
+      "snowflake": "CASE WHEN CreditLimit IS NULL THEN 0 ELSE CreditLimit END",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "SignupDate",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "SignupDate",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "SignupDate"
+        }
+      ],
+      "qlikview": "Date(SignupDate, 'YYYY-MM-DD')",
+      "snowflake": "TO_DATE(SignupDate, 'YYYY-MM-DD')",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "RenewalDate",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "SignupDate",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "SignupDate"
+        }
+      ],
+      "qlikview": "AddYears(SignupDate, 1)",
+      "snowflake": "DATEADD('YEAR', 1, SignupDate)",
+      "notes": []
+    },
+    {
+      "table": "Customers",
+      "column": "BalanceSign",
+      "layer": "staging",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:customers",
+          "column": "Balance",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "Balance"
+        }
+      ],
+      "qlikview": "Sign(Balance)",
+      "snowflake": "SIGN(Balance)",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "OrderID",
+      "layer": "intermediate",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "OrderID",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "OrderID"
+        }
+      ],
+      "qlikview": "OrderID",
+      "snowflake": "OrderID",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "CustomerID",
+      "layer": "intermediate",
+      "mapping_type": "join",
+      "direct_deps": [
+        {
+          "upstream": "Orders__join3",
+          "column": "CustomerID",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CustomerID"
+        }
+      ],
+      "qlikview": "CustomerID",
+      "snowflake": "CustomerID",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "ProductID",
+      "layer": "intermediate",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "ProductID",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "ProductID"
+        }
+      ],
+      "qlikview": "ProductID",
+      "snowflake": "ProductID",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "Quantity",
+      "layer": "intermediate",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "Quantity",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "Quantity"
+        }
+      ],
+      "qlikview": "Num(Quantity)",
+      "snowflake": "TO_NUMBER(Quantity)",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "GrossAmount",
+      "layer": "intermediate",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "UnitPrice",
+          "external": true
+        },
+        {
+          "upstream": "source:orders",
+          "column": "Quantity",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "UnitPrice"
+        },
+        {
+          "table": "orders",
+          "column": "Quantity"
+        }
+      ],
+      "qlikview": "Num(UnitPrice) * Num(Quantity)",
+      "snowflake": "TO_NUMBER(UnitPrice) * TO_NUMBER(Quantity)",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "MaxDiscount",
+      "layer": "intermediate",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "Discount1",
+          "external": true
+        },
+        {
+          "upstream": "source:orders",
+          "column": "Discount2",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "Discount1"
+        },
+        {
+          "table": "orders",
+          "column": "Discount2"
+        }
+      ],
+      "qlikview": "RangeMax(Discount1, Discount2)",
+      "snowflake": "GREATEST(Discount1, Discount2)",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "PrevOrderRef",
+      "layer": "intermediate",
+      "mapping_type": "constant",
+      "direct_deps": [],
+      "ultimate_sources": [],
+      "qlikview": "Peek('PrevOrder', -1, 'Orders')",
+      "snowflake": "/* TODO review */ Peek('PrevOrder', -1, 'Orders')",
+      "notes": [
+        "Function 'Peek()' requires manual review (no deterministic Snowflake equivalent)."
+      ]
+    },
+    {
+      "table": "Orders",
+      "column": "OrderDate",
+      "layer": "intermediate",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "OrderDate",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "OrderDate"
+        }
+      ],
+      "qlikview": "Date(OrderDate)",
+      "snowflake": "TO_DATE(OrderDate)",
+      "notes": []
+    },
+    {
+      "table": "Orders",
+      "column": "OrderMonth",
+      "layer": "intermediate",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "source:orders",
+          "column": "OrderDate",
+          "external": true
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "OrderDate"
+        }
+      ],
+      "qlikview": "MonthStart(OrderDate)",
+      "snowflake": "DATE_TRUNC('MONTH', OrderDate)",
+      "notes": []
+    },
+    {
+      "table": "Orders__join3",
+      "column": "CustomerID",
+      "layer": "intermediate",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "Customers",
+          "column": "CustomerID",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CustomerID"
+        }
+      ],
+      "qlikview": "CustomerID",
+      "snowflake": "CustomerID",
+      "notes": []
+    },
+    {
+      "table": "Orders__join3",
+      "column": "Country",
+      "layer": "intermediate",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "Customers",
+          "column": "Country",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CountryCode"
+        }
+      ],
+      "qlikview": "Country",
+      "snowflake": "Country",
+      "notes": []
+    },
+    {
+      "table": "Orders__join3",
+      "column": "CreditLimit",
+      "layer": "intermediate",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "Customers",
+          "column": "CreditLimit",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CreditLimit"
+        }
+      ],
+      "qlikview": "CreditLimit",
+      "snowflake": "CreditLimit",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "ProductID",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "ProductID",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "ProductID"
+        }
+      ],
+      "qlikview": "ProductID",
+      "snowflake": "ProductID",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "Country",
+      "layer": "mart",
+      "mapping_type": "direct",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "Country",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "customers",
+          "column": "CountryCode"
+        }
+      ],
+      "qlikview": "Country",
+      "snowflake": "Country",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "OrderYear",
+      "layer": "mart",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "OrderDate",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "OrderDate"
+        }
+      ],
+      "qlikview": "Year(OrderDate)",
+      "snowflake": "YEAR(OrderDate)",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "OrderMonth",
+      "layer": "mart",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "OrderDate",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "OrderDate"
+        }
+      ],
+      "qlikview": "Month(OrderDate)",
+      "snowflake": "MONTH(OrderDate)",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "TotalRevenue",
+      "layer": "mart",
+      "mapping_type": "aggregate",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "GrossAmount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "UnitPrice"
+        },
+        {
+          "table": "orders",
+          "column": "Quantity"
+        }
+      ],
+      "qlikview": "Sum(GrossAmount)",
+      "snowflake": "SUM(GrossAmount)",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "OrderCount",
+      "layer": "mart",
+      "mapping_type": "aggregate",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "OrderID",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "OrderID"
+        }
+      ],
+      "qlikview": "Count(OrderID)",
+      "snowflake": "COUNT(OrderID)",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "AvgOrderValue",
+      "layer": "mart",
+      "mapping_type": "aggregate",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "GrossAmount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "UnitPrice"
+        },
+        {
+          "table": "orders",
+          "column": "Quantity"
+        }
+      ],
+      "qlikview": "Avg(GrossAmount)",
+      "snowflake": "AVG(GrossAmount)",
+      "notes": []
+    },
+    {
+      "table": "sales_fact",
+      "column": "MedianOrderValue",
+      "layer": "mart",
+      "mapping_type": "derived",
+      "direct_deps": [
+        {
+          "upstream": "Orders",
+          "column": "GrossAmount",
+          "external": false
+        }
+      ],
+      "ultimate_sources": [
+        {
+          "table": "orders",
+          "column": "UnitPrice"
+        },
+        {
+          "table": "orders",
+          "column": "Quantity"
+        }
+      ],
+      "qlikview": "Median(GrossAmount)",
+      "snowflake": "MEDIAN(GrossAmount)",
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      AUTO-MIGRATED. Review notes: ApplyMap('CountryMap', ...) converted to apply_map() macro - confirm mapping table was generated.
+    columns:
+      - name: CustomerID
+      - name: CustomerName
+      - name: Email
+      - name: Country
+      - name: AreaCode
+      - name: CreditLimit
+      - name: SignupDate
+      - name: RenewalDate
+      - name: BalanceSign
