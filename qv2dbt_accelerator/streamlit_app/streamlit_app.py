@@ -1,10 +1,10 @@
 # qv2dbt Studio — Tiger Analytics branded QlikView to Snowflake migration app
-# Co-authored with CoCo
 """
 Thin orchestrator: page config, session init, persistence controls, then
 delegates to modular components (config/, components/, app_pages/).
 """
 import os
+from pathlib import Path
 
 import streamlit as st
 
@@ -13,12 +13,30 @@ from app_pages import upload, inventory, lineage, sttm, conversion, chatbot
 import snowflake_utils as sf
 
 # ─── Page Config ──────────────────────────────────────────────────────────────
+page_icon = (
+    Path(__file__).resolve().parent.parent
+    / "assets"
+    / "logos"
+    / "ta_favicon.png"
+)
+
+# ─── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Tiger Analytics | qv2dbt Studio",
-    page_icon="🐯",
+    page_icon=(page_icon),
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Define the CSS to hide the header
+hide_topbar_style = """
+    <style>
+        header {visibility: hidden;}
+    </style>
+"""
+
+# Inject the CSS into the app
+st.markdown(hide_topbar_style, unsafe_allow_html=True)
 
 # ─── Global Styles ────────────────────────────────────────────────────────────
 inject_styles()

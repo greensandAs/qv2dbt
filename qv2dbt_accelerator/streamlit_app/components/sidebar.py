@@ -1,5 +1,5 @@
 # Sidebar navigation component
-# Co-authored with CoCo
+from pathlib import Path
 import streamlit as st
 from config.brand import TA_ORANGE, CORTEX_MODELS, get_theme_tokens
 
@@ -17,12 +17,15 @@ def render_sidebar() -> str:
     t = get_theme_tokens()
     sb_text = t["sidebar_text"]
 
+    logo_path = (
+        Path(__file__).resolve().parents[2]
+        / "assets"
+        / "logos"
+        / "ta_logo_dark.svg"
+    )
+
     with st.sidebar:
-        st.markdown(
-            f'<div style="text-align:center;font-size:1.8rem;font-weight:bold;color:{TA_ORANGE};">'
-            f'🐯 Tiger Analytics</div>',
-            unsafe_allow_html=True,
-        )
+        st.image(str(logo_path), width=190)
         st.markdown(
             f'<p style="text-align:center;font-size:0.75rem;color:{sb_text};opacity:0.7;">'
             f'QlikView → Snowflake Migration</p>',
