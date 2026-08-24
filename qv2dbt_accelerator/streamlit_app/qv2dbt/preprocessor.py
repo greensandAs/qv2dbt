@@ -34,6 +34,11 @@ def strip_comments(text: str) -> str:
 
     Critically, '//' inside a quoted literal (e.g. a 'lib://...' path) is NOT a
     comment, so the scan is quote-aware rather than a naive regex.
+
+    QlikView string literals do not span lines.  If a quote character is opened
+    but no matching close is found before the end of the line, the quote state
+    is reset at the newline.  This prevents a stray/orphaned quote from
+    swallowing the rest of the file.
     """
     out: list[str] = []
     quote: str | None = None
@@ -43,10 +48,18 @@ def strip_comments(text: str) -> str:
         ch = text[i]
         nxt = text[i + 1] if i + 1 < n else ""
         if quote:
-            out.append(ch)
-            if ch == quote:
+            if ch == "\n":
+                # QlikView strings don't span lines; reset on unmatched quote.
                 quote = None
-            i += 1
+                out.append(ch)
+                i += 1
+            elif ch == quote:
+                out.append(ch)
+                quote = None
+                i += 1
+            else:
+                out.append(ch)
+                i += 1
             continue
         if ch in ("'", '"'):
             quote = ch
@@ -89,7 +102,9 @@ def split_statements(text: str) -> list[str]:
         ch = text[i]
         if quote:
             buf.append(ch)
-            if ch == quote:
+            if ch == "\n":
+                quote = None
+            elif ch == quote:
                 quote = None
             i += 1
             continue

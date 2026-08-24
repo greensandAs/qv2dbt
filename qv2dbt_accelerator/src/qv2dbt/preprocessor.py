@@ -43,10 +43,18 @@ def strip_comments(text: str) -> str:
         ch = text[i]
         nxt = text[i + 1] if i + 1 < n else ""
         if quote:
-            out.append(ch)
-            if ch == quote:
+            if ch == "\n":
+                # QlikView strings don't span lines; reset on unmatched quote.
                 quote = None
-            i += 1
+                out.append(ch)
+                i += 1
+            elif ch == quote:
+                out.append(ch)
+                quote = None
+                i += 1
+            else:
+                out.append(ch)
+                i += 1
             continue
         if ch in ("'", '"'):
             quote = ch
