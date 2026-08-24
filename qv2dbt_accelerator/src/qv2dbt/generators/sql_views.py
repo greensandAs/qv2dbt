@@ -109,17 +109,30 @@ class SqlViewGenerator:
         data_lines = lines[data_start:]
         if not data_lines:
             return "/* INLINE: headers only, no data */"
+
+        # Determine expected column count from headers
+        expected_cols = len(col_names) if col_names else None
+
         rows = []
         for line in data_lines:
             vals = [v.strip() for v in line.split(",")]
-            # Quote non-numeric values
+            # If row has fewer or more columns than expected, treat the whole
+            # line as a single value (handles values containing commas like
+            # "1000,000 yen")
+            if expected_cols and len(vals) != expected_cols:
+                vals = [line.strip()]
+            # Quote values appropriately
             quoted = []
             for v in vals:
                 v = v.strip()
                 if v == "" or v.lower() == "null":
                     quoted.append("NULL")
                 elif re.match(r"^-?\d+(\.\d+)?$", v):
-                    quoted.append(v)
+                    # Preserve leading zeros as strings (e.g. '00', '01')
+                    if len(v) > 1 and v.startswith("0"):
+                        quoted.append(f"'{v}'")
+                    else:
+                        quoted.append(v)
                 else:
                     quoted.append(f"'{v}'")
             rows.append(f"({', '.join(quoted)})")

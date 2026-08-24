@@ -215,7 +215,9 @@ class Parser:
         return distinct, field_text, which, source_clause, where_raw, group_by
 
     def _table_name_and_body(self, raw: str) -> tuple[str | None, str]:
-        m = re.match(r"(?is)^\s*([A-Za-z_][\w$]*|\[[^\]]+\])\s*:\s*(.*)$", raw)
+        # Match table name labels: single word, [bracketed], or multi-word with spaces
+        m = re.match(
+            r"(?is)^\s*([A-Za-z_][\w$]*(?:\s+[\w$]+)*|\[[^\]]+\])\s*:\s*(.*)$", raw)
         if m and re.search(r"(?is)\bload\b", m.group(2).lstrip()[:60]):
             return _clean_ident(m.group(1)), m.group(2).strip()
         return None, raw.strip()
