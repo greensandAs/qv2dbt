@@ -82,16 +82,30 @@ class SqlViewGenerator:
         lines = [l.strip() for l in content.split("\n") if l.strip()]
         if not lines:
             return "/* INLINE: no rows */"
-        # First line may be headers if fields were already parsed
-        col_names = [case_identifier(f.alias, self.case) for f in t.fields] if t.fields else []
-        # If first line matches field count, treat as header and skip
+
+        # Determine column names: from parsed fields, or from first INLINE row.
+        col_names = []
+        if t.fields and not (len(t.fields) == 1 and t.fields[0].alias == "*"):
+            col_names = [case_identifier(f.alias, self.case) for f in t.fields]
+
+        # If first line looks like headers (non-numeric), extract names from it.
         first_parts = [p.strip() for p in lines[0].split(",")]
         data_start = 0
-        if col_names and len(first_parts) == len(col_names):
-            # Check if first line is headers
+        first_line_is_header = all(
+            not re.match(r"^-?\d+(\.\d+)?$", p.strip()) and p.strip()
+            for p in first_parts
+        )
+        if first_line_is_header:
+            if not col_names:
+                # Use the header line to derive column names
+                col_names = [case_identifier(p.strip(), self.case) for p in first_parts]
+            data_start = 1
+        elif col_names and len(first_parts) == len(col_names):
+            # Check if first line matches known column names
             if all(p.strip().strip("'\"").replace(" ", "_").lower() in
                    [c.strip('"').lower() for c in col_names] for p in first_parts):
                 data_start = 1
+
         data_lines = lines[data_start:]
         if not data_lines:
             return "/* INLINE: headers only, no data */"
@@ -109,9 +123,9 @@ class SqlViewGenerator:
                 else:
                     quoted.append(f"'{v}'")
             rows.append(f"({', '.join(quoted)})")
-        col_list = ", ".join(col_names) if col_names else ", ".join(
-            f"COL{i+1}" for i in range(len(data_lines[0].split(",")))
-        )
+        if not col_names:
+            col_names = [f"COL{i+1}" for i in range(len(data_lines[0].split(",")))]
+        col_list = ", ".join(col_names)
         return (f"(SELECT * FROM VALUES\n        "
                 + "\n        , ".join(rows)
                 + f"\n        AS inline_data({col_list}))")
