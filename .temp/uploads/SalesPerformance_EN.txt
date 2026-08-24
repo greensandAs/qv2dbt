@@ -1,0 +1,4623 @@
+///$tab Start
+//************************************************ ************************************************** *
+// About this application
+//
+// Objective
+// 	Management of sales results, products, locations, and channels
+//
+// Application file name
+// 1. psi_meisai.qvw
+//
+//------------------------------------------------ -------------------------------------------------- -
+// *Important*
+// [ What to do when initializing data ] 		After all data is deleted, some of the list box properties are initialized. Item event trigger is initialized.
+// 	·list box 	
+// 		Sales results search sheet 	Amount unit 	← Always check one selected value
+//
+//	・Item event trigger 	settings ⇒ Document properties ⇒ Trigger
+// 		Item 	: Quarter/Quarter 2
+// 		When selected
+// 			① Clear selection 		period/period 2
+// 			② Clear selection 		month/month 2
+//		
+// 		Item 	: Month/Month 2
+// 		When selected
+// 			① Clear selection 		period/period 2
+// 			②Clear selection 		Quarter/Quarter 2
+//		
+// 		Item 	: Period/Period 2
+// 		When selected
+// 			① Clear selection 		Quarter/Quarter 2
+// 			② Clear selection 		month/month 2
+//		
+// [ Trigger definition and initialization button action definition after Reload ]
+// 			clear all selections
+// 			Set variable 	varN_SW_FYCY 		0
+// 			Select item value 	CYYear = varC_Sel_CYYear				
+// 			Select item value 	month 					=varC_Default_Month
+// 			Select item value 	division 				=' (D division/section) '
+// 			Item value selection 	division 2 				=' (D division/sections) '
+// 			Field value selection 	year 2 				=varC_Sel_Year
+// 			Select item value 	Month2 					= varC_Default_Month
+// Select 			display switching 			of item valuesAll 	products (amount)
+// 			Select item value 	Numerical item 			( number of units | sales performance | sales achievement rate | sales growth rate | gross profit performance | gross profit rate | gross profit achievement rate )
+// 			Select item value 	summary item 			( branch name )
+// 			Select item value 	UNIT 				1,000 yen
+// 			Set variable 	varN_SW_BUKKEN_ALL0
+// 			Set variable 	DEBUG 				1
+// 			Set variable 	varN_SW_TransYears3
+// 			Set variable 	varN_SW_TransType1
+// 			Set variable 	varN_SW_Qty 			0
+// 			Set variable 	varN_SW_REAL 		0
+// 			Set variable 	varN_SW_IDOMEISAI0
+//		
+//------------------------------------------------ -------------------------------------------------- -
+// ★ Memorandum ★		
+// 	<Dashboard switching button>
+// 	KANRI_MODE
+// 	=if(KANRI_MODE=0,1,0)
+// 	Display conditions
+// 	varN_SW_Admin=1 and varN_SW_AdminDefault<>9
+//	
+// 	<General menu>
+// 	Display conditions
+// 	varN_SW_Admin=0 or KANRI_MODE=0
+//	
+// 	<Sales results search sheet>
+// 	Display conditions
+// 	varN_SW_Admin=1 and (KANRI_MODE=1 or varN_SW_AdminDefault=9)
+//	
+// 	<variable>
+// 	varN_SW_Admin
+// 	=if(IsNull(Only({< Administrator 3 unified ID={$(varC_LoginUser)}>} Administrator 3 unified ID))=False(),1,0)
+//	
+// 	varN_SW_AdminDefault
+// 	=Only({< Administrator 3 unified ID={$(varC_LoginUser)}>} Administrator 3 display )
+//		
+//************************************************ ************************************************** *
+SET ThousandSep=',';
+SET DecimalSep='.';
+SET MoneyThousandSep=',';
+SET MoneyDecimalSep='.';
+SET MoneyFormat='\#,##0;-\#,##0';
+SET TimeFormat='h:mm:ss';
+SET DateFormat='YYYY/MM/DD';
+SET TimestampFormat='YYYY/MM/DD h:mm:ss[.fff]';
+SET MonthNames='1;2;3;4;5;6;7;8;9;10;11;12';
+SET DayNames=' Monday ; Tuesday ; Wednesday ; Thursday ; Friday ; Saturday ; Sunday ';
+Set ExponentNumberNotation=0;
+
+// Update history 			☆ : Temporary support or limited release
+set My_Version = 'Ver 3.20(2023/03/01)'; 			// Past sales performance search 		" ☆ "
+
+//set My_Version = 'Ver 3.10(2023/02/21)'; 			// [ SDLC 22-SC-2038 ] Compatible with CY/ Separate FS division/section from D division/section
+
+//set My_Version = 'Ver 3.03(2022/12/23)'; 			// <Sales results search/transfer details> RPA button added
+//set My_Version = 'Ver 3.02(2022/11/17)'; 			// <Sales results search/Affiliate store results> Leave the subcontractor BM store name in the BM store master ( M0116_SBM ) unused, and use the subcontractor BM on the movement details See store name 2
+//set My_Version = 'Ver 3.01(2022/03/04)'; 			// [ SDLC 22-SC-1062 ] Correct the gross profit amount on the moving statement sheet (the gross profit amount at the time of miscellaneous entry/disbursement is set to zero yen)
+//set My_Version = 'Ver 3.00(2021/12/24)'; 			// [ SDLC 21-SC-1038 ] Reload speed improvement
+
+//set My_Version = 'Ver 2.31(2021/04/08)'; 			// [ SDLC 21-KC-xxx ] Added special processing for corporations 4 ( valid only in the first half of 2021 )
+//set My_Version = 'Ver 2.30(2020/08/31)'; 			// [ SDLC 20-KC-279 ] Added shipping record
+//set My_Version = 'Ver 2.24(2020/08/07)'; 			// [ SDLC 20-KC-283 ] Construction property selection conditions 25 million yen or more ⇒ 35 million yen or more
+//set My_Version = 'Ver 2.23(2020/08/04)'; 			// Get project name from V_all projects
+//set My_Version = 'Ver 2.22(2020/07/07)'; 			// [ SDLC 20-KC-275 ] Specialty name Switch to local master (TOKUIM.qvd) without using specialization name in movement details ⇒ Purpose of unifying specialty names
+//set My_Version = 'Ver 2.21(2020/06/08)'; 			// [ SDLC 20-KC-268 ] Addition of movement detail items ① Project name , ② Shipping destination prefecture
+//set My_Version = 'Ver 2.20(2020/05/01)'; 			// Tsuyama SAP compatible Add movement detail items ①Set name , ②Project number , ③Shipping destination name , ④Shipping destination address
+//set My_Version = 'Ver 2.14(2019/12/06)'; 			// <Sales results search tab> JOB classification added
+//set My_Version = 'Ver 2.13(2019/08/01)'; 			// <Sales wrap tab> Number of main products ( JOB shipment included) Add miscellaneous ( ='34' ) and usage ='8' to the number calculation
+//set My_Version = 'Ver 2.12(2019/05/16)'; 			// <Sales results search tab> Change branch name and channel name from axis to formula
+//set My_Version = 'Ver 2.11(2019/04/23)'; 			// ① Switch the channel master and branch master from the general master to the history master ② Fixed the issue where the gross profit budget is not displayed when the main budget is zero or none correspondence
+//set My_Version = 'Ver 2.10(2018/11/15)'; 			// New environment version
+													// ① Do not read 	LDAP ② Abolish the menu disclosure pattern by users 	③ Miniature version for development environment 		④ Create QVD budget for each person in charge
+
+//set My_Version = 'Ver 2.01b(2018/08/07)'; 			// Return emergency fix to normal
+//set My_Version = 'Ver 2.01a(2018/07/11)'; 			// Urgent fix! !
+//set My_Version = 'Ver 2.01(2018/07/09)'; 			// Remove the viewing control of the "Property Management" sheet and make it public to everyone (button viewing authority remains)
+//set My_Version = 'Ver 2.00(2018/05/01)'; 			// [ SAP version]
+
+//set My_Version = 'Ver 1.62(2017/12/19)'; 			// Read release information for sales performance search from Excel
+//set My_Version = 'Ver 1.61(2017/12/05)'; 			// Support subtotal in sales results search
+//set My_Version = 'Ver 1.60(2017/11/20)'; 			// Have department master and location master every half year
+//set My_Version = 'Ver 1.59(2017/11/20)'; // 			Define FD order. Change master file name. [ Master.xlsx ⇒ FD master.xlsx ] _
+//set My_Version = 'Ver 1.58(2017/11/17)'; 			// Correction for double recording errors in the total value of property JOB ( double recording when multiple shipping dates exist for the same property number )
+//set My_Version = 'Ver 1.57(2017/11/16)'; // 			Convert the sales code when CNO≠01 to "--"
+//set My_Version = 'Ver 1.56(2017/11/07)'; 			// Add gross profit budget import logic
+//set My_Version = 'Ver 1.55(2017/10/10)'; 			// Added budget import logic for each person
+//set My_Version = 'Ver 1.54(2017/10/05)'; 			// Add warehouse sort order
+//set My_Version = 'Ver 1.53(2017/10/02)'; 			// Changed the initial year and month to calculate the latest actual occurrence date as the current day
+//set My_Version = 'Ver 1.52(2017/05/12)'; 			// TLOOKS version sales results added 	☆ BIS limited
+
+//set My_Version = 'Ver 1.51(2017/05/08)'; // 			When C_NO≠'01' , NET amount ⇒ PP amount, 0 ⇒ NET amount
+//set My_Version = 'Ver 1.50(2017/04/11)'; 			// Official release
+//set My_Version = 'Ver 1.43(2017/04/07)'; 			// Movement details @1 : Company code Process only those where is 'V00000' (exclusion function )
+													// Exclude movement details <Subordinate code: VAAG specialty : VT906600000 Occurrence date: March 2017 Warehouse: 520,540 ＞
+2017/03/28 )'; 			// " The number and price of air conditioners for TLSC will be excluded from October 2015 onwards" → Correction " Only sales wraps are excluded"
+//set My_Version = 'Ver 1.41(2017/03/23)'; 			// Added sales graph for all products by location
+//set My_Version = 'Ver 1.40(2017/01/16)'; 			// Support for transferring the occurrence date to a working day
+//set My_Version = 'Ver 1.39(2016/12/22)'; 			// Supports "Sabu[1.1]" channel and branch code
+//set My_Version = 'Ver 1.38(2016/11/09)'; 			// Set the initial display to the current month only
+//set My_Version = 'Ver 1.37a(2016/10/03)'; // 			Import the number of JOB miscellaneous machines
+//set My_Version = 'Ver 1.37(2017/03/17)'; 			// Construction property backlog/work in progress Added items ① Main contractor/subcontractor classification ② Industrial waste treatment classification
+//set My_Version = 'Ver 1.36(2016/09/26)'; //Exclude the number 			and price of air conditioners for TLSC from October 2015 onwards
+//set My_Version = 'Ver 1.35(2016/07/26)'; 			// Add content to the movement details sheet search item "Information NO "
+//set My_Version = 'Ver 1.34(2016/05/19)'; 			// Add search item "Responsible" to the movement details sheet
+//set My_Version = 'Ver 1.33(2016/04/15)'; 			// Import "Scheduled construction start FROM(54) , Scheduled construction start TO(55) , Construction start record FROM(65) " from property information
+//set My_Version = 'Ver 1.32(2016/04/13)'; 			// Import "own district (automatically created class)" from the movement details
+//set My_Version = 'Ver 1.31(2016/04/07)'; 			// Add "day" to the movement details sheet
+//set My_Version = 'Ver 1.30(2016/04/05)'; 			// Add function for the entire department
+//set My_Version = 'Ver 1.29(2016/04/04)'; 			// Support for budget data duplication
+//set My_Version = 'Ver 1.28(2016/03/28)'; 			// ☆ Limited release of construction engineer name duplicate check function (Onishi, Asami, Kaji, Nakagawa only)
+//set My_Version = 'Ver 1.27(2016/03/18)'; 			// ☆ Import from construction property as information by name of construction engineer whose cost is 25 million yen or more
+//set My_Version = 'Ver 1.26(2016/03/08)'; 			// Import the "construction engineer name" from the construction property
+//set My_Version = 'Ver 1.25(2016/02/16)'; 			// Import "Purchase Order NO. " from the transfer details
+//set My_Version = 'Ver 1.24(2016/02/08)'; // 			Try reading LDAP
+//set My_Version = 'Ver 1.23(2016/01/15)'; // 			Add LP to ACT_LOAD .
+//set My_Version = 'Ver 1.22(2015/12/18)'; 			// Exclude construction property cancellation flag = 1
+//set My_Version = 'Ver 1.21(2015/12/17)'; 			// Respond to construction property backlog/work in process (obtain shipping date and property information registration date from movement details)
+//set My_Version = 'Ver 1.20(2015/11/19)'; 			// Compatible with backlog and work-in-progress of construction items
+//set My_Version = 'Ver 1.10(2015/10/20)'; 			// Import construction property
+//set My_Version = 'Ver 1.01(2015/05/01)'; 			// Support common folder reference
+//set My_Version = 'Ver 1.00(2014/03/01)'; 			// Demo presentation version
+
+// common definition
+set DEBUG = 1;
+let varC_StarStr = Repeat( '*' , 80 );
+LET varD_Today = Today(); 							// Today's set
+//LET varD_Today = '2016/11/05';
+
+//DB connection information
+set My_DB_User =DWHA;
+set My_DB_PW =fYJDACdKIKQISWFMOLYOWSJOKH;
+set My_DB_Source =DWHPRO.WORLD;
+
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+LET DEBUG = 1;
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$($(StarStr));
+	Trace $(varD_LocalTime) : [ 1 ] Start ;
+ENDIF
+
+// Folder/file definition
+set MY_MASTER_DIR='..\..\TCC common \XLS\';
+set MY_MASTER_FILE='FD master.xlsx ';
+set MY_QVD_DIR='..\QVD\';
+set MY_LOCAL_DIR='..\data\';
+set MY_COMMON_QVD_DIR='..\..\TCC common \QVD\'; 					//Ver 3.00 Add
+
+Let MY_TOKUIM='$(MY_COMMON_QVD_DIR)TOKUIM.QVD'; 				// Special master
+Let MY_KIGYOUM='$(MY_COMMON_QVD_DIR)KIGYOUM.QVD'; 			// Company Master
+Let MY_ANKENMEI='$(MY_COMMON_QVD_DIR)ANKENMEI.QVD'; 			// Project name
+Let MY_IDOMEISAI='$(MY_COMMON_QVD_DIR)IDOMEISAI.QVD'; 		// Migration details
+
+Let MY_OPPO='$(MY_COMMON_QVD_DIR)OPPORTUNITY.QVD'; 			//SFDC project
+Let MY_OPPOIT='$(MY_COMMON_QVD_DIR)OPPOITEM.QVD'; 			//SFDC Item details
+
+// Execution section definition
+LET MY_ComputerName = Upper(ComputerName()); 				//Reload Get computer name
+LET MY_TESTENVIRON = 0; 									//0: Production mode, 1: Test mode
+LET MY_INQUIRY_MODE = 0; 									//0: Normal mode, 1: Inquiry mode
+LET MY_NAME = Upper(DocumentName()); 				// Get document name
+LET MY_PATH = Upper(DocumentPath()); 				// Get document path
+	let MY_1=index('$(MY_PATH)','\',-1);
+	let MY_2=index('$(MY_PATH)','\',-2);
+LET MY_FOLDER = mid('$(MY_PATH)',MY_2+1,MY_1-MY_2-1); 	// Get document folder name
+if '$(MY_FOLDER)'='QVW' then
+	set MY_QVD_UPDATE=1; // 									Update QVD
+else
+	set MY_QVD_UPDATE=0; // 									Do not update QVD
+ENDIF
+
+// Category change for past sales results search ～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～Start『☆』
+	LET MY_IDOMEISAI='$(MY_COMMON_QVD_DIR)IDOMEISAI*.QVD';// Migration item name
+	LET MY_QVD_UPDATE=0; // 									Do not update QVD
+	LET MY_INQUIRY_MODE=1; 									//1: Inquiry mode
+// Changing classification for searching past sales results～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～END
+
+
+
+//------------------------------------------------ ----------------------------------
+// Month sort order
+//------------------------------------------------ ----------------------------------
+MONTH_SORT: –(Common exists in PSI_meisai)
+//Ver 3.10 Upd Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+// 	LOAD * INLINE [
+//	    MONTHSORT _
+// 	4, 1
+// 	5, 2
+// 	6, 3
+// 	7, 4
+// 	8, 5
+// 	9, 6
+// 	10, 7
+// 	11, 8
+// 	12, 9
+// 	1, 10
+// 	2, 11
+// 	3, 12
+// 	];
+LOAD * INLINE [
+    Month , MONTHSORT, MONTHSORT_CY
+4, 1, 4
+5, 2, 5
+6, 3, 6
+7, 4, 7
+8, 5, 8
+9, 6, 9
+10, 7, 10
+11, 8, 11
+12, 9, 12
+1, 10, 1
+2, 11, 2
+3, 12, 3
+	];
+//Ver 3.10 Upd End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+
+
+// Amount unit
+Amount unit :
+LOAD * INLINE [
+DIVIDE, UNIT
+1 yen
+1000,000 yen
+1 million yen
+];
+
+// data source
+Data source :
+LOAD * INLINE [
+    system , origin
+00, 	TLOOKS
+01, 	SAP
+02, 	AS400
+03, 	CS-SEVEN
+];
+
+//Ver 1.55 Add Start ============================================ ============
+//================================================= ========
+// Create a mapping table to convert from full-width to half-width
+//================================================= ========
+MAP_WideToNarrow:(common exists in psi_meisai)
+Mapping LOAD
+	full-width ,
+	Half width
+FROM
+[$(MY_LOCAL_DIR) Full-width half-width conversion.xlsx ]
+(ooxml, embedded labels, table is Sheet1);
+//Ver 1.55 Add End ============================================ ============
+///$tab LDAP_CHECK
+////Ver 1.24 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+////---------------------------------------------- -----------------------------
+////　Trace
+////---------------------------------------------- -----------------------------
+//IF( DEBUG = 1 ) THEN
+// 	LET varD_LocalTime = LocalTime();
+// 	TRACE$(StarStr);
+// 	Trace $(varD_LocalTime) : [ 2 ] LDAP check ;
+//ENDIF
+//
+////---------------------------------------------- -----------------------------
+//// Determine the login user and decide whether to use it			
+//// 	Stop retrieving from DB and retrieve from QVD
+////---------------------------------------------- -----------------------------
+//// Do not monitor errors
+//set ErrorMode = 0;
+//
+//LDAPTMP:
+//LOAD
+// 	CN,
+// 	OU_LANG_JP_R,
+// 	SN,
+// 	SN_LANG_JP,
+// 	SN_LANG_JP_K,
+// 	GIVENNAME,
+// 	GIVENNAME_LANG_JP,
+// 	GIVENNAME_LANG_JP_K,
+// 	EMPLOYEENUMBER,
+// 	MAIL_ADR,
+// 	MAIL_NOTES,
+// 	MAIL_E_MAIL,
+// 	SAC,
+// 	SAC_CAD,
+// 	SAC_TCCJ,
+// 	SAC_WEB,
+// 	SAC_OCA,
+// 	SAC_SONOTA1,
+// 	SAC_SONOTA2,
+// 	MODIFIER,
+// 	MODIFIER_CARD,
+// 	MOBILE,
+// 	MOBILE_PC,
+// 	MOBILE_NUMBER,
+// 	ADDITIONALPOST,
+// 	ADDITIONALPOST_EP,
+// 	STATUSMEI,
+// 	STATUSCODE,
+// 	JOBS,
+// 	CSVINPUT,
+// 	ADMINGROUPDN,
+// 	PWKEEPHISTORY_START,
+// 	DN,
+// 	USERNAME,
+// 	BACKUP_DATE
+//FROM
+//[..\..\TCC_INFLA_COST\QVD\20*_LDAP.qvd]
+//(qvd)
+//Where IsNull(USERNAME)=False()
+//;
+//TAB_BACKUP_DATE:
+//LOAD max(BACKUP_DATE) 		as MAX_BACKUP_DATE
+//Resident LDAPTMP
+//;
+//LET varD_LATEST_BACKUP_DATE = peek('MAX_BACKUP_DATE', 0, 'TAB_BACKUP_DATE');
+//DROP Table TAB_BACKUP_DATE;
+//
+//// Get the latest LDAP
+//LDAP_ALL:
+//LOAD
+// 	*,
+// 	'x' 			as dummy
+//Resident LDAPTMP
+//Where BACKUP_DATE=$(varD_LATEST_BACKUP_DATE)
+//;
+//DROP Table LDAPTMP;
+//
+////// Get LDAP of all D division/section
+////LDAP_DDIV:
+////LOAD
+//// 	Distinct
+//// 	CN 					as administrator unified ID,
+//// 	USERNAME 			as administrator name ,
+//// 	SN 					as administrator name E1,
+//// 	GIVENNAME 			as administrator name E2,
+//// 	SN_LANG_JP 			as administrator name J1,
+//// 	GIVENNAME_LANG_JP as administrator name J2,
+//// 	OU_LANG_JP_R 		as administrator affiliation
+////Resident LDAP_ALL
+////Where DN like '(TCC)(Dhon)*'
+////;
+////DROP Table LDAP_ALL;
+//
+////// Acquisition of people who can view 		◆ Property management/JOB backlog sheet ◆
+//// Admin :
+////LOAD * INLINE [
+//// Administrator unified ID, administrator name , administrator affiliation
+//// 	d0055410 , Takahiro Hirano 	, ○ PSI
+//// 	z0087ca1 , Masatoshi Yamada 	, ○ PSI
+//// 	w3000590 , Maki Ueyama 	, □ Finance ○ MainLord
+//// 	d6065110 , Kazuhiro Nabeta 	, □ Economics
+//// 	e0053010 , Yoshiaki Kondo 	, □ Economics
+//// 	e2003610 , Nobumi Asami 	, □ Economics ○ BIS
+//// 	n9001090 , Toshio Saito 	, □ Economics ○ BIS
+//// 	w9008390 , Junichi Sato 	, □ Economics ○ BIS
+//// 	q2202655 , Akihiro Ishiwatari 	, □ Economics ○ BIS
+//// 	q5202655 , Shunichi Nakagawa 	, □ Economics ○ BIS
+//// 	q5208055 , Takeaki Matsue 	, □ Economics ○ BIS
+//// 	e0201310 , Makoto Takada 		, □ Economics ○ BIS
+//// 	e7112810 , Hironori Tominaga 	, □ Economics ○ BIS
+//// 	n9103240 , Takao Horikoshi 	, □ Economics ○ BIS
+//// 	q4206752 , Kaji Akihiko 	, □ Economics ○ EIS
+//// 	shunes, Toshiba Taro 		, □ Economics ○ BIS
+//// 	w3405100, Shuzo Oda , ○ D division/section □ Route wide area ○ HS
+//// 	q5001055 , Kenjiro Beni , ○ D division/section □ Route capital ○ Tokyo Metropolitan Area
+//// 	q5000655 , Maho Tsukimi , ○ D division/section □ Business strategy ○ D sales promotion
+//// 	e3072210 , Kumiko Yamaguchi , ○ D division/section □ Business strategy ○ D sales promotion
+//// 	e2000623 , Yasuo Ogaki , ○ D division/section □ Business strategy ○ Business promotion
+//// 	p4001290 , Takashi Sugiura , ○ D division/section □ Kanshinetsu(EastJapan) ○ Kanshinetsu(East Japan) SL
+//// 	p2000390 , Tsune Kajii , ○ D division/section □ Kyushu ○ Business promotion
+//// 	q2201255 , Tomomi Kurashige , ○ D division/section □ Chugoku-Shikoku ○ Business promotion
+//// 	m8010690 , Toshiro Moroi , ○ D division/section □ Chugoku-Shikoku ○ Chugoku SL
+//// 	z0048sk1, Mitsugu Uchiyama , ○ D division/section □ Chugoku-Shikoku ○ Chugoku Cooler
+//// 	q6006855 , Kazuya Hanasaki , ○ D division/section □ Chugoku-Shikoku ○ Chugoku Service cooler
+//// 	z0193sk1 , Yoshimasa Yasutake , ○ D division/section □ Chugoku-Shikoku ○ China service cooler
+//// 	n1700490 , Masami Yoso , ○ D division/section □ Chugoku-Shikoku ○ China service cooler
+//// 	p5003690 , Kentaro Yano , ○ D division/section □ Chugoku-Shikoku ○ China route
+//// 	n5010890 , Seiji Matsumoto , ○ D division/section □ Chugoku-Shikoku ○ Chugoku-Shikoku D-technique
+//// 	p1000290 , Kosuke Nishizuka , ○ D division/section □ Chubu ○ Chubu route
+//// 	p0001390 , Miyayuki Takaoka , ○ D division/section □ Chubu ○ Chubu route
+//// 	w9004390 , Yuji Sugawara , ○ D division/section □ Tohoku ○ Tohoku SL
+//// 	p3002590 , Daiki Takeuchi , ○ D division/section □ Hokuriku ○ Hokuriku SL
+//// 	q7005255 , Masahiro Kuroda , ○ D division/section □ Hokuriku ○ Hokuriku Saei
+//// 	p6003690 , Sotoji Kubo , ○ D division/section □ Hokuriku ○ Hokuriku route
+//// 	p2000290 , Hidekazu Onishi , ○ D division/section ○ SS management □ SS promotion ○ SS management promotion
+//// 	z27707nb , Katsumi Kanno , ○ D division/section ○ SS management □ Service management ○ Service C
+//// 	q7207355 , Manami Hamada , ○ D division/section ○ SS control □ Service ○ Saichi
+//// 	q8201155 , Shuka Kawaguchi , ○ D division/section ○ SS management □ Service department ○ Service order
+//// 	t7613775 , Chiharu Wakayama , ○ D division/section ○ SS control □ Construction pipe ○ SL engineering
+//// 	z28026nb, Genta Seki , ○ D division/section ○ SS control □ Construction pipe ○ Service construction 
+//// 	p8003090 , Ryosuke Koseki , ○ D division/section ○ SS control □ Cold machine wide area ○ Cold machine wide area
+//// 	q6204855 , Airi Watanabe , ○ D division/section ○ SS control □ Cold machine wide area ○ Cold machine wide area
+////];
+////	
+//////Ver 1.30 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+//// 	//*** Entire division/section D ***
+//// 	Join( Administrator )
+//// 	LOAD
+//// 		Administrator unified ID,
+//// 		Administrator name ,
+//// 		MaxString( belongs to administrator ) 		as belongs to administrator
+//// 	Resident LDAP_DDIV
+//// 	group by administrator unified ID, administrator name
+//// 	;
+//////Ver 1.30 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+//
+////// Acquisition of people who can view 					◆ Property management/JOB backlog sheet ◆ "Construction engineer duplicate check" button enabled
+//// Administrator 2:
+////LOAD * INLINE [
+//// Administrator 2 unified ID, Administrator 2 name , Administrator 2 affiliation
+//// 	m7075310 , Yasukata Onishi 	, ○ D division/section ○ SS control □ Sa engineering plan
+//// 	e0053010 , Yoshiaki Kondo 	, □ Economics
+//// 	Z0034sk1, Suzuki Osamu 	, ○ D division/section
+//// 	w4300190 , Shiori Toida 	, ○ D division/section
+//// 	m9000590 , Fine root Toru 	, ○ D division/section
+//// 	p006wvna, Kazuhiro Hoshino 	, ○ D division/section
+//// 	c5000200, Tatsuya Nagashima 	, ○ D division/section
+//// 	d9137010 , Miki Onda 	, ○ D division/section
+//// 	z0228sk1 , Hiroki Kizu 	, ○ D division/section
+//// 	p6002690 , Masanori Furuoya 	, ○ D division/section
+//// 	p5003190 , Yasuhiko Anyoji 	, ○ D division/section
+//// 	z0160sk1, Naoki Miyagawa 	, ○ D division/section
+//// 	n9000190 , Yoshio Sugiyama 	, ○ D division/section
+//// 	z0003sk1 , Yoko Iyama 	, ○ D division/section ○ SS management □ Sakokki ○ Koan
+//// 	p6004690 , Hitoshi Fujita 		, ○ D division/section ○ SS control □ Sakokki ○ Koan ( added 2017/04/27 )
+//// 	q7001155, Hiromi Fukushima 	, ○ D division/section ○ SS management □ Sa engineering planning ○ Engineering security ( added 2017/04/27 )
+//// 	z0007sk1 , Shizuko Onishi 	, ○ D division/section ○ SS management □ Sa engineering planning ○ Engineering security ( added 2018/04/24 )
+//// 	e2003610 , Nobumi Asami 	, □ Economics ○ BIS
+//// 	n9001090 , Toshio Saito 	, □ Economics ○ BIS
+//// 	w9008390 , Junichi Sato 	, □ Economics ○ BIS
+//// 	q2202655 , Akihiro Ishiwatari 	, □ Economics ○ BIS
+//// 	q5202655 , Shunichi Nakagawa 	, □ Economics ○ BIS
+//// 	q5208055 , Takeaki Matsue 	, □ Economics ○ BIS
+//// 	e0201310 , Makoto Takada 		, □ Economics ○ BIS
+//// 	e7112810 , Hironori Tominaga 	, □ Economics ○ BIS
+//// 	n9103240 , Takao Horikoshi 	, □ Economics ○ BIS
+//// 	q4206752 , Akihiko Kaji 	, □ Economics ○ EIS
+//// 	shunes, Toshiba Taro 		, □ Economics ○ BIS
+////];
+//
+////// Acquire who can view 					◆ New migration details (sales results search) sheet ◆
+//// Administrator 3:
+////LOAD
+//// 	CN 					as administrator 3 unified ID,
+//// 	USERNAME 			as administrator3 names , _
+//// 	MAIL_ADR,
+//// 	OU_LANG_JP_R 		as administrator 3 affiliation ,
+//// 	STATUSCODE,
+//// 	STATUSMEI,
+////// 	REJECT,
+//// 	if(TYPE=1,0,
+//// 		if(TYPE=2,1,9)
+//// 	) 					as administrator 3 display
+////FROM
+////[..\data\viewing permissions.xlsx ]
+////(ooxml, embedded labels, table is private )
+////Where REJECT<>1
+////;
+//	
+//// Set error monitoring to normal
+//set ErrorMode = 1;
+////drop Table LDAP_DDIV;
+////Ver 1.24 Add End 														↑↑↑↑↑↑↑↑↑↑↑
+///$tab Master
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 3 ] Local master capture ;
+ENDIF
+
+	//Ver 2.11 Add Start--------------------------------------------------- ---↓↓↓↓↓
+//------------------------------------------------ ---------------------------
+// Import sales performance parameters
+//------------------------------------------------ ---------------------------
+PARAMETER:(Common exists in psi_meisai)
+LOAD
+	Loading start date ,
+	Valid starting year ,
+	Sales confirmed ,
+	Sales confirmation date ,
+	Sales confirmation time ,
+	Sales Actual message
+FROM
+[$(MY_LOCAL_DIR) Sales actual parameters.xlsx]
+(ooxml, embedded labels)
+;
+LET varN_VALID_STARTDATE 		=Peek(' Reading start date ', 		0,'PARAMETER');
+LET varN_VALID_STARTYEAR 		=Peek(' Valid start year ', 		0,'PARAMETER');
+LET varN_VALID_KAKUTEI_TARGET 	=Peek(' Sales confirmation target ', 		0,'PARAMETER');
+LET varN_VALID_KAKUTEIDATE 		=Peek(' sales confirmation date ', 		0,'PARAMETER');
+LET varN_VALID_KAKUTEITIME 		=Peek(' Sales confirmation time ', 			0,'PARAMETER');
+LET varC_VALID_MESSAGE 			=Peek(' Sales actual message ', 		0,'PARAMETER');
+LET varC_VALID_DEMO_MESSAGE 		=Peek(' Sales actual message ', 		1,'PARAMETER');
+LET varC_VALID_INQ_MESSAGE 		=Peek(' Sales actual message ', 		2,'PARAMETER');
+dropTable PARAMETER;
+
+// If it is DEMO version, change the message to DEMO version
+if MY_QVD_UPDATE=0 then
+	LET varC_VALID_MESSAGE 		='$(varC_VALID_DEMO_MESSAGE)';
+ENDIF
+
+// If the sales confirmation date is less than 12 days before the current date, clear the contents.
+if '$(varN_VALID_KAKUTEIDATE)'<left(DATE(Today()-12,'YYYY/MM/DD'),10) then
+	set varN_VALID_KAKUTEIDATE='';
+ENDIF
+//Ver 2.11 Add End 	----------------------------------------- ---↑↑↑↑↑
+	
+// Change the effective start year when in inquiry mode
+if $(MY_INQUIRY_MODE)=1 then				
+	LET varN_VALID_STARTYEAR=2012;
+// 	LET varN_VALID_STARTYEAR=2021;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+//FD master import
+//------------------------------------------------ ---------------------------
+MASTER_FD:(common exists in psi_meisai)
+LOAD Distinct
+	FD major classification name 					as Product classification name ,
+	category name 							as Product classification name ,
+	Minor classification name 						as Product subcategory name , 	// Added on 2015.06.09
+	Purchase classification 						as Purchase classification code , 	//Ver 1.40 added
+	FD major classification order , 											//Ver 1.40 added
+	FD major classification order *100+FD major classification order 		as FD medium classification order , 		//Ver 1.40 added
+	FD,
+	FD order ,
+	Product classification name 						as FD name
+FROM
+[$(MY_MASTER_DIR)$(MY_MASTER_FILE)]
+(ooxml, embedded labels, header is 0 lines, table is FD)
+Where FD major classification >0
+;
+
+MASTER_FD2:(Common in psi_meisai)
+LOAD Distinct
+	FD major classification name 					as Product classification name ,
+	 category name 						as Product classification name ,
+//	 Minor classification name 						as product subcategory name , 	// ☆☆ added
+//	 Quantity management product 					as Quantity management product name ,
+	 Management product classification 				as management
+FROM
+[$(MY_MASTER_DIR)$(MY_MASTER_FILE)]
+(ooxml, embedded labels, header is 0 lines, table is FD)
+Where FD major classification >0
+;
+//Ver 1.52 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+//------------------------------------------------ ---------------------------
+// Import classification master
+//------------------------------------------------ ---------------------------
+MASTER_Classification_FD : (common in psi_meisai)
+LOAD
+	Product classification 						as FD,
+	[ Sales Department (BU)] 					as BU,
+	[ Sales department (BU) name ] 				as BU name ,
+	[ Product group ( purchase GP)] 				as purchase GP,
+	[ Product group ( purchase GP) name ] 			as purchase GP name
+FROM
+[$(MY_MASTER_DIR)$(MY_MASTER_FILE)]
+(ooxml, embedded labels, header is 0 lines, table is purchasing GPBU)
+Where len( product classification )=3
+and IsNum(left( product classification ,1))=False()
+;
+MASTER_Classification_Management Classification : _ _(common in psi meisai)
+LOAD
+	Product classification 						as management ,
+	[ Sales Department (BU)] 					as BU,
+	[ Sales department (BU) name ] 				as BU name ,
+	[ Product group ( purchase GP)] 				as purchase GP,
+	[ Product group ( purchase GP) name ] 			as purchase GP name
+FROM
+[$(MY_MASTER_DIR)$(MY_MASTER_FILE)]
+(ooxml, embedded labels, header is 0 lines, table is purchasing GPBU)
+Where len( product classification )=3
+and IsNum(left( product classification ,1))=True()
+;
+//Ver 1.52 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+
+//------------------------------------------------ ---------------------------
+Connect to DWH server
+//------------------------------------------------ ---------------------------
+OLEDB CONNECT TO [Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=$(My_DB_User);Data Source=$(My_DB_Source);Extended Properties=""] (XPassword is $(My_DB_PW));
+
+//------------------------------------------------ ---------------------------
+// Branch master import
+//------------------------------------------------ ---------------------------
+MASTER_BRANCH:(common exists in psi_meisai)
+SQL
+select
+	HANKI 			as year ,
+	SHITEN 			as branch code ,
+	SHITEN_NAME 		as branch name ,
+	SOSHIKI 			As Operation Division ,
+	SHITEN_SORT 		as branch name SORT
+from 	M0124_SHITEN_RIREKI
+order by HANKI,SHITEN_SORT
+;
+
+//------------------------------------------------ ---------------------------
+// Channel master import
+//------------------------------------------------ ---------------------------
+MASTER_CHANNEL:(Common exists in Psi Meisai)
+SQL
+select
+	HANKI 			as year ,
+	CHANNEL 		as channel code ,
+	CHANNEL_NAMEas channel ,
+	CHANNEL_SORTas Channel code SORT
+from 	M0123_CHANNEL_RIREKI
+order by HANKI,CHANNEL_SORT
+;
+
+//------------------------------------------------ ---------------------------
+// Import sales office master data
+//------------------------------------------------ ---------------------------
+MASTER_KYOTEN0:(common exists in psi_meisai)
+SQL
+select
+	NENDO,
+	HANKI,
+	BUKA_CD,
+	BUKA_NAME,
+	BUKA_SORT,
+	SHISHA_CD,
+	SHISHA_NAME,
+	KYOTEN_NAME,
+	KYOTEN_SORT
+from 	TEMP_BUKA
+;
+MASTER_KYOTEN(common exists in psi_meisai):
+LOAD
+	NENDO&HANKI&BUKA_CD 			as concatenated key 2,
+	BUKA_NAME 					as department name ,
+	BUKA_SORT 					as department order ,
+	SHISHA_CD 					as location branch code ,
+	SHISHA_NAME 					as location branch ,
+	KYOTEN_NAME 					as location name ,
+	KYOTEN_SORT 					as Order by location name
+Resident 	MASTER_KYOTEN0
+;
+MASTER_KYOTEN2(common exists in psi_meisai):
+LOAD
+	NENDO&HANKI&BUKA_CD 			as concatenated key 5,
+	BUKA_NAME 					as department/section name2,
+	BUKA_SORT 					as department order 2,
+	SHISHA_CD 					as location branch code 2,
+	SHISHA_NAME 					as location branch 2,
+	KYOTEN_NAME 					as location name 2,
+	KYOTEN_SORT 					as location name order 2
+Resident 	MASTER_KYOTEN0
+;
+DROP Table MASTER_KYOTEN0;
+
+
+//------------------------------------------------ ---------------------------
+// Import calendar master
+//------------------------------------------------ ---------------------------
+MASTER_CALENDAR(common exists in psi_meisai):
+SQL
+select distinct
+	TO_CHAR(C_DATE, 'YYYY/MM/DD') as CDATE
+from 	M0102_CALENDAR_SCHEDULE
+where 	HOLIDAY=0
+and 	SITE='PSI'
+;
+
+//------------------------------------------------ ---------------------------
+// BM store master import
+//------------------------------------------------ ---------------------------
+MASTER_BM(common exists in psi_meisai):
+SQL
+select distinct
+	SBM_CD 					as subcontractor BM store ,
+	SBM_NAME 				as subcontractor BM store name ,
+	OTE 						as major classification ,
+	OTE_ORDER 			as major display order
+from 	M0116_SBM
+;
+//------------------------------------------------ ---------------------------
+// Get TOV ( Product master )
+//------------------------------------------------ ---------------------------
+SHOHIN_TBL(common exists in psi_meisai):
+SQL
+select distinct
+	SHOHIN_CD 			as product code ,
+LP_KINGAKU 			             as LP , 					// Standard price
+TOV 					as TOV 				// Manufacturing cost
+from M0118_SHOHIN
+;
+
+//------------------------------------------------ ---------------------------
+// Import company master
+//------------------------------------------------ ---------------------------
+Company master :
+SQL
+select
+	distinct
+	company code ,
+	Company name
+from V_Company
+;
+
+//Ver 2.22 Add Start ================
+//------------------------------------------------ ---------------------------
+// Import the good master
+//------------------------------------------------ ---------------------------
+let CURTIME=date(Now(),'hh:mm');
+if '$(CURTIME)'>='5:10' and '$(CURTIME)'<='7:40' then
+	TOKUI_TMP(common exists in psi_meisai):
+	SQL
+	select
+		distinct
+		special code ,
+		special name
+	FROM V_special at
+	;
+	join
+	LOAD
+		distinct
+		special code ,
+		Special name as ONAME
+	from $(MY_QVD_DIR)TOKUIM.qvd(qvd);
+	;
+	TOKUIM:(Differs from psi)
+	LOAD
+		special code ,
+		if(Isnull(ONAME)=True(), special name ,if(IsNull( special name )=True(),ONAME, favorite name )) as special name
+	Resident TOKUI_TMP
+	;
+	DROP Table TOKUI_TMP;
+	
+	store TOKUIM into $(MY_QVD_DIR)TOKUIM.qvd;
+	DROP Table TOKUIM;
+ENDIF
+TOKUIM(commom in psi):
+LOAD
+	distinct
+	special code ,
+	Special name as ONAME
+from $(MY_QVD_DIR)TOKUIM.qvd(qvd);
+;
+//Ver 2.22 Add End ================
+///$tab SalesForce information
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 4 ] SalesForce data import ;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+// Import "Item"
+//------------------------------------------------ ---------------------------
+BUKKEN_INFO0(differs from psi):
+SQL select
+	Item ID 								as property ID, 				//@1)
+	Item number 								as property No., 				//@2)'BUKKEN ' & @2
+	Item name 							as property name , 				//@3)
+	Property inspection status 				as data classification , 			//@7)
+	substr( property inspection status ,1,1) 		as data classification No.,
+	Case status , 														//2018.09.12 added
+	Application before 						NET amount change as original order amount , 		//@17)
+	Application before 						TOV amount change as original cost amount , 		//@18)
+	Application before gross profit amount change 						as initial gross profit amount , 		//@19)
+	NET amount applied for this time 							as change order amount , 		//@21)
+	Total cost 									as change cost amount , 		//@22)
+	Gross profit amount This time application 						as changed gross profit amount , 		//@23)GROSSMARGINPRICEACT__C
+	TOV amount Current actual 							as actual cost amount , 		//@25)TOVACT__C
+	TOV amount Current results + gross profit amount Current results 		as Actual sales amount , 		//@25)+@26)
+	Main contractor/subcontractor classification 							as main contractor/subcontractor classification , 		//@31)
+	JOB classification 									as JOB classification ORG, 			//@33)
+	Property classification 						as FD name , 				//@34)
+	Main department/section code 			as department/section code , 			//@35)
+	Industrial waste 					as industrial waste treatment classification , 		//@53)
+	Main 									as person in charge  , 				//@38)
+	Sales account code 						as Specialty , 				//@39)
+	Sales supplier name 					as Special name , 				//@40)
+	Construction engineer 			as construction engineer name , 		//@51)
+	to_char( Scheduled start date , 'YYYY/MM/DD') 		as Scheduled start date , 			//@54)
+	to_char( sales completion date ,'YYYY/MM/DD') 	as completion date , 			//@55)
+	to_char( estimated sales completion date , 'YYYY/MM') 		as expected sales month , 			//@56)
+	to_char( sales completion date ,'YYYY/MM/DD') 		as sales recording date , 			//@63)
+	to_char( start date ,'YYYY/MM/DD') 			as start date , 				//@65)
+	to_char( sales completion date 	,'YYYY/MM/DD') 		as sales registration date , 			//@82)
+	to_char( registration date ,'YYYY/MM/DD') 		as property information registration date , 		//@104)
+	to_char( Scheduled completion date ,'YYYY/MM/DD') 		as Scheduled completion date ,
+	to_char( Purchase order acquisition date ,'YYYY/MM/DD') 		as Purchase order acquisition date ,
+	to_char( Confirmation date ,'YYYY/MM/DD') 		as Confirmation date ,
+	to_char( Delivery note received date ,'YYYY/MM/DD') 		as Delivery note received date ,
+	to_char( Completion date ,'YYYY/MM/DD') 			asCompletion date ,
+	to_char( last updated ,'YYYY/MM/DD') 		as last updated ,
+	to_char( Delivery date ,'YYYY/MM/DD') 			as Delivery date ,
+	Property NO. for transition 				as old property NO,
+	Cost injection rate 								as Cost injection rate 2, 			//2018.07.05 added
+	Standard gross profit rate ,
+	Main department/section name ,
+	Public and private demand classification ,
+	Delivery name ,
+	prefectures ,
+	Property location ,
+	Apply for gross profit rate this time ,
+	Apply before changing LP amount ,
+	NET amount advance application ,
+	subsidiary item flag ,
+	After apportioning the gross profit amount ,
+	NET Amount item after breakdown ,
+	NET amount after breakdown ,
+              TOV amount item after breakdown ,
+	TOV amount after breakdown ,
+	Sequential number for quotation numbering ,
+	Last updated by ,
+	Application before gross profit rate change ,
+	Construction start actual
+from 	V_Item/case 
+whereProperty 	classification <>' Machine sales '
+;
+let varC_URIAGEYOTEI_MAX = (Year(Today())+5)&'/12'; 			//Ver 2.21 Add
+BUKKEN_INFO(common in psi):
+LOAD
+	*
+	,'x' 			as dummy
+Resident 	BUKKEN_INFO0
+Where 	RecNo()<=if($(MY_TESTENVIRON)=1,100,100000000) 			//Ver 2.10 Add
+and 	sales forecast month <='$(varC_URIAGEYOTEI_MAX)' 						//Ver 2.21 Add
+;
+DROP Field dummy;
+DROP Table BUKKEN_INFO0;
+
+if $(MY_INQUIRY_MODE)=0 then 				// When not in inquiry mode
+	//------------------------------------------------ ---------------------------
+	// Import "Project details"
+	//------------------------------------------------ ---------------------------
+	AM0(common in psi meisai):
+	SQL select
+		Details ID ,
+		data identification classification ,
+		order status ,
+		New supply and demand coordination target flag ,
+		New supply and demand linked flag ,
+		case ,
+		Management product classification ,
+		TOV amount ,
+		TOV amount results ,
+		TOV unit price ,
+		TOV unit price results ,
+		supplier ,
+		Supplier code ,
+		FD ,
+		management classification ,
+		FD _New supply and demand collaboration ,
+		transaction classification ,
+		type ,
+		Product code ,
+		quantity ,
+		Quantity results ,
+		LP amount ,
+		LP unit price ,
+		NET amount ,
+		NET amount actual ,
+		NET unit price ,
+		NET unit price actual ,
+		Expected sales date ,
+		Product name ,
+		Detail classification ,
+		Unshipped number ,
+		variety ,
+		wholesale price to retail price rate ,
+		Normal gross profit rate ,
+		Normal gross profit ,
+		Not counted flag ,
+		Report NET ,
+		report gross profit ,
+		Response delivery time ,
+		date of acceptance ,
+		Inspection date ,
+		Item number ,
+		Model number
+	fromV_details _
+	;
+	QUALIFY *;
+	AM(common in psi meisai):
+	LOAD
+		*
+		,'x' 			as dummy
+	ResidentAM0
+	Where 	RecNo()<=if($(MY_TESTENVIRON)=1,100,100000000) 			//Ver 2.10 Add
+	;
+	UNQUALIFY *;
+	DROP Field AM.dummy;
+	DROP Table AM0;
+ENDIF
+
+//BUKKEN_INFO:
+//LOAD
+// @1 									as property ID,
+// 'BUKKEN ' & @2 						as property No.,
+// @3 									as property name ,
+// @7 								as data classification No.,
+// @17 								as initial order amount ,
+// @18 								as Initial cost amount ,
+// @19 							as initial gross profit amount ,
+// @21 								as change order amount ,
+// @22 								as change cost amount ,
+// @23 							as changed gross profit amount ,
+// @25 								as actual cost amount ,
+// @25 + @26 							as actual sales amount ,
+// 	if(@31='0',' main contractor ',' subcontractor ') 				as main contractor/subcontractor classification , 		//Ver 1.37 Add
+// 	@33 								as JOB classification ,
+// @34 									as FD,
+// @35 									as department code ,
+// if(@53='0',' none ',
+// 	if(@53='1',' Yes ',' ')
+// ) 									as Industrial waste treatment classification , 		//Ver 1.37 Add
+// @38 									as person in charge ,
+// @39 									as Specialty ,
+// @40 									as specialty name ,
+// @51 									as construction engineer name , 		//Ver 1.26 Add
+// 	if(@54<>'',
+// 		mid(@54,1,4) & '/' &
+// 		mid(@54,5,2) & '/' &
+// 		mid(@54,7,2)
+// 	) 									as Planned start date , 			//Ver 1.33 Add
+// 	if(@55<>'',
+// 		mid(@55,1,4) & '/' &
+// 		mid(@55,5,2) & '/' &
+// 		mid(@55,7,2)
+// 	) 									as Scheduled completion date , 			//Ver 1.33 Add
+// 	mid(@56,1,4) & '/' &
+// 	mid(@56,5,2) 						as expected sales month ,
+// 	if(@63<>'',
+// 		mid(@63,1,4) & '/' &
+// 		mid(@63,5,2) & '/' &
+// 		mid(@63,7,2)
+// 	) 									as sales recording date ,
+// 	if(@65<>'',
+// 		mid(@65,1,4) & '/' &
+// 		mid(@65,5,2) & '/' &
+// 		mid(@65,7,2)
+// 	) 									as construction start date , 			//Ver 1.33 Add
+// 	if(@82<>'',
+// 		mid(@82,1,4) & '/' &
+// 		mid(@82,5,2) & '/' &
+// 		mid(@82,7,2)
+// 	) 									as sales registration date ,
+// @90 									as cancellation flag ,
+// 	if(@104<>'',
+// 		mid(@104,1,4) & '/' &
+// 		mid(@104,6,2) & '/' &
+// 		mid(@104,9,2)
+// 	) 									as property information registration date
+//FROM
+//[$(MY_LOCAL_DIR)kdx_kihon.csv]
+//(txt, codepage is 932, no labels, delimiter is ',', msq)
+//Where len(@56)=6 							// Only those with valid sales forecast month
+//and @56>='200704' 							// Estimated sales month is 2007 or later
+//and @5='1' 									// Latest flag 
+( 1: Latest)
+//;
+///$tab migration details QVD modernization
+//Ver 3.00 Add Start ================
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime) : [ pre5 ] Migration details QVD latest ;
+ENDIF
+
+// Set of the current day, current year, and current month
+let varN_TODAY = left(date(Today(),'YYYYMMDD'),8);
+Let varN_YEAR=div($(varN_TODAY),10000);
+Let varN_MONTH=div($(varN_TODAY)-$(varN_YEAR)*10000,100);
+Trace "varN_YEAR / varN_MONTH" $(varN_YEAR) / $(varN_MONTH)　;
+
+// Find 		the 1st day of the previous month ⇒ varN_START_HASSEIBI
+Trace to find the 1st day of the previous month ;
+if $(varN_MONTH)=1 then
+	Let varN_START_HASSEIBI=($(varN_YEAR)-1)*10000+($(varN_MONTH)+11)*100+1;		
+ELSE
+	Let varN_START_HASSEIBI=$(varN_YEAR)*10000+($(varN_MONTH)-1)*100+1;		
+ENDIF;
+Trace "varN_START_HASSEIBI : " $(varN_START_HASSEIBI);
+
+// Find 		the 21st day of the previous month ⇒ varN_START_HASSEIBI2
+Let varN_START_HASSEIBI2=
+		left('$(varN_START_HASSEIBI)',4) &
+		mid('$(varN_START_HASSEIBI)',5,2) & '21';		
+Trace "varN_START_HASSEIBI2 : " $(varN_START_HASSEIBI2);
+
+if MY_QVD_UPDATE=1 then
+//------------------------------------------------ ---------------------------
+// ** Migration details QVD modernization **
+//------------------------------------------------ ---------------------------
+// Get data from the DB after the 21st of the previous month
+	Trace Get data after the 21st of the previous month from the DB ⇒ IDOMEISAI;
+	IDOMEISAI(common in psi):
+	SQL
+	select
+		*
+	from V_IDOMEISAI
+	where HASSEIBI>=$(varN_START_HASSEIBI2)
+	;
+
+// Read up to the 20th of the previous month from QVD
+	Load data up to the 20th of the previous month from Trace QVD ;
+	join
+	LOAD
+		*
+	From $(MY_IDOMEISAI)(qvd)
+	where HASSEIBI<$(varN_START_HASSEIBI2);
+
+//QVD output
+	store IDOMEISAI into $(MY_IDOMEISAI);
+	drop Table IDOMEISAI;
+else
+	Trace ☆ IDOMEISAI.QVD not updated ☆ ;
+ENDIF
+//Ver 3.00 Add End ================
+///$tab migration details
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 5 ] Import movement details data ;
+ENDIF
+
+//************************************************ ***************************
+// 		//Import from Excel file (past )
+// 		ACT_LOAD:
+// 		LOAD
+// 			'ACT' 									as category ,
+// 			@1 										as company code ,
+// 		Replace(@2,'-','/') 					as date of occurrence ,
+// 			Date(MonthStart(@2),'YYYY-MM') 			as year and month ,
+// 			Month(@2) 								as month ,
+// 			Day(@2) 								as day ,
+// 			if(Month(@2)>='04'
+// 				,Year(@2)
+// 				,num(Year(@2))-1
+// 			) 										as year ,
+// 			if(Month(@2)>='04' and Month(@2)<='09'
+// 				,'A'
+// 				,'B'
+// 			) 										as period ,
+// 			if(Month(@2)>='04' and Month(@2)<='09'
+// 				,if(Month(@2)<='06'
+// 					,'Q1'
+// 					,'Q2'
+// 				)
+// 				,if(Month(@2)>='10'
+// 					,'Q3'
+// 					,'Q4'
+// 				)
+// 			) 										as quarter ,
+// 			@3 										as SEQ,
+// 		//@4 										as document NO,
+// 			@5 										as C_NO,
+// // 		@ 				6 										ascorrect , 
+// 		//@7 										as DNCM,
+// 			@8 										as information NO,
+// 		if(IsNull(@9),' ',
+// 		if(len(@9)=0,' ',@9)
+// 		) 										as own area , 				// "-", "*", "@", "%"
+// 		//@10 										as sales account ,
+// 		@11 									as account ,
+// 		//@12 										as Voucher account ,
+// 		//@13 										as main store ,
+// 			if(match(@17,'VAAF','VAAG','VAAH')>0
+// 				,'V@'
+// 				,@14
+// 			)			 							asbranch code ,
+// 		@17 									as department code ,
+// 			if(match(@17,'VAAF','VAAG','VAAH')>0
+// 				,'@'
+// 				,mid(@17,3,1)
+// 			)			 							as channel code ,
+// 		if(IsNum(@18)=True(),
+// 		left(Num(@18,'00'),2),
+// 		if(@5='01',
+//		    		left(Upper(@18)&'__',2),
+//		    		'--'
+// 		)									
+// 		) 										as salesperson code ,
+// 			@23 									good at as ,
+// 			left(@23,7) 							as company code ,
+// 		@24 									as specialty name ,
+// 			@30 									as warehouse ,
+// 		@32 									as shipping ,
+// 			@33 									as shipping NO,
+// 			@35 										as order form NO,
+// 			Replace(@34,'-','/') 					as shipping date ,
+// 		@52 									as usage ,
+// 			if(match(@17,'VAAF','VAAG','VAAH')>0
+// 				,'ZZS'
+// 				,@57
+// 			)			 							as FD,
+// 			if(match(@17,'VAAF','VAAG','VAAH')>0
+// 				,'ZZS'
+// 				,@58
+// 			)			 							as management ,
+// 		@59 									as product code ,
+// 			@60 									as product name ,
+// 		@62 									as number of bodies ,
+// 		@63 									as number of sales ,
+// 		@67 									as SSP unit price ,
+// 		if(@5='01', @69 ,@101) 					as cost ,
+// 			@100 									as NET unit price ,
+// 		if(@5='01', @101, 0) 					as actual
+// 		FROM
+// 		[$(MY_LOCAL_DIR)ido_meisai*.dat]
+// 		(txt, codepage is 932, no labels, delimiter is '|', msq)
+
+// 	< acquisition conditions >
+// 		where mid(@17,3,1)<>'L'
+// 		and @1='V00000'
+// 		and (
+// 			@17 <> 'VAAG' or
+// 			(
+// 				@17 = 'VAAG' and
+// 				(
+// 					Left(@2,4)&Mid(@2,6,2)&Mid(@2,9,2) <='20130531' or
+// 					Left(@2,4)&Mid(@2,6,2)&Mid(@2,9,2) >='20150528'
+// 				)
+// 			)
+// 		)
+// 		and left(@17,1)='V'
+// 		and not ( 									// Exclude the following conditions
+// 			@17='VAAG' and 							//　① Department code: VAAG
+// 			@23='VT906600000' and 					//　② Specialty: VT906600000
+// 			Left(@2,4)&Mid(@2,6,2)='201703' and 		//　③Date of occurrence : March 2017
+// 			Match(@30,'520','540')>0 				//　④Warehouse : 520, 540
+// 		)
+//************************************************ ***************************
+
+//------------------------------------------------ ---------------------------
+// [SAP, AS400, CS-SEVEN] Migration details data Intake
+//------------------------------------------------ ---------------------------
+//Ver 2.21 Upd Start ================
+//ACT_LOAD0:
+ACT_LOAD(common in psi meisai):
+//Ver 2.21 Upd End ================
+//Ver 3.00 Upd Start ================
+//SQL select
+LOAD
+//Ver 3.00 Upd End ================
+	'ACT' 									as category ,
+	DATA_SOURCE 								as system , 				//"00":TLOOKS, "01":SAP, "02":AS400, "03":CS-SEVEN
+	KAISHA_CD 								as company code ,
+//Ver 3.00 Upd Start ================
+// 	to_char(to_date(HASSEIBI,'YYYYMMDD'),'YYYY/MM/DD') 		as date of occurrence ,
+	floor(HASSEIBI/10000)&'/'&
+	right('00'&fmod(floor(HASSEIBI/100),100),2)&'/'&
+	right('00'&fmod(fmod(HASSEIBI,10000),100),2) 			as date of occurrence ,
+//Ver 3.00 Upd End ================
+	SEQNO 									as SEQ,
+	DEN_NO 									as document NO,
+	C_NO 									as C_NO,
+	INFO_NO 									as information NO,
+	INFO_NO_NAME 							as information NO_content , _
+//Ver 3.00 Upd Start ================
+// 	decode(Get_KOUJIKOMI_JOB(SHOHIN_NAME),2,'1',1,'1','0')
+	if(JOB_KBN='1','1','0')
+//Ver 3.00 Upd End ================
+											As property flag ,
+// 	nvl(JOB_KBN,'0') 						as property flag ,
+	JI_KBN 									as own area ,
+	DENKOZA 								as account ,
+	SHISHA_CD 								as branch code ,
+	SHISHA_NAME 								as branch name ,
+	SHISHA_SORT 								as branch name SORT,
+	SOSHIKI_NAME 							as operations Division ,
+	BUKA_CD 									as department code ,
+// 	BUKA_NAME 								as department name ,
+// 	BUKA_SORT 								as department name order ,
+// 	KYOTEN_NAME 								as location name ,
+// 	KYOTEN_SORT 								as location name SORT,
+	SALES_CD 								as salesperson code ,
+	SALES_NAME 								as salesperson name ,
+	TOKUI 									as Specialty ,
+//Ver 2.22 Del ⇒ 	TOKUI_NAME 								as specialty name ,
+	CHANNEL 									as channel code ,
+	CHANNEL_NAME 							as channel ,
+	CHANNEL_SORT 							as channel code SORT,
+	KIGYO_CD 								as company code ,
+	SOKO_CD 									as warehouse ,
+	HAISO_CD 								as shipping ,
+	SHUKKA_NO 								as shipping NO,
+	replace(SHUKKABI,'-','/') 				as shipping date ,
+	CHUMON_NO 								as order form NO,
+	SHITO_CD 								as usage ,
+	FD 										as FD,
+	KANRI 									as management ,
+	SHOHIN_CD 								as product code ,
+	SHOHIN_NAME 								as product name ,
+	HONTAI_QTY 								as number of Units ,
+	URIAGE_QTY 								as number of sales ,
+	SP_TANKA 								as SSP unit price ,
+	TOV * URIAGE_QTY 						as cost price ,
+	NET_TANKA 								as NET unit price ,
+//Ver 2.01b(2018/08/07)
+// 	case when (C_NO='01' and substr(DEN_NO,1,2)<>'G0' and to_char(INS_DATE,'YYYY/MM/DD')>='2018/07/11' and NET_KINGAKU<> NET_TANKA*URIAGE_QTY)
+// 	then
+// 	NET_TANKA*URIAGE_QTY
+// 	else
+// 	NET_KINGAKU
+// 	end 										as actual ,
+	NET_KINGAKU 								as actual ,
+	NENDO 									as fiscal year ,
+	HANKI 									as period ,
+	SHIHANKI 								as quarter , 		//Ver 2.30 Add
+//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+	CYNENDO 									as CY year ,
+	CYHANKI 									as CY period ,
+	CYSHIHANKI 								as CY quarter ,
+//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+//Ver 3.00 Upd Start ================
+// 	to_char(NENDO) || HANKI || BUKA_CD 		as concatenated key 2,
+	NENDO&HANKI&BUKA_CD 						as concatenated key 2,
+//Ver 3.00 Upd End ================
+	LP_TANKA 								as LP ,
+	SBM_CD 								as subcontractor BM store ,
+	SBM_NAME 								as subcontractor BM store name 2,
+//Ver 3.00 Upd Start ================
+// 	decode(SBM_CD,null,0,1) 					as 	subcontractor BM store valid ,
+	if(IsNull(SBM_CD)=True(),0,1) 			as 	subcontractor BM store valid ,
+//Ver 3.00 Upd End ================
+	INS_DATE 								as timestamp ,
+SAP_DENPYO_NO 			as SAP document number ,
+SAP_DENPYO_LINE_NO 			as SAP document line number ,
+SET_NAME 								as set name , 						//Ver 2.20 added
+ANKEN_NO 								as case number , 						//Ver 2.20 added
+//Ver 2.22 Del ⇒ 	ANKEN_NAME 								as project name , 						//Ver 2.21 Add
+SHUKKA_NAME 								as shipping destination name , 					//Ver 2.20 added
+SHUKKA_TODOUFUKEN 						as shipping destination prefecture , 					//Ver 2.21 Add
+SHUKKA_ADR 								as shipping address , 					//Ver 2.20 added   
+//Ver 3.00 Upd Start ================
+// 	ANKEN_NO||SHOHIN_CD||SHOHIN_NAME||SET_NAME 			as shipped_KEY , 		//Ver 2.30 Add
+// 	to_char(to_date(HASSEIBI,'YYYYMMDD'),'YYYY-MM') 		as year and month ,
+// 	to_number(substr(to_char(HASSEIBI),5,2)) 			as month ,
+// 	to_number(substr(to_char(HASSEIBI),7,2)) 			as day
+	ANKEN_NO&SHOHIN_CD&SHOHIN_NAME&SET_NAME 				as shipped_KEY , 		//Ver 2.30 Add
+	floor(HASSEIBI/10000)&'-'&
+	right('00'&fmod(floor(HASSEIBI/100),100),2) 			as year and month ,
+	right('00'&fmod(floor(HASSEIBI/100),100),2) 			as month ,
+	right('00'&fmod(fmod(HASSEIBI,10000),100),2) 		as day
+//Ver 3.00 Upd End ================
+
+//Ver 3.00 Upd Start ================
+From $(MY_IDOMEISAI)(qvd)
+//Ver 3.10 Upd Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+//Where NENDO>=$(varN_VALID_STARTYEAR);
+Where CYNENDO>=$(varN_VALID_STARTYEAR);
+//Ver 3.10 Upd End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+//Ver 3.00 Upd End ================
+left join(differs)
+LOAD
+	distinct
+//Ver 3.00 Upd Start ================
+// 	Specialty code 		as Specialty ,
+// 	Special name
+//from [..\QVD\TOKUIM.qvd](qvd);
+	Specialty code 		as specialty ,
+	specialty name 2 			as specialty name
+FROM $(MY_TOKUIM)(qvd);
+//Ver 3.00 Upd End ================
+//Ver 2.22 Add End ================
+
+//Ver 2.23 Add Start ================
+left join differ
+load
+	Case Number ,
+	Case Title
+From $(MY_ANKENMEI)(qvd);
+//Ver 2.23 Add End ================
+
+//------------------------------------------------ ---------------------------
+// Export classification create
+//------------------------------------------------ ---------------------------
+Domestic export :(common in psi meisai)
+LOAD
+	distinct product code ,
+	if(len( product code )=8,
+		if(mid( product code ,4,1)<'0',
+			' export goods ',
+			if(mid( product code ,4,1)>'9',
+				' export goods ',
+				' Domestic product '
+			)
+		),
+		' Domestic product '
+	) 					as export category
+Resident ACT_LOAD;
+///$tabFuji Service Parts
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 6 ] Import Fuji service parts (leaked information) ;
+ENDIF
+//------------------------------------------------ ---------------------------
+// Combine Fuji service parts to ACT_LOAD2015.06.09
+//------------------------------------------------ ---------------------------
+Join(ACT_LOAD)(common psi_meisai)
+LOAD
+	classification ,
+	Company code ,
+	Accrual date ,
+	Information No.
+	branch code ,
+	department code ,
+	channel code ,
+	Replace( salesperson code ,'ZZ','00') 		as salesperson code ,
+	good at ,
+	company code ,
+	specialty name ,
+	Warehouse ,
+	Shipping NO.
+	FD,
+	management ,
+	Product code ,
+	Product name ,
+	Number of units ,
+	Number of sales ,
+	cost price ,
+	NET unit price ,
+	Actual ,
+	Date(MonthStart( occurrence date ),'YYYY-MM') 	as year month ,
+	Month ( occurrence date ) 						as month ,
+	Day ( occurrence date ) 							as day ,
+	if(Month( occurrence date )>='04'
+		,Year( occurrence date )
+		,num(Year( occurrence date ))-1
+	) as year ,
+	if(Month( occurrence date )>='04' and Month( occurrence date )<='09'
+		,'A'
+		,'B'
+	) as period ,
+	if(Month( occurrence date )>='04' and Month( occurrence date )<='09'
+		,if(Month( occurrence date )<='06'
+			,'Q1'
+			,'Q2'
+		)
+		,if(Month( occurrence date )>='10'
+			,'Q3'
+			,'Q4'
+		)
+	) as quarter ,
+	'' 								as SEQ, 			// added 2015.06.16
+	0 								as property flag ,
+	'1' 								as account , 			// added 2015.06.09
+	'' 								as shipping , 			// added 2015.06.09
+	0 								as SSP unit price 		//Ver 1.52 Add
+FROM
+[..\QVD\FUJI_SERVICE.qvd]
+(qvd)
+where Left( occurrence date ,4)&Mid( occurrence date ,6,2)&Mid( occurrence date ,9,2) >='$(varN_VALID_STARTDATE)'
+;
+
+//// ■ *Since the information from SAP is positive for parts costs , there is no need to replace costs from SPM . However, this will be taken into account at the time of transition.
+////---------------------------------------------- -----------------------------
+//// Replacement of parts cost			　
+////---------------------------------------------- -----------------------------
+//// 2015.04.23 Changed the cost of parts to multiply S_TOV in AISORA.SPM by the number of sales.
+//OLEDB CONNECT TO [Provider=OraOLEDB.Oracle.1;Persist Security Info=False;User ID=issel;Data Source=hsc2tccp1_TCC;Extended Properties=""] (XPassword is cZeaTUNOTLZYGKA);
+//left join (ACT_LOAD)
+//SQL SELECT
+// 	"HINMEI_CD" 		as product name ,
+// NVL(S_TOV,0) 		as STOV
+//FROM "SPM"
+//;
+//
+//TEMP_ACT_LOAD:
+//LOAD
+// 	*,
+// 	if(STOV > 0
+// 		, Number of sales *STOV
+// 		, Cost price
+// 	) 					as replacement_cost _ _
+//Resident 	ACT_LOAD;
+//DROP Field cost ;
+//DROP Field STOV;
+//DROP Table ACT_LOAD;
+//
+//ACT_LOAD:
+//LOAD
+// 	*,
+// 	Replacement_cost as cost 			_ _
+//Resident 	TEMP_ACT_LOAD;
+// DROP Field replacement_cost ;
+//DROP Table TEMP_ACT_LOAD;
+///$tab Additional information on migration details
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 7 ] Added additional migration detail information ;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+// Add FD attribute
+//------------------------------------------------ ---------------------------
+Left Join(ACT_LOAD)(common in psi meisai)
+LOAD
+	FD,
+	FD order ,
+	Purchase classification code ,
+	FD major classification order ,
+	FD medium classification order ,
+	Product Major category name ,
+	Product Medium category name ,
+	Product Sub category name ,
+	FD name
+Resident MASTER_FD
+;
+
+//Ver 1.52 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+//------------------------------------------------ ---------------------------
+// Purchase GP , join BU to ACT_LOAD
+//------------------------------------------------ ---------------------------
+left Join(ACT_LOAD)
+LOAD
+	FD,
+// 	BU name ,
+// 	Purchase GP name ,
+	BU 				as BU ,
+	Purchase GP 			as Purchase GP
+Resident MASTER_Classification_FD _
+;
+drop Table MASTER_Classification_FD ;
+
+left Join(ACT_LOAD)(differ)
+LOAD
+	management ,
+// 	BU name ,
+// 	Purchase GP name ,
+	BU 				as BU ,
+	Purchasing GP 			as Purchasing GP
+Resident MASTER_Classification_Management Classification _
+;
+drop Table MASTER_Classification_Management Classification ;
+//Ver 1.52 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+
+// 	//Ver 2.10 Add Start--------------------------------------- ----------↓↓↓↓↓↓↓↓↓↓↓
+// 	// Get previous equivalence information
+// 	Previous equivalence :
+// 	LOAD
+// 		*
+// 	FROM
+// 	[$(MY_QVD_DIR) Same amount as before _*.qvd]
+// 	(qvd)
+// 	;
+// 	// Previous equivalence KEY join
+// 	left Join(ACT_LOAD)
+// 	LOAD
+// 		Distinct
+// 		year ,
+// 		Month ,
+// 		Specialty ,
+// 		Department code ,
+// 		Salesperson code ,
+// 		Year & Month &'|'& Speciality & Department Code & Salesperson Code 			as Previous Same KEY
+// 	Resident ACT_LOAD
+// 	;
+// 	//Ver 2.10 Add End 		------------------------------------------ ----------↑↑↑↑↑↑↑↑↑↑↑
+
+///$tab budget information
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 8 ] Add budget information ;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+// Import yosan table
+//------------------------------------------------ ---------------------------
+BUD_LOAD_TEMP:(common)
+LOAD
+	'BUD' 											as category ,
+	if( part ='V',0,1) 									as property flag , 				//Ver 1.10 Add
+	upper(left(SubField(FileLocationName(),'_',2),3)) as year ,
+	MapSubString('MAP_WideToNarrow', Department Code ) 		as Department Code ,
+//Ver 1.39 Upd Start ================================
+// 	Left( department code , 2) 									as branch code ,
+// 	Product classification 											as management ,	
+	if(match(MapSubString('MAP_WideToNarrow', department code ),'VAAF','VAAG','VAAH')>0
+		,if(match(MapSubString('MAP_WideToNarrow', Product classification ),'A68','934','935')>0
+			,'V@'
+			,Left(MapSubString('MAP_WideToNarrow', department code ),2)
+		)
+//Ver 2.31 Upd Start ===============================
+// 		,Left(MapSubString('MAP_WideToNarrow', department code ),2)
+// ★★ Only available in the first half of 2021 ★★
+		,if(upper(left(SubField(FileLocationName(),'_',2),3))='21A',
+			if(match(MapSubString('MAP_WideToNarrow', Department code ),'VDD8','VDDA','VDDB','VDDC','VDDD')>0
+				,'VE'
+				,Left(MapSubString('MAP_WideToNarrow', department code ),2)
+			)
+			,Left(MapSubString('MAP_WideToNarrow', department code ),2)
+		)
+//Ver 2.31 Upd End ===============================
+	)			 									as branch code ,
+	if(match(MapSubString('MAP_WideToNarrow', department code ),'VAAF','VAAG','VAAH')>0
+		,if(match(MapSubString('MAP_WideToNarrow', Product classification ),'A68','934','935')>0
+			,'ZZS'
+			,MapSubString('MAP_WideToNarrow', Product classification )
+		)
+		,MapSubString('MAP_WideToNarrow', Product classification )
+	)			 									as management ,
+//Ver 1.39 Upd End ================================
+	quantity ,
+	Amount ,
+	quantity 1,
+	Amount 1,
+	quantity 2,	 
+	Amount 2,
+	quantity 3,	 
+	Amount 3,
+	quantity 4,	 
+	Amount 4,
+	quantity 5,	 
+	Amount 5,
+	gross profit ,
+	Gross profit 1,
+	gross profit 2,
+	gross profit 3,
+	Gross profit 4,
+	gross profit 5
+FROM
+[$(MY_LOCAL_DIR)yosan_*.xlsx]
+(ooxml, embedded labels, header is 1 lines, table is data)
+Where '20'&left(SubField(FileLocationName(),'_',2),2)>='$(varN_VALID_STARTYEAR)' 	//Ver 2.30 Add
+;
+
+//Ver 1.29 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+// Add up the budget by category , property flag , year , department code , branch code , management
+RENAME Table BUD_LOAD_TEMP to BUD_LOAD_TEMP2;(common)
+BUD_LOAD_TEMP:(common in psi meisai)
+LOAD
+	classification ,
+	property flag ,
+	year ,
+	department code ,
+	branch code ,
+	management ,	
+	sum( quantity ) 			as quantity ,
+	sum( amount ) 			as amount ,
+	sum ( quantity1 ) 			as quantity1 ,
+	sum( amount 1) 			as amount 1,
+	sum ( quantity2 ) 			as quantity2 ,
+	sum( amount 2) 			as amount 2,
+	sum ( quantity3 ) 			as quantity3 ,
+	sum( amount 3) 			as amount 3,
+	sum ( quantity4 ) 			as quantity4 ,
+	sum( amount 4) 			as amount 4,
+	sum( quantity 5) 			as quantity 5,
+	sum( amount 5) 			as amount 5,
+	sum( gross profit ) 			as gross profit ,
+	sum( gross profit 1) 			as gross profit 1,
+	sum( gross profit 2) 			as gross profit 2,
+	sum( gross profit 3) 			as gross profit 3,
+	sum( gross profit 4) 			as gross profit 4,
+	sum( gross profit 5) 			as gross profit 5,
+	'x' 					as dummy
+Resident 	BUD_LOAD_TEMP2
+group by 	classification , property flag , year , department code , branch code , management
+;
+drop field dummy;
+DROP Table BUD_LOAD_TEMP2;
+//Ver 1.29 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+//Ver 1.10 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+	
+	// Create the budget department code for the property on the main budget side
+	BUD_LOAD_TEMP2:(common)
+	LOAD
+		year ,
+		department code ,
+		branch code ,
+		management ,	
+		quantity ,
+		Amount,
+		quantity 1,
+		Amount 1,
+		quantity 2,	 
+		Amount 2,
+		quantity 3,	 
+		Amount 3,
+		quantity 4,	 
+		Amount 4,
+		quantity 5,	 
+		Amount 5,
+		gross profit ,
+		Gross profit 1,
+		gross profit 2,
+		gross profit 3,
+		Gross profit 4,
+		gross profit 5
+	Resident BUD_LOAD_TEMP
+	Where property flag =0
+	;
+	Join(common)
+	LOAD
+		year ,
+		department code ,
+		branch code ,
+		management ,	
+		0 		as quantity ,
+		0 		as amount ,
+		0 		as quantity1 ,
+		0 		as amount1 ,
+		0 		as quantity 2,	 
+		0 		as amount 2,
+		0 		as quantity 3,	 
+		0 		as amount 3,
+		0 		as quantity 4,	 
+		0 		as amount 4,
+		0 		as quantity 5,	 
+		0 		as amount 5,
+		0 		as gross profit ,
+		0 		as gross profit 1 ,
+		0 		as gross profit 2 ,
+		0 		as gross profit3 ,
+		0 		as gross profit 4 ,
+		0 		as gross profit 5
+	Resident BUD_LOAD_TEMP
+	Where property flag =1
+	;
+	
+	// subtract budget for property
+	left Join(BUD_LOAD_TEMP2)(common)
+	LOAD
+		year ,
+		department code ,
+		branch code ,
+		management ,	
+		quantity 		as quantity B,
+		amount 		as amount B,
+		quantity 1 		as quantity 1B,
+		amount 1 		as amount 1B,
+		quantity 2 		as quantity 2B,	 
+		amount 2 		as amount 2B,
+		quantity 3 		as quantity 3B,	 
+		amount 3 		as amount 3B,
+		quantity 4 		as quantity 4B,	 
+		amount 4 		as amount 4B,
+		quantity 5 		as quantity 5B,	 
+		amount 5 		as amount 5B,
+		gross profit 		as gross profit B,
+		gross profit 1 		as gross profit 1B,
+		gross profit 2 		as gross profit 2B,
+		gross profit 3 		as gross profit 3B,
+		gross profit 4 		as gross profit 4B,
+		gross profit 5 		as gross profit 5B
+	Resident BUD_LOAD_TEMP
+	Where property flag =1
+	;
+	
+	BUD_LOAD_TEMP3:(common)
+	LOAD
+		'x' 				as dummy,
+		'BUD' 			as category ,
+		0 				as property flag ,
+		year ,
+		department code ,
+		branch code ,
+		management ,	
+		Quantity - if(IsNull( QuantityB ) ,0, QuantityB ) 	asQuantity ,
+		Amount - if(IsNull( AmountB ),0, AmountB ) 	asAmount ,
+		Quantity1 - if(IsNull( Quantity1B ),0, Quantity1B ) 	asQuantity1 ,
+		Amount1 - if(IsNull( Amount1B ),0, Amount1B ) 	asAmount1 ,
+		Quantity2 - if(IsNull( Quantity2B ),0 , Quantity2B ) 	asQuantity2 ,
+		Amount2 - if(IsNull( Amount2B ),0, Amount2B ) 	asAmount2 ,
+		Quantity3 - if(IsNull( Quantity3B ),0 , Quantity3B ) 	asQuantity3 ,
+		Amount 3 - if(IsNull( Amount 3B),0, Amount 3B) 	asAmount 3 ,
+		Quantity4 - if(IsNull( Quantity4B ),0 , Quantity4B ) 	asQuantity4 ,
+		Amount 4 - if(IsNull( Amount 4B),0, Amount 4B) 	asAmount 4 ,
+		Quantity5 - if(IsNull( Quantity5B ),0 , Quantity5B ) 	asQuantity5 ,
+		Amount 5 - if(IsNull( Amount 5B),0, Amount 5B) 	asAmount 5 ,
+		Gross profit - if(IsNull( Gross profit B),0, Gross profit B) 	as Gross profit ,
+		Gross profit 1 - if(IsNull( gross profit 1B),0, gross profit 1B) 	as gross profit 1,
+		Gross profit 2 - if(IsNull( gross profit 2B),0, gross profit 2B) 	as gross profit 2,
+		Gross profit 3 - if(IsNull( gross profit 3B),0, gross profit 3B) 	as gross profit 3,
+		Gross profit 4 - if(IsNull( gross profit 4B),0, gross profit 4B) 	as gross profit 4,
+		Gross profit 5 - if(IsNull( gross profit 5B),0, gross profit 5B) 	as gross profit 5
+	Resident BUD_LOAD_TEMP2
+	;
+	
+	join(common)
+	LOAD
+		'BUD' 			as category ,
+		1 				as property flag ,
+		year ,
+		department code ,
+		branch code ,
+		management ,	
+		quantity ,
+		Amount of money ,
+		quantity 1,
+		Amount 1,
+		quantity 2,	 
+		Amount 2,
+		quantity 3,	 
+		Amount 3,
+		quantity 4,	 
+		Amount 4,
+		quantity 5,	 
+		Amount 5,
+		gross profit ,
+		Gross profit 1,
+		gross profit 2,
+		gross profit 3,
+		Gross profit 4,
+		gross profit 5
+	Resident BUD_LOAD_TEMP
+	Where property flag =1
+	;
+	DROP Field dummy;
+	drop Table BUD_LOAD_TEMP;
+	drop Table BUD_LOAD_TEMP2;
+	RENAME Table BUD_LOAD_TEMP3 to BUD_LOAD_TEMP;(common)
+	
+//Ver 1.10 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+
+
+//------------------------------------------------ ---------------------------
+// Stored by year and month
+//------------------------------------------------ ---------------------------
+BUD_LOAD_TEMP2:(common in psi_meisai)
+LOAD
+	classification ,
+	Property flag , 					//Ver 1.10 Add
+	department code ,
+	Mid( department code ,3,1) 		as channel code ,
+    branch code ,
+	management ,	
+	quantity as budget number ,
+	Amount *1000　asbudget , _
+	Gross profit *1000　asgross profit budget ,
+	Year , 					//Ver 2.11 Add
+	'20'&if(Right( year ,1)='A',left( year ,2)&'-04',left( year ,2)&'-10') as year and month
+Resident BUD_LOAD_TEMP;
+Join
+LOAD
+	classification ,
+	Property flag , 					//Ver 1.10 Add
+	department code ,
+	Mid( department code ,3,1) 		as channel code ,
+    branch code ,
+	management ,	
+	quantity 1　as budget number ,
+	Amount 1*1000　as budget , _
+	Gross profit 1*1000　as gross profit budget ,
+	Year , 					//Ver 2.11 Add
+'20'&if(Right( year ,1)='A',left( year ,2)&'-05',left( year ,2)&'-11') as year and month
+Resident BUD_LOAD_TEMP;
+Join
+LOAD
+	classification ,
+	Property flag , 					//Ver 1.10 Add
+	department code ,
+	Mid( department code ,3,1) 		as channel code ,
+    branch code ,
+	management ,	
+	quantity 2　as budget number ,	 
+	Amount 2*1000　as budget , _
+	Gross profit 2*1000　as gross profit budget ,
+	Year , 					//Ver 2.11 Add
+'20'&if(Right( year ,1)='A',left( year ,2)&'-06',left( year ,2)&'-12') as year and month
+Resident BUD_LOAD_TEMP;
+Join(common psi meisai)
+LOAD
+	classification ,
+	Property flag , 					//Ver 1.10 Add
+	department code ,
+	Mid( department code ,3,1) 		as channel code ,
+    branch code ,
+	management ,	
+	quantity 3　as budget number ,	 
+	Amount 3*1000　as budget , _
+	Gross profit 3*1000　as gross profit budget ,
+	Year , 					//Ver 2.11 Add
+'20'&if(Right( year ,1)='A',left( year ,2)&'-07',num(left( year ,2))+1&'-01') as year and month
+Resident BUD_LOAD_TEMP;
+Join(common)
+LOAD
+	classification ,
+	Property flag , 					//Ver 1.10 Add
+	department code ,
+	Mid( department code ,3,1) 		as channel code ,
+    branch code ,
+	management ,	
+	quantity 4　as budget number ,	 
+	Amount 4*1000　as budget , _
+	Gross profit 4*1000　as gross profit budget ,
+	Year , 					//Ver 2.11 Add
+'20'&if(Right( year ,1)='A',left( year ,2)&'-08',num(left( year ,2))+1&'-02') as year and month
+Resident BUD_LOAD_TEMP;
+Join(common)
+LOAD
+	classification ,
+	Property flag , 					//Ver 1.10 Add
+	department code ,
+	Mid( department code ,3,1) 		as channel code ,
+    branch code ,
+	management ,	
+	quantity 5　as budget number ,	 
+	Amount 5*1000　as budget , _
+	Gross profit 5*1000　as gross profit budget ,
+	Year , 					//Ver 2.11 Add
+'20'&if(Right( year ,1)='A',left( year ,2)&'-09',num(left( year ,2))+1&'-03') as year and month
+Resident BUD_LOAD_TEMP;
+DROP Table BUD_LOAD_TEMP;
+
+//------------------------------------------------ ---------------------------
+// Various joins
+//------------------------------------------------ ---------------------------
+Left Join(BUD_LOAD_TEMP2)(common)
+LOAD
+	management ,
+	Product category name ,
+	Product classification name
+// 	, Product subcategory name 			// ☆☆ Added
+Resident MASTER_FD2
+;
+
+Left Join(BUD_LOAD_TEMP2)(common)
+LOAD
+	Year , 					//Ver 2.11 Add
+	branch code ,
+	Branch name ,
+	Business department
+Resident 	MASTER_BRANCH
+;
+
+Left Join(BUD_LOAD_TEMP2)(common)
+LOAD
+	Year , 					//Ver 2.11 Add
+	channel code ,
+	channel
+Resident 	MASTER_CHANNEL
+;
+
+//------------------------------------------------ ---------------------------
+// Join yosan to ACT_LOAD
+//------------------------------------------------ ---------------------------
+Join(ACT_LOAD)(common)
+LOAD
+	*,
+	'01' 							as C_NO,//2018.03.03 added
+	Num(Right( year month , 2)) 				as month ,
+	if(Right( year/month ,2)>='04'
+		,Left( Year/Month ,4)
+		,Num(Left( year/month ,4))-1
+	) 								as year ,
+	if(Right( year/month ,2)>='04' and Right( year/month ,2)<='09'
+		,'A'
+		,'B'
+	) 								as period ,
+	if(Right( year/month ,2)>='04' and Right( year/month ,2)<='09'
+		,if(Right( year/month ,2)<='06'
+			,'Q1'
+			,'Q2'
+		)
+		,if(Right( year/month ,2)>='10'
+			,'Q3'
+			,'Q4'
+		)
+	) 								as quarter ,
+//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+	Left( year , month , 4) 								as CY year ,
+	if(Right( year/month ,2)<='06'
+		,'A'
+		,'B'
+	) 											as CY period ,
+	if(Right( year/month ,2)<='03'
+		,'Q1'
+		,if(Right( year/month ,2)<='06'
+			,'Q2'
+			,if(Right( year/month ,2)<='09'
+				,'Q3'
+				,'Q4'
+			)
+		)
+	) 											as CY quarter ,
+	Left( year , month , 4)&'/'&right( year, month , 2)&'/01' 		as date of occurrence ,
+//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+	//2018.06.06 addition 	start
+	if(Right( year/month ,2)>='04',Left( year/month ,4),Num(Left( year/month ,4))-1) &
+	if(Right( year/month ,2)>='04' and Right( year/month ,2)<='09','A','B') &
+	Department code 						as concatenated key 2
+	//2018.06.06 added 	end
+Resident BUD_LOAD_TEMP2
+//where budget number <>0 or budget <>0; 					//Ver 2.11 Upd
+where budget number <>0 or budget <>0 or gross profit budget <>0; 		//Ver 2.11 Upd
+
+//** QDV file output for test
+STORE BUD_LOAD_TEMP2 into $(MY_QVD_DIR)BUD_LOAD_TEMP2.qvd;
+DROP Table BUD_LOAD_TEMP2;
+
+///$tab QVD of all occurrence dates [for wrap]
+if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 9 ] Convert the occurrence date to QVD ;
+	ENDIF
+	
+	//Ver 1.40 Add Start==*
+	// Get all movement details occurrence dates
+		IDO_SOURCE_ALL:(common)
+		LOAD
+			Distinct
+		   	Accrual date 		asoccurrence_SOURCE _ _
+		Resident ACT_LOAD
+		;
+		//** QDV file output
+		STORE IDO_SOURCE_ALL into $(MY_QVD_DIR)IDO_SOURCE_ALL.qvd;
+		
+		// Get the latest occurrence date → convert it into a variable
+		ISWORK(common):
+		LOAD
+			MaxString(left(date( occurrence date_SOURCE,'YYYY/MM/DD'),10)) 	as latest occurrence date
+		ResidentIDO_SOURCE_ALL;
+		Let varC_MAX_HASSEIBI = Peek(' Last occurrence date ',0,'ISWORK');
+		
+		DROP Table IDO_SOURCE_ALL;
+	//Ver 1.40 Add End==*
+
+ENDIF
+///$tab Property JOB information [ SalesForce ]
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE 	$(StarStr);
+	Trace $(varD_LocalTime): [ 10 ] Import property JOB data ;
+ENDIF
+
+// 		// Distinct for each property number
+// 		BUKKEN:
+// 		LOAD
+// 			Distinct
+// 			Property NO,
+// 			JOB classification
+// 		ResidentBUKKEN_INFO
+// 		Where sales registration date >= '2013/04/01' 				// Extract from 2013
+// 		and 	cancellation flag <> 1 								// cancellation flag ≠ 1
+// 		and(JOB classification = 0 or JOB classification = 1) 				// JOB classification: Equipment + construction, construction (excluding equipment only)
+// 		andMatch(FD,119,195,285,391,585,891) 		// Product classification (FD): 119, 195, 285, 391, 585, 891
+// 		;
+//		
+// 		left Join(ACT_LOAD)
+// 		LOAD
+// 			Property NO 								as product name ,
+// 			JOB classification 								as property JOB classification
+// 		ResidentBUKKEN
+// 		;
+// 		DROP Table BUKKEN;
+//Ver 1.10 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+
+//Ver 1.20 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+//------------------------------------------------ ---------------------------
+// Property information table
+//------------------------------------------------ ---------------------------
+set varC_GIJUTSU_NULL = ' ★ Not set ★ '; 			//Ver 2.21 Add
+QUALIFY *;
+BUKKEN:
+LOAD
+		'x' 															as dummy,
+		Property No.
+// 		'B' & mid( property NO, 8) 									as property NO,
+// 		if( data classification NO=2,
+// 			if( actual cost amount >0,'2: In progress ','2: Approved '),
+// 			pick( data classification NO+1
+// 				,'0: Pre-visit registration '
+// 				,'1: Registering inquiry form '
+// 				,'2: Approved '
+// 				,'3: Sold '
+// 				,'4: Complete ')
+// 		) 													as data classification ,
+		data partition ,
+		if( data classification NO=2,
+			if( actual cost amount >0,'9', data classification NO),
+			Data classification NO.
+		) 															as data classification NO,
+		Replace( matter status ,' ','') 									as matter status , 			//2018.09.12 added
+		Main contractor/subcontractor classification ,
+    	Industrial waste treatment classification ,
+		if(JOB classification ORG=' equipment + construction ','0',
+			if(JOB classification ORG=' Construction only ','1','2')
+		) 															as JOB classification NO,
+		if(JOB classification ORG=' Equipment + Construction ', '0: Equipment + Construction ',
+			if(JOB classification ORG=' Construction only ','1: Construction only ','2: Equipment only ')
+		) 															as JOB classification ,
+		Property ID,
+		Property Name ,
+		Initial order amount ,
+		Initial cost amount ,
+		Initial gross profit amount ,
+		Change order amount ,
+		change cost amount ,
+		Changed gross profit amount ,
+		if( change order amount >0, change order amount , original order amount ) 				as change order amount 2,
+		if( changed cost amount >0, changed cost amount , original cost amount ) 				aschanged cost amount2 ,
+		if( changed gross profit amount >0, changed gross profit amount , original gross profit amount ) 				as changed gross profit amount 2,
+		Actual sales amount ,
+		Actual cost amount ,
+		Actual sales amount - Actual cost amount 									as Actual gross profit amount ,
+		Actual cost amount /if( changed cost amount > 0, changed cost amount , original cost amount ) 	as cost injection rate ,
+		FD name ,
+		left(FD name ,3) 												as FD,
+		department code ,
+		left( department code , 2) 											as branch code ,
+		mid( department code ,3,1) 										as channel code ,
+		manager ,
+		if(len(replace(replace( construction engineer name ,'　',''),' ',''))=0,
+			'$(varC_GIJUTSU_NULL)',
+			replace(replace( construction engineer name ,'　',''),' ','')
+		) 															as construction engineer name , 	//Ver 2.21 Upd
+		Scheduled construction start date , 															//Ver 1.33 Add
+		Expected completion date , 															//Ver 1.33 Add
+		Construction start date , 																//Ver 1.33 Add
+		if(if( changed order amount >0, changed order amount , original order amount )<35000000, 					//Ver 2.24 Upd <25000000
+			0,
+			1
+		) 															as order classification , 		//Ver 1.26 Add
+		Specialty ,
+		specialty name ,
+		Expected sales month ,
+		mid( estimated sales month , 3,2) & mid( estimated sales month , 6,2) 					as expected sales month 4 digits ,
+		left( sales forecast month , 4) 											as sales forecast actual year ,
+		if(mid( estimated sales month ,6,2)<4,
+			left( estimated sales month , 4)-1,
+			left( estimated sales month , 4)
+		) 															as sales forecast year ,
+		if(mid( sales schedule month ,6,2)>='04' and mid( sales schedule month ,6,2)<='09'
+			,'A'
+			,'B'
+		) 															as sales forecast half year ,
+		if(mid( sales schedule month ,6,2)>='04' and mid( sales schedule month ,6,2)<='09'
+			,if(mid( planned sales month ,6,2)<='06'
+				,'Q1'
+				,'Q2'
+			)
+			,if(mid( planned sales month ,6,2)>='10'
+				,'Q3'
+				,'Q4'
+			)
+		) 															as expected sales quarter ,
+		Sales recording date ,
+		left(date( sales recording date ,'YYYY/MM/DD'),7) 						as sales recording date ,
+		Sales registration date ,
+		Property information registration date ,
+		left ( property information registration date , 7) 										as property information registration date ,
+		Old property NO.
+		Cost injection rate 2,
+		Standard gross profit rate ,
+		Main department/section name ,
+		Public and private demand classification ,
+		Delivery name ,
+		Prefecture & property location 										as delivery address ,
+		Scheduled completion date ,
+		Purchase order acquisition date ,
+		Date of confirmation ,
+		Completion date ,
+		last updated ,
+		Delivery date ,
+		Delivery note received date ,
+		Apply for gross profit rate this time ,
+		Apply before changing LP amount ,
+		NET amount advance application ,
+		Dependent matter flag ,
+		gross profit amount after breakdown ,
+		NET amount Item after breakdown ,
+		NET amount after breakdown,
+		TOV amount item after breakdown ,
+		TOV amount after breakdown,
+		Sequential number for quotation numbering ,
+		Last updated by ,
+		Application before gross profit rate change ,
+		Construction starts
+Resident 	BUKKEN_INFO
+//Where 	cancellation flag <> 1 							// Cancellation flag ≠ 1 			//Ver 1.22 Add
+;
+UNQUALIFY *;
+
+// Add product large/medium/small classification name
+Left Join(common)
+LOAD Distinct
+	FD 						as BUKKEN.FD,
+	Product category name 			as BUKKEN.Product category name ,
+	Product classification name 			as BUKKEN.Product classification name ,
+	Product subcategory name 			as BUKKEN.Product subcategory name
+Resident MASTER_FD
+;
+// Add channel 				★★ CHANNEL from general master	
+Left Join(common)
+LOAD Distinct
+	'20'&left( Year , 2) 		as BUKKEN.Estimated sales year , 		//Ver 2.11 Add
+	right( year , 1) 			as BUKKEN.Sales forecast half year , 		//Ver 2.11 Add
+	Channel code 			as BUKKEN.Channel code ,
+	Channel 				as BUKKEN. Channel
+Resident MASTER_CHANNEL
+;
+// Add business department and branch name 			★★ SHITEN from general master	
+Left Join(common)
+LOAD Distinct
+	'20'&left( Year , 2) 		as BUKKEN.Estimated sales year , 		//Ver 2.11 Add
+	right( year , 1) 			as BUKKEN.Sales forecast half year , 		//Ver 2.11 Add
+	Branch code 				as BUKKEN.Branch code ,
+	Business Department 					as BUKKEN.Business Department ,
+	Branch name 					as BUKKEN.Branch name
+Resident MASTER_BRANCH
+;
+//Ver 1.20 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+
+// Shipping date is not linked
+// 		//Ver 1.21 Add Start 														↓↓↓↓↓↓↓↓↓↓↓
+// 		Left Join
+// 		LOAD Distinct
+// 			'B' & mid( product name ,8) 	as BUKKEN.Property NO ,
+// 			Shipping date 				as BUKKEN.Shipping date
+// 		ResidentACT_LOAD
+// 		;
+// 		//Ver 1.21 Add End 															↑↑↑↑↑↑↑↑↑↑↑
+
+drop Field BUKKEN.dummy;
+DROP Table BUKKEN_INFO;
+
+if $(MY_INQUIRY_MODE)=0 then 				// When not in inquiry mode
+	// Combine matter details
+	left join(common)
+	LOAD Distinct
+		*,
+		AM.Project as BUKKEN.Property NO 					.
+	Resident AM
+	;
+	DROP Table AM;
+ENDIF
+
+// 	//for Test
+// 	ship date :
+// 	LOAD Distinct
+// 		'B' & mid( product name , 8) 	as property NO,
+// 		ship date
+// 	ResidentACT_LOAD
+// 	;
+// 	STORE shipping date into $(MY_QVD_DIR) shipping date.qvd ;
+// 	DROP Table shipping date ;
+
+//Ver 2.21 Start ====================
+	// Create an independent table of applicable construction engineer names
+	INFO_Target property :(common)
+	LOAD
+		Distinct
+		BUKKEN.Construction engineer name asConstruction engineer name
+	Resident BUKKEN
+	Where BUKKEN. Change order amount 2>=35000000 		//Ver 2.24 Upd 25 million yen or more ⇒ 35 million yen or more
+and 	BUKKEN.JOB classification NO<>2 						// Construction included	
+and 	BUKKEN.Data classification NO<3 					// Pre-inquiry registration, Inquiry registration in progress, In progress, Approved
+	;
+	left join(BUKKEN)(common)
+	LOAD
+		Construction engineer name 		as BUKKEN. Construction engineer name ,
+		9 					as BUKKEN.Construction engineer duplicate candidate
+	ResidentINFO_Target property
+	;
+	BUKKEN_TMP:(common)
+	LOAD
+		Distinct
+		BUKKEN. Property NO 		as construction property NO
+	Resident BUKKEN
+	WhereBUKKEN.Construction engineer duplicate candidate =9
+	andBUKKEN.JOB classification NO<>2 					// Includes construction	
+	andBUKKEN.Data classification NO<3 				// Pre-inquiry registration, Inquiry registration in progress, In progress, Approved
+	and match(left(BUKKEN.Case status ,1),'A','B','C','D','I','J','N','P')
+	;
+	left join(BUKKEN)(common)
+	LOAD
+		Construction property NO 			as BUKKEN.Property NO,
+		1 					as BUKKEN.Construction overwrap classification
+	ResidentBUKKEN_TMP
+	;
+	DROP TableBUKKEN_TMP;
+//Ver 2.21 End ====================
+
+//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+	//BUKKEN.Sales forecast CY year
+	//BUKKEN. Sales forecast CY half year
+	//BUKKEN.Sales forecast CY quarter
+	RENAME Table BUKKEN to BUKKEN_TMP;
+	BUKKEN:(common)
+	LOAD
+		*
+		,left(BUKKEN.Sales forecast month ,4) 									as BUKKEN.Sales forecast CY year
+		,if(mid(BUKKEN.Estimated sales month ,6,2)<='06'
+			,'A'
+			,'B'
+		) 															as BUKKEN.Sales forecast CY half year
+		,if(mid(BUKKEN.Estimated sales month ,6,2)<='03'
+			,'Q1'
+			,if(mid(BUKKEN.Estimated sales month ,6,2)<='06'
+				,'Q2'
+				,if(mid(BUKKEN.Estimated sales month ,6,2)<='09'
+					,'Q3'
+					,'Q4'
+				)
+			)
+		) 															as BUKKEN.Sales forecast CY quarter
+	ResidentBUKKEN_TMP
+	;
+	DROP TableBUKKEN_TMP;
+//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+///$tab Budget by person
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 11 ] Capture budget by person ;
+ENDIF
+
+////=============================================== ==========
+//// Read budget file for each person in charge
+////=============================================== ==========
+//// Get all sheet name information
+//SHEETINFO:
+//LOAD
+// 	A 										as reading sheet name ,
+// 	if(B=' yen unit ',1000,1) 						as reading unit , 			//=1000: Divide by 1000 because it is expressed in yen units
+// 	FileName() 								as read file name ,
+// 	left(SubField(FileLocationName(),'_',2),3)as read year 				//17B, 18A
+//FROM
+//[$(MY_LOCAL_DIR)yosan responsible _*_*.xlsx]
+//(ooxml, no labels, table is <valid sheet list> )
+//Where Len(Trim(A))>0
+//;
+//
+//// Calculate the number of loops
+//LET varN_LoopMax=NoOfRows('SHEETINFO');
+//
+//// Loop processing
+//for FCount=1 to $(varN_LoopMax)
+// LET varC_LOOP_SHEETNAME 	=Peek(' read sheet name ',FCount-1,'SHEETINFO');
+// 	LET varC_LOOP_FILENAME=Peek(' Read file name ',FCount-1,'SHEETINFO');
+// 	LET varC_LOOP_FY 		=Peek(' Read Year ',FCount-1,'SHEETINFO');
+// 	LET varC_LOOP_JPYUNIT=Peek(' Read unit ',FCount-1,'SHEETINFO');
+//		
+// // table output
+// 	LOAD_TEMP1:
+//LOAD
+// 	'$(varC_LOOP_FY)' 					as semi-annual ,
+// 		MapSubString('MAP_WideToNarrow', B)as department code ,
+// 		MapSubString('MAP_WideToNarrow', C)as responsible ,
+// MapSubString('MAP_WideToNarrow', D) 	as management ,
+// 		if(IsNull(E)=True(),0,E) 			as number of units 4_10,
+// 		if(IsNull(F)=True(),0,F)/$(varC_LOOP_JPYUNIT)as amount 4_10,
+// 		if(IsNull(G)=True(),0,G) 						as number of units 5_11,
+// 		if(IsNull(H)=True(),0,H)/$(varC_LOOP_JPYUNIT)as amount 5_11,
+// 		if(IsNull(I)=True(),0,I) 						as number of units 6_12,
+// 		if(IsNull(J)=True(),0,J)/$(varC_LOOP_JPYUNIT)as amount 6_12,
+// 		if(IsNull(K)=True(),0,K) 						as number of units 7_1,
+// 		if(IsNull(L)=True(),0,L)/$(varC_LOOP_JPYUNIT)as amount 7_1,
+// 		if(IsNull(M)=True(),0,M) 						as number of units 8_2,
+// 		if(IsNull(N)=True(),0,N)/$(varC_LOOP_JPYUNIT)as amount 8_2,
+// 		if(IsNull(O)=True(),0,O) 						as number of units 9_3,
+// 		if(IsNull(P)=True(),0,P)/$(varC_LOOP_JPYUNIT)as amount 9_3
+// 	FROM
+// 	[$(MY_LOCAL_DIR)$(varC_LOOP_FILENAME)]
+// 	(ooxml, no labels, header is 13 lines, table is $(varC_LOOP_SHEETNAME))
+// 	Wherelen(B)=4
+// 	andlen(C)>0
+//;
+//Next FCount
+//DROP Table SHEETINFO;
+//
+//// Responsible adjustment
+//LOAD_TEMP:
+//LOAD
+// 	(Half-yearly ,
+// 	Department code ,
+// 	management ,
+// if(IsNum( in charge )=True()
+// 		,left(Num( in charge ,'00'),2)
+// 		,left(Upper( in charge )&'__',2)
+// ) 								as salesperson code ,
+// 	Number of units 4_10,
+// 	Amount 4_10,
+// 	Number of units 5_11,
+// 	Amount 5_11,
+// 	Number of units 6_12,
+// 	Amount 6_12,
+// 	Number of units 7_1,
+// 	Amount 7_1,
+// 	Number of units 8_2,
+// 	Amount 8_2,
+// 	Number of units 9_3,
+// 	Amount 9_3,
+// 	'X' 			as dummy
+//Resident LOAD_TEMP1
+//;
+//DROP Table LOAD_TEMP1;
+//
+////---------------------------------------------- -----------------------------
+//// Stored by year and month
+////---------------------------------------------- -----------------------------
+// 	BUD_LOAD:
+// 	LOAD
+// 		'BU2' 							as category ,
+// 		0 								as property flag ,
+// 		Department code ,
+// 		mid( department code ,3,1) 					as channel code ,
+// 	left( department code , 2) 					as branch code ,
+//	    salesperson code ,
+// 		management ,	
+// 		number of units 4_10 							as budget number ,
+// 		Amount 4_10*1000 					as budget ,
+// 	'20'&left( half year ,2) 				as year ,
+// 	'20'&if(Right(Half-yearly,1)='A'
+// 	,left(Half-yearly,2)&'-04'
+// 	,left(Half-yearly,2)&'-10'
+// 	) 								as year and month ,
+// 	Right( (Half-yearly ,1) 					as period ,
+// 	if(Right( half year ,1)='A','Q1','Q3') 	as quarter ,
+// 	if(Right( half year ,1)='A',4,10) 		as month
+// 	Resident LOAD_TEMP;
+// 	join
+// 	LOAD
+// 		'BU2' 							as category ,
+// 		0 								as property flag ,
+// 		Department code ,
+// 		mid( department code ,3,1) 					as channel code ,
+// 	left( department code , 2) 					as branch code ,
+//	    salesperson code ,
+// 		management ,	
+// 		Number of units 5_11 							as budget number ,
+// 		Amount 5_11*1000 					as budget ,
+// 	'20'&left( half year ,2) 				as year ,
+// 	'20'&if(Right(Half-yearly ,1)='A'
+// 	,left(Half-yearly,2)&'-05'
+// 	,left(Half-yearly,2)&'-11'
+// 	) 								as year and month ,
+// 	Right( (Half-yearly ,1) 					as period ,
+// 	if(Right( half-yearly ,1)='A','Q1','Q3') 	as quarter ,
+// 	if(Right( half-yearly ,1)='A',5,11) 		as month
+// 	Resident LOAD_TEMP;
+// 	join
+// 	LOAD
+// 		'BU2' 							as category ,
+// 		0 								as property flag ,
+// 		Department code ,
+// 		mid( department code ,3,1) 					as channel code ,
+// 	left( department code , 2) 					as branch code ,
+//	    salesperson code ,
+// 		management ,	
+// 		number of units 6_12 							as budget number ,
+// 		Amount 6_12*1000 					as budget ,
+// 	'20'&left( half year ,2) 				as year ,
+// 	'20'&if(Right(Half-yearly,1)='A'
+// 	,left(Half-yearly,2)&'-06'
+// 	,left(Half-yearly,2)&'-12'
+// 	) 								as year and month ,
+// 	Right( (Half-yearly ,1) 					as period ,
+// 	if(Right( half year ,1)='A','Q1','Q3') 	as quarter ,
+// 	if(Right( half year ,1)='A',6,12) 		as month
+// 	Resident LOAD_TEMP;
+// 	join
+// 	LOAD
+// 		'BU2' 							as category ,
+// 		0 								as property flag ,
+// 		Department code ,
+// 		mid( department code ,3,1) 					as channel code ,
+// 	left( department code , 2) 					as branch code ,
+//	    salesperson code ,
+// 		management ,	
+// 		Number of units 7_1 							as budget number ,
+// 		Amount 7_1*1000 						as budget ,
+// 	'20'&left( half year ,2) 				as year ,
+// 	'20'&if(Right(Half-yearly,1)='A'
+// 	,left(Half-yearly,2)&'-07'
+// 	,(left( half-yearly ,2)+1)&'-01'
+// 	) 								as year and month ,
+// 	Right( (Half-yearly ,1) 					as period ,
+// 	if(Right( Half-yearly ,1)='A','Q2','Q4') 	as quarterly ,
+// 	if(Right( Half-yearly ,1)='A',7,1) 		as month
+// 	Resident LOAD_TEMP;
+// 	join
+// 	LOAD
+// 		'BU2' 							as category ,
+// 		0 								as property flag ,
+// 		Department code ,
+// 		mid( department code ,3,1) 					as channel code ,
+// 	left( department code , 2) 					as branch code ,
+//	    salesperson code ,
+// 		management ,	
+// 		number of units 8_2 							as budget number ,
+// 		Amount 8_2*1000 						as budget ,
+// 	'20'&left( half-yearly ,2) 				as year ,
+// 	'20'&if(Right(Half-yearly,1)='A'
+// 	,left(Half-yearly,2)&'-08'
+// 	,(left( half-yearly ,2)+1)&'-02'
+// 	) 								as year and month ,
+// 	Right( (Half-yearly ,1) 					as period ,
+// 	if(Right( half-yearly ,1)='A','Q2','Q4') 	as quarterly ,
+// 	if(Right( half yearly ,1)='A',8,2) 		as month
+// 	Resident LOAD_TEMP;
+// 	join
+// 	LOAD
+// 		'BU2' 							as category ,
+// 		0 								as property flag ,
+// 		Department code ,
+// 		mid( department code ,3,1) 					as channel code ,
+// 	left( department code , 2) 					as branch code ,
+//	    salesperson code ,
+// 		management ,	
+// 		Number of units 9_3 							as budget number ,
+// 		Amount 9_3*1000 						as budget ,
+// 	'20'&left( half-yearly ,2) 				as year ,
+// 	'20'&if(Right(Half-yearly,1)='A'
+// 	,left(Half-yearly,2)&'-09'
+// 	,(left( half-yearly ,2)+1)&'-03'
+// 	) 								as year and month ,
+// 	Right( (Half-yearly ,1) 					as period ,
+// 	if(Right( half-yearly ,1)='A','Q2','Q4') 	as quarterly ,
+// 	if(Right( half-yearly ,1)='A',9,3) 		as month
+// 	Resident LOAD_TEMP;
+//DROP Table LOAD_TEMP;
+//
+////---------------------------------------------- -----------------------------
+//// Merge product major category name and product middle category name
+////---------------------------------------------- -----------------------------
+//Left Join(BUD_LOAD)
+//LOAD
+// 	branch code ,
+// 	Branch name ,
+// 	Business department
+//Resident 	MASTER_BRANCH
+//;
+//left join (BUD_LOAD)
+//LOAD
+// 	*,
+// 	'x' 			as dummy
+//Resident MASTER_FD2;
+//DROP Field dummy;
+////QVD output 	for test
+//STORE BUD_LOAD into $(MY_QVD_DIR)BUD_SALES.qvd;
+
+//------------------------------------------------ ---------------------------
+// Connect budget by person to ACT_LOAD
+//------------------------------------------------ ---------------------------
+Join(ACT_LOAD)(common)
+LOAD
+	*
+//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+	,Left( year /month ,4)&'/'&right( year/month ,2)&'/01' 		as date of occurrence
+	,Left( year/month ,4) 								as CY year ,
+	if(Right( year/month ,2)<='06'
+		,'A'
+		,'B'
+	) 											as CY period ,
+	if(Right( year/month ,2)<='03'
+		,'Q1'
+		,if(Right( year/month ,2)<='06'
+			,'Q2'
+			,if(Right( year/month ,2)<='09'
+				,'Q3'
+				,'Q4'
+			)
+		)
+	) 											as CY quarter
+//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+From 	$(MY_QVD_DIR)BUD_SALES*.qvd
+(qvd)
+Where '20'&left(SubField(FileLocationName(),'_',3),2)>='$(varN_VALID_STARTYEAR)' 	//Ver 2.30 Add
+;
+///$tab Working day adjustment [for wrap]
+//if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode 		// ☆☆
+
+	//Ver 1.40 Add Start
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 12 ] Working day adjustment ;
+	ENDIF
+	
+	//Ver 1.53 Update Start =~=~=~=~=~=~=~=~=
+	ACT_LOAD_DATE:(common)
+	LOAD
+		left(date(max( occurrence date ),'YYYY/MM/DD'),10) 			as sales occurrence date latest
+	Resident ACT_LOAD
+	Where classification ='ACT'
+	and C_NO='01'
+	;
+	LET varC_LatestDate = Peek(' Latest sales date ', -1, 'ACT_LOAD_DATE' );
+	DROP Table ACT_LOAD_DATE;
+	
+	Set the system date since the occurrence date may be in the future after SAP operation
+	LET varC_LatestDate = date(Today(),'YYYY/MM/DD');
+	LET varC_BeforeDate = date(Today()-1,'YYYY/MM/DD');
+	
+	// Date related item set
+	Let varC_Year = left(varC_LatestDate,4); 		// Latest year of occurrence (Western calendar)
+	Let varC_Month = mid(varC_LatestDate,6,2); 		// Latest month of occurrence
+	Let varC_Day= mid(varC_LatestDate,9,2); 		// Latest date of occurrence
+	If $(varC_Month)='01' then 						// previous month
+		Let varN_BeforeM = 12;		
+	ELSE
+		Let varN_BeforeM = num($(varC_Month))-1;		
+	ENDIF
+	
+	// Create the current month in "YYMM" format
+	Let varC_Current_Month = right(varC_Year,2) & left(varC_Month,2);
+	
+	// Fiscal year, half-yearly set
+	If $(varC_Month)>='04' and $(varC_Month)<='09' then
+		Let varC_Sel_Year = $(varC_Year);
+		Let varC_Sel_Half = 'A';						
+	ELSE
+		If $(varC_Month)<='03' then
+			Let varC_Sel_Year = num($(varC_Year))-1;	
+		ELSE
+			Let varC_Sel_Year = $(varC_Year);
+		ENDIF
+		Let varC_Sel_Half = 'B';						
+	ENDIF
+	
+	//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+		//CY year, CY half-yearly set
+		Let varC_Sel_CYYear = $(varC_Year);
+		If $(varC_Month)<='06' then
+			Let varC_Sel_CYHalf = 'A';						
+		ELSE
+			Let varC_Sel_CYHalf = 'B';						
+		ENDIF
+	//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+	
+	// Sales wrap display initial year and month set
+	Let varC_Default_Year = num($(varC_Sel_Year));
+	Let varC_Default_Month = num($(varC_Month));
+	//Ver 1.53 Update End =~=~=~=~=~=~=~=~=
+	
+	//Ver 3.03 Add Start ===========================
+	Let varC_RPA_Default_Year = $(varC_Sel_CYYear);
+	Let varC_RPA_Default_Month = $(varC_Month)-1;
+	if $(varC_RPA_Default_Month)<1 then
+		Let varC_RPA_Default_Month = 12;
+		Let varC_RPA_Default_Year = $(varC_RPA_Default_Year)-1;
+	ENDIF
+	//Ver 3.03 Add End ===========================
+	
+	//------------------------------------------------ ---------------------------
+	// Preparation process for creating sales wrap data
+	//------------------------------------------------ ---------------------------
+	// Target operating month ( YYYY/MM )
+	let varC_WorkingMonth = num(varC_Year,'###0') & '/' & num(varC_Month,'00');
+	let varC_WorkingYearMonth = left('$(varC_WorkingMonth)',4) & right('$(varC_WorkingMonth)',2);
+	TRACE << Preparation process for creating sales wrap data $(varC_WorkingMonth) $(varC_WorkingYearMonth) >>;
+	
+	// Get the date of movement statement occurrence for the month
+	IDO_SOURCE:(common)
+	LOAD
+		Date of Occurrence_SOURCE asDate 						of Occurrence
+	From [$(MY_QVD_DIR)IDO_SOURCE_ALL.qvd](qvd)
+	where left( occurrence_SOURCE ,7)='$(varC_WorkingMonth)'
+	;
+	
+	// Set the maximum range date ( 1st day of the next month) at the start of the loop
+	Let varC_WorkingMonthNext = AddMonths('$(varC_WorkingMonth)/01',1);
+	
+	// Get the current month's working days
+	//OLEDB CONNECT TO [Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=APP;Data Source=PSIPRO01.WORLD;Extended Properties=""] (XPassword is WebWWQBOQDJAXZFNNTbOWRC);
+	//CALT_TEMP:
+	//SQL
+	//SELECT distinct
+	// 		TO_CHAR(C_DATE, 'YYYY/MM/DD') as CDATE
+	//FROMAPP."QPS_CALENDAR_SCHEDULE"
+	//WHERESITE='PSI'
+	//AND 		HOLIDAY=0
+	//AND 		TO_CHAR(C_DATE,'YYYY/MM') = '$(varC_WorkingMonth)'
+	//;
+	//DISCONNECT;
+	CALT:(common)
+	LOAD
+		CDATE,
+		RowNo() 			as CDATE_SEQ
+	Resident MASTER_CALENDAR
+	Whereleft(CDATE,7)='$(varC_WorkingMonth)'
+	order by CDATE
+	;
+	
+	Get SEQ maximum value
+	CALT_TEMP(common):
+	LOAD
+		max(CDATE_SEQ)as MAX_CDATE_SEQ
+	Resident CALT
+	;
+	LET varN_MAXCDATE_SEQ = Peek('MAX_CDATE_SEQ', -1, 'CALT_TEMP' );
+		
+	// Setting the end of the month
+	Let varC_WorkingMonthStart = Peek('CDATE', varN_MAXCDATE_SEQ-1, 'CALT' );
+	DROP Table CALT_TEMP;
+	
+	// Working day settings
+	WORKING_DATE_NOW:(common)
+	LOAD * INLINE [
+	    Occurrence date , working day , working day serial number , number of working days per month , year and month of occurrence
+	];
+	FOR i = varN_MAXCDATE_SEQ to 1 step -1
+		LET varN_SEQNo = Peek('CDATE_SEQ', i-1, 'CALT' ); 				// Working day serial number
+		LET varC_WorkingDate = Peek('CDATE', i-1, 'CALT' ); 				// Working day of working day serial number
+		LET varC_WorkingDate2 = Peek('CDATE', i-1, 'CALT' ); 			// Start range date of working day serial number
+		if i=varN_MAXCDATE_SEQ then
+			LET varC_WorkingDate=varC_WorkingMonthStart;
+		ENDIF
+		if i=1 then
+			LET varC_WorkingDate2='$(varC_WorkingMonth)/01';
+		ENDIF
+		TRACE ( $(varN_SEQNo) ) $(varC_WorkingDate) ≦ Accrual date ＜ $(varC_WorkingMonthNext);
+		
+		// Read the date of occurrence
+		join LOAD(common
+	    	Accrual date ,
+			'$(varC_WorkingDate)' 			as working date ,
+			$(varN_SEQNo) 					as working day serial number ,
+			$(varN_MAXCDATE_SEQ) 			as number of working days in the month ,
+			left(date( date of occurrence ,'YYYYMM'),6) 	as month and year of occurrence
+		Resident IDO_SOURCE
+		where date of occurrence >='$(varC_WorkingDate2)'
+		and date of occurrence <'$(varC_WorkingMonthNext)'
+		;
+		// Set the next upper limit
+		LET varC_WorkingMonthNext=varC_WorkingDate;
+	NEXT
+	
+	//QVD update
+	WORKING_DATE:(common)
+	LOAD
+		*,
+		'x' 			as dummy
+	Resident WORKING_DATE_NOW
+	;
+	DROP Field dummy;
+	DROP Table WORKING_DATE_NOW;
+	
+	// Suppress messages when an error occurs
+	set ErrorMode = 0;
+	
+	// Get past data
+	join LOAD *
+	From $(MY_QVD_DIR)WORKING_DATE.qvd(qvd)
+	where month and year of occurrence <>'$(varC_WorkingYearMonth)'
+	;
+	// Set error monitoring to normal
+	set ErrorMode = 1;
+	
+	//QVD output
+	STORE WORKING_DATE into $(MY_QVD_DIR)WORKING_DATE.qvd;
+	
+	// delete unnecessary table
+	DROP Table CALT;
+	DROP Table IDO_SOURCE;
+	
+	//Ver 1.40 Add End
+																
+//ENDIF 			// ☆☆
+///$tab 1st 2nd prospect
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 13 ] Primary estimate, secondary estimate ;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+// Import the primary and secondary prospects from the prospect information
+//------------------------------------------------ ---------------------------
+Expected primary secondary_TEMP :
+// ◆ By channel ◆
+LOAD(common
+	'CHA' 						as FCT_ID,
+	'20' & left(SubField(FileLocationName(),'_',2),2)
+								as FCT_year ,
+	Upper(right(SubField(FileLocationName(),'_',2),1))
+								as FCT_period ,
+if(D='A(Z)','@',D) 			as FCT_CD,
+if(IsNull(G)=True(),0,G) 	as FCT1_1,
+if(IsNull(H)=True(),0,H) 	as FCT2_1,
+if(IsNull(L)=True(),0,L) 	as FCT1_2,
+if(IsNull(M)=True(),0,M) 	as FCT2_2,
+if(IsNull(Q)=True(),0,Q) 	as FCT1_3,
+if(IsNull(R)=True(),0,R) 	as FCT2_3,
+if(IsNull(V)=True(),0,V) 	as FCT1_4,
+if(IsNull(W)=True(),0,W) 	as FCT2_4,
+if(IsNull(AA)=True(),0,AA) 	as FCT1_5,
+if(IsNull(AB)=True(),0,AB) 	as FCT2_5,
+if(IsNull(AF)=True(),0,AF) 	as FCT1_6,
+if(IsNull(AG)=True(),0,AG) 	as FCT2_6
+FROM
+[$(MY_LOCAL_DIR)mikomi_*.xlsx]
+(ooxml, no labels, table is for QV )
+Where Match(D, 'D', 'C', 'G', 'E', 'A', 'A(Z)', 'R', 'F', 'B', 'M') 			// 2017.05.12 M (Marine B corp) addition
+;
+// ◆ By branch store ◆
+join(common)
+LOAD
+	'TEN' 						as FCT_ID,
+	'20' & left(SubField(FileLocationName(),'_',2),2)
+								as FCT_year ,
+	Upper(right(SubField(FileLocationName(),'_',2),1))
+								as FCT_period ,
+if(D='VA(Z)','V@',D) 		as FCT_CD,
+if(IsNull(G)=True(),0,G) 	as FCT1_1,
+if(IsNull(H)=True(),0,H) 	as FCT2_1,
+if(IsNull(L)=True(),0,L) 	as FCT1_2,
+if(IsNull(M)=True(),0,M) 	as FCT2_2,
+if(IsNull(Q)=True(),0,Q) 	as FCT1_3,
+if(IsNull(R)=True(),0,R) 	as FCT2_3,
+if(IsNull(V)=True(),0,V) 	as FCT1_4,
+if(IsNull(W)=True(),0,W) 	as FCT2_4,
+if(IsNull(AA)=True(),0,AA) 	as FCT1_5,
+if(IsNull(AB)=True(),0,AB) 	as FCT2_5,
+if(IsNull(AF)=True(),0,AF) 	as FCT1_6,
+if(IsNull(AG)=True(),0,AG) 	as FCT2_6
+FROM [$(MY_LOCAL_DIR)mikomi_*.xlsx]
+(ooxml, no labels, table is for QV )
+Where Match(D,
+	'VD', 'VC', 'VG', 'VE', 'VA', 'VA(Z)',
+	'VK', 'V7', 'VJ', 'V4', 'V6', 'V2', 'V5', 'V9',
+	'V3', 'VR', 'VF', 'VB', 'VS', 'VM') 					//2017.05.12 VM (Marine B corp) addition
+;
+// ◆ By product BU ◆
+join(common)	
+LOAD
+	'SBU' 						as FCT_ID,
+	'20' & left(SubField(FileLocationName(),'_',2),2)
+								as FCT_year ,
+	Upper(right(SubField(FileLocationName(),'_',2),1))
+								as FCT_period ,
+D 							as FCT_CD,
+if(IsNull(G)=True(),0,G) 	as FCT1_1,
+if(IsNull(H)=True(),0,H) 	as FCT2_1,
+if(IsNull(L)=True(),0,L) 	as FCT1_2,
+if(IsNull(M)=True(),0,M) 	as FCT2_2,
+if(IsNull(Q)=True(),0,Q) 	as FCT1_3,
+if(IsNull(R)=True(),0,R) 	as FCT2_3,
+if(IsNull(V)=True(),0,V) 	as FCT1_4,
+if(IsNull(W)=True(),0,W) 	as FCT2_4,
+if(IsNull(AA)=True(),0,AA) 	as FCT1_5,
+if(IsNull(AB)=True(),0,AB) 	as FCT2_5,
+if(IsNull(AF)=True(),0,AF) 	as FCT1_6,
+if(IsNull(AG)=True(),0,AG) 	as FCT2_6
+FROM [$(MY_LOCAL_DIR)mikomi_*.xlsx]
+(ooxml, no labels, table is for QV )
+Where Match(D,
+	'0**', '1**', '2**', '3**', '4**', '5**',
+	'7**', '8A*', '8B*', '9**', 'SA*')
+;
+// ◆ Total D division/sections ◆
+join(common)	
+LOAD
+	'TOT' 						as FCT_ID,
+	'20' & left(SubField(FileLocationName(),'_',2),2)
+								as FCT_year ,
+	Upper(right(SubField(FileLocationName(),'_',2),1))
+								as FCT_period ,
+D 							as FCT_CD,
+if(IsNull(G)=True(),0,G) 	as FCT1_1,
+if(IsNull(H)=True(),0,H) 	as FCT2_1,
+if(IsNull(L)=True(),0,L) 	as FCT1_2,
+if(IsNull(M)=True(),0,M) 	as FCT2_2,
+if(IsNull(Q)=True(),0,Q) 	as FCT1_3,
+if(IsNull(R)=True(),0,R) 	as FCT2_3,
+if(IsNull(V)=True(),0,V) 	as FCT1_4,
+if(IsNull(W)=True(),0,W) 	as FCT2_4,
+if(IsNull(AA)=True(),0,AA) 	as FCT1_5,
+if(IsNull(AB)=True(),0,AB) 	as FCT2_5,
+if(IsNull(AF)=True(),0,AF) 	as FCT1_6,
+if(IsNull(AG)=True(),0,AG) 	as FCT2_6
+FROM [$(MY_LOCAL_DIR)mikomi_*.xlsx]
+(ooxml, no labels, table is for QV )
+Where Match(D,' Total of D items ')
+;
+
+Expected 1st and 2nd :
+LOAD(common)
+	FCT_ID,
+	FCT_CD,
+	FCT_year , _
+	FCT_period , _
+	if(FCT_period = 'A',4,10) 			as FCT_month ,
+	FCT_year & if(FCT_period = 'A','04','10') & FCT_CD
+								as FCT_Year/ Month CD,
+	FCT1_1 						as FCT_ primary estimate ,
+	FCT2_1 						as FCT_ Secondary estimate
+resident 1st and 2nd_TEMP
+;
+join
+LOAD(common)
+	FCT_ID,
+	FCT_CD,
+	FCT_year , _
+	FCT_period , _
+	if(FCT_period = 'A',5,11) 			as FCT_month ,
+	FCT_year & if(FCT_period = 'A','05','11') & FCT_CD
+								as FCT_Year/ Month CD,
+	FCT1_2 						as FCT_ primary estimate ,
+	FCT2_2 						as FCT_ Secondary estimate
+resident 1st and 2nd_TEMP
+;
+join(common)
+LOAD
+	FCT_ID,
+	FCT_CD,
+	FCT_year , _
+	FCT_period , _
+	if(FCT_period = 'A',6,12) 			as FCT_month ,
+	FCT_year & if(FCT_period = 'A','06','12') & FCT_CD
+								as FCT_Year/ Month CD,
+	FCT1_3 						as FCT_ 1st estimate ,
+	FCT2_3 						as FCT_ Secondary estimate
+resident 1st and 2nd_TEMP
+;
+join(common)
+LOAD
+	FCT_ID,
+	FCT_CD,
+	FCT_year , _
+	FCT_period , _
+	if(FCT_period = 'A',7,1) 			as FCT_month ,
+	FCT_year & if(FCT_period = 'A','07','01') & FCT_CD
+								as FCT_Year/ Month CD,
+	FCT1_4 						as FCT_ 1st estimate ,
+	FCT2_4 						as FCT_ Secondary estimate
+resident 1st and 2nd_TEMP
+;
+join(common)
+LOAD
+	FCT_ID,
+	FCT_CD,
+	FCT_year , _
+	FCT_period , _
+	if(FCT_period = 'A',8,2) 			as FCT_month ,
+	FCT_year & if(FCT_period = 'A','08','02') & FCT_CD
+								as FCT_Year/ Month CD,
+	FCT1_5 						as FCT_ primary estimate ,
+	FCT2_5 						as FCT_ Secondary estimate
+resident 1st and 2nd_TEMP
+;
+join(common)
+LOAD
+	FCT_ID,
+	FCT_CD,
+	FCT_year , _
+	FCT_period , _
+	if(FCT_period = 'A',9,3) 			as FCT_month ,
+	FCT_year & if(FCT_period = 'A','09','03') & FCT_CD
+								as FCT_Year/ Month CD,
+	FCT1_6 						as FCT_ 1st estimate ,
+	FCT2_6 						as FCT_ Secondary estimate
+resident 1st and 2nd_TEMP
+;
+DROP Table expected primary secondary_TEMP ;
+///$tab occurrence date correction [for wrap]
+if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode
+
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime) : [ 14 ] Occurrence date adjustment (transfer to working day) ;
+	ENDIF
+	
+	// Transfer the occurrence date of ACT_LOAD to a working day
+	ACT_LOAD00(common):
+	LOAD
+		Occurrence date 				as Occurrence date_ORG,
+		C_NO,
+		FD,
+		FD order , 			//Ver 1.59 added
+		Purchase classification code ,
+		channel code ,
+		channel ,
+		Channel code SORT,
+		management ,
+		Period,
+		classification ,
+		Usage , 			//Ver 1.40 added
+		Month ,
+		quarter ,
+		branch code ,
+		Division ,
+		Branch name ,
+		Branch name SORT,
+		Product category name ,
+		Product classification name ,
+		FD major classification order , 		//Ver 1.40 added
+		FD medium classification order , 		//Ver 1.40 added
+		Information No.
+		year and month ,
+		year ,
+		department code ,
+		Actual ,
+		cost price ,
+	//*** T11 units from the second half of 2015 onwards are not counted.
+	// 	number of Units ,
+		if(
+			Left( occurrence date , 4)&Mid( occurrence date , 6,2)&Mid( occurrence date , 9,2)<='20150930' or
+			FD<>'T11'
+				, Number of bodies
+				,0
+		) as number of units ,
+		budget ,
+		Budget number
+	Resident ACT_LOAD
+	where year >='2014-04'
+	//and (Left( occurrence date , 4)&Mid( occurrence date , 6,2)&Mid( occurrence date , 9,2)<='20150930' or FD<>'T11') 		//Ver 1.42 Add
+	;
+	left join(common)
+	LOAD
+		Occurrence date 					as Occurrence date_ORG,
+		Working day serial number 					as working day serial number ,
+		Working day 					as occurrence date
+	Resident WORKING_DATE
+	;
+	drop field occurrence date_ORG;
+
+ENDIF
+Create $tab wrap data
+if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode
+
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 15 ] Create wrap data ;
+	ENDIF
+	
+	//------------------------------------------------ ---------------------------
+	// Create data exclusively for sales wrap sheets
+	//------------------------------------------------ ---------------------------
+	
+	// Acquire actual (ACT)
+	ACT_LOAD_WRAP_TEMP:(common)
+	LOAD
+		classification ,
+		FD,
+		Purchase classification code ,
+		branch code ,
+		department code ,
+		channel code ,
+		management ,
+		Product category name ,
+		Product classification name ,
+		FD major classification order , 		//Ver 1.40 added
+		FD medium classification order , 		//Ver 1.40 added
+		Accrual date ,
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month ,
+		Information NO, 			//Ver 1.37a Add
+		Number of units ,
+		Actual ,
+		cost price
+	Resident ACT_LOAD00
+	Where classification ='ACT'
+	and C_NO='01'
+	;
+	
+	// Get the number of working days
+	// From ACT_LOAD00 (actual table)
+	KADOU_NISUU_TEMP:(common)
+	LOAD Distinct
+		year and month 		asYear Month 2,
+		Accrual date 		asoccurrence date 2
+	Resident ACT_LOAD00
+	Where classification ='ACT'
+	;
+	// Get maximum performance date
+	ACT_MAXDATE(common):
+	LOAD
+		Max( occurrence date 2) as maximum occurrence date
+	RESIDENT KADOU_NISUU_TEMP;
+	LET varD_MAXDate = Peek(' Maximum Occurrence Date ', -1, 'ACT_MAXDATE' );
+	LET varC_MAXDate = Left(Date(varD_MAXDate, 'YYYY/MM/DD'), 10);
+	LET varC_YM = Left(Date(varD_MAXDate, 'YYYY-MM'), 7);
+	DROP Table ACT_MAXDATE;
+	
+	// From DB (for the current month after today)
+	//OLEDB CONNECT TO [Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=APP;Data Source=PSIPRO01.WORLD;Extended Properties=""] (XPassword is WebWWQBOQDJAXZFNNTbOWRC);
+	//Join(KADOU_NISUU_TEMP)
+	//SQL SELECT
+	//TO_CHAR(C_DATE, 'YYYY-MM') 		as year month 2,
+	//TO_CHAR(C_DATE, 'YYYY/MM/DD') as date of occurrence 2
+	//FROM"QPS_CALENDAR_SCHEDULE"
+	//WHERE 	HOLIDAY=0
+	//and 		SITE='PSI'
+	//AND 		TO_CHAR(C_DATE,'YYYY/MM') = SUBSTR('$(varC_MAXDate)',1,7)
+	//AND 		TO_CHAR(C_DATE,'YYYY/MM/DD') > '$(varC_MAXDate)'
+	//;
+	
+	Join(KADOU_NISUU_TEMP)(common)
+	LOAD
+		left(CDATE,4)&'-'&mid(CDATE,6,2)as year month 2,
+		CDATE 								as occurrence date 2
+	Resident MASTER_CALENDAR
+	whereleft(CDATE,7)=left('$(varC_MAXDate)',7)
+	andCDATE> '$(varC_MAXDate)'
+	;
+	
+	KADOU_NISUU_TEMP2:(common)
+	LOAD
+		year month 2 			as year month ,
+		Count ( occurrence date 2) 	as number of working days
+	Resident KADOU_NISUU_TEMP
+	Group By Year Month 2
+	;
+	
+	//// Add working days to budget data
+	BUD_LOAD_WRAP_TEMP(common):
+	LOAD
+		classification ,
+		FD,
+		Purchase classification code ,
+		branch code ,
+		department code ,
+		channel code ,
+		management ,
+		Product category name ,
+		Product classification name ,
+		FD major classification order , 		//Ver 1.40 added
+		FD medium classification order , 		//Ver 1.40 added
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month ,
+		budget number ,
+		budget
+	Resident ACT_LOAD00
+	Where classification ='BUD'
+	;
+	Left Join(common)
+	LOAD
+		 year and month ,
+		 Number of working days
+	Resident KADOU_NISUU_TEMP2;
+	DROP Table KADOU_NISUU_TEMP2;
+	
+	
+	BUD_LOAD_WRAP:(differ)
+	LOAD
+		classification ,
+		FD,
+		Purchase classification code ,
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month ,
+		branch code ,
+		department code ,
+		channel code ,
+		management ,	
+		Product category name ,
+		Product classification name ,
+		FD major classification order , 		//Ver 1.40 added
+		FD medium classification order , 		//Ver 1.40 added
+		budget number ,
+		budget ,
+		Budget number / working days 	as standard wrap number ,
+		Budget / working days 		as standard wrap amount
+	Resident BUD_LOAD_WRAP_TEMP;
+	
+	Left join(common
+	LOAD
+		year month 2 			as year month ,
+		Occurrence date 2 			as Occurrence date
+	Resident KADOU_NISUU_TEMP
+	;
+	DROP Table KADOU_NISUU_TEMP;
+	DROP Table BUD_LOAD_WRAP_TEMP;
+	
+	Join(ACT_LOAD_WRAP_TEMP)(common)
+	LOAD
+		classification ,
+		FD,
+		Purchase classification code ,
+		Accrual date ,
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month ,
+		branch code ,
+		department code ,
+		channel code ,
+		management ,	
+		Product category name ,
+		Product classification name ,
+		FD major classification order , 		//Ver 1.40 added
+		FD medium classification order , 		//Ver 1.40 added
+		budget number ,
+		budget ,
+		standard number of wraps ,
+		Standard wrap amount
+	Resident BUD_LOAD_WRAP
+	;
+	DROP Table BUD_LOAD_WRAP;
+	
+	// Create wrap data
+	ACT_LOAD_WRAP:(differ)
+	LOAD
+		classification 							as category 2,
+		Accrual date 							as occurrence date 2,
+		year 							as  year 2 ,
+		year and month 							as   Year Month 2,
+		term 								as period 2,
+		quarter 							as quarter 2,
+		Month 								as month 2 ,
+		Year & Year Month & Period & Quarter & Month 	as Consolidation Key 4,
+		Year & term & department code 			as concatenation key 5,
+		FD 								as FD2,
+		Purchase classification code 					as Purchase classification code 2,
+		Product category name 					as Product classification name 2,
+		Product classification name 					as Product classification name 2,
+		FD major classification order 						as FD major classification order 2, 		//Ver 1.40 added
+		FD medium classification order 						as FD medium classification order 2, 		//Ver 1.40 added
+		Branch code 						as branch code 2,
+		Department code 						as department code 2,
+		channel code 					as channel code 2,
+		Year &num( month ,'00') & branch code
+										as year month branch code 2,
+		Year &num( month ,'00') & channel code
+										as year month channel code 2,
+		if(len( purchase classification code )>0,
+			Year & num( month ,'00') & Purchase classification code ,
+			Null()
+		) 								as year month purchase classification 2,
+		management 							as management 2,
+		Number of units 							as unit count 2,
+		Actual						as actual 2,
+		Budget number	 						as budget number 2,
+		budget 							as budget2 , _
+		cost price 							as cost2 , _
+	//C_NO 							as C_NO2, 				//Ver 1.37a Add
+	// 	Usage 							as Usage 2, 				// Ver 1.37a Add
+		Information NO 							as Information NO2, 				//Ver 1.37a Add
+		standard number of wraps ,	
+		Standard wrap amount ,
+	//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+		Left( year, month , 4) 					as CY year 2,
+		if(Right( year/month ,2)<='06'
+			,'A'
+			,'B'
+		) 								as CY period 2,
+		if(Right( year/month ,2)<='03'
+			,'Q1'
+			,if(Right( year/month ,2)<='06'
+				,'Q2'
+				,if(Right( year/month ,2)<='09'
+					,'Q3'
+					,'Q4'
+				)
+			)
+		) 								as CY quarter 2,
+	//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+		'' 								as dummy
+	Resident ACT_LOAD_WRAP_TEMP
+	;
+	drop field dummy;
+	DROP Table ACT_LOAD_WRAP_TEMP;
+	
+	//MASTER_CHANNEL2:
+	left join(ACT_LOAD_WRAP)
+	LOAD
+		'20'&left( year ,2) 				asyear2 , 		//Ver 2.11 Add
+		right( year , 1) 					as period 2, 			//Ver 2.11 Add
+		channel code 					as channel code 2,
+		channel 						as channel 2,
+		Channel code SORT 				as Channel code SORT2
+	Resident MASTER_CHANNEL
+	;
+	
+	//MASTER_BRANCH2:
+	left join(ACT_LOAD_WRAP)(common)
+	LOAD
+		'20'&left( year ,2) 				as year2 , 		//Ver 2.11 Add
+		right( year , 1) 					as period 2, 			//Ver 2.11 Add
+		Business department 							as business department 2,
+		Branch code 						as branch code 2,
+		Branch name 							as branch name2 ,
+		Branch name SORT 						as Branch name SORT2
+	Resident MASTER_BRANCH
+	;
+	
+	//MONTH_SORT2:
+	left join(ACT_LOAD_WRAP)(common)
+	LOAD * INLINE [
+	    MONTH2 , MONTHSORT2
+	4, 1
+	5, 2
+	6, 3
+	7, 4
+	8, 5
+	9, 6
+	10, 7
+	11, 8
+	12, 9
+	1, 10
+	2, 11
+	3, 12
+	];
+	
+	MASTER_FD3:(common)
+	//left join(ACT_LOAD_WRAP)
+	LOAD Distinct
+		 Management product classification 				as management 2,
+	// JOB included number wrap management product 		as JOB included number wrap management product 2, 		//Ver 1.37a Add
+	// JOB included number wrap management product order 	as JOB included number wrap management product order 2,
+		 Amount Wrap Management Product 			as Amount Wrap Management Product 2,
+		 Quantity wrap management product 			as Quantity wrap management product 2
+	FROM
+	[$(MY_MASTER_DIR)$(MY_MASTER_FILE)]
+	(ooxml, embedded labels, header is 0 lines, table is FD)
+	Where FD major classification >0
+	and (
+	//len( Number of wrap management products including JOB )>0 or
+	// 	len( Number of wrap management products including JOB )>0 or
+		len( amount wrap management product )>0 or
+		len ( number of wrap management products )>0
+	)
+	;
+	
+	////---------------------------------------------- -----------------------------
+	//// Add location branch code, location branch, location name, location name order
+	////---------------------------------------------- -----------------------------
+	//left join(ACT_LOAD_WRAP)
+	//LOAD
+	// 	Year & term 	& department code 	as concatenation key 5,
+	// 	location branch code ,
+	// 	location branch ,
+	// 	location name ,
+	// 	Order by location name
+	//Resident MASTER_KYOTEN
+	//;
+	
+ENDIF
+///$tab Create wrap data including JOB shipping
+if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode
+
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 16 ] Create wrap data [JOB shipping included] ;
+	ENDIF
+	
+	//------------------------------------------------ ---------------------------
+	// Sales wrap [JOB shipping included] Dedicated data creation
+	//------------------------------------------------ ---------------------------
+	// Acquire actual (ACT)
+	ACT_LOAD_WRAP_TEMP:(differ)
+	LOAD
+		classification ,
+		FD,
+		Product category name ,
+		if(FD='T22', 					' Multi ',
+			if(FD='T26', 				' custom ',
+				if(FD='SC1', 			' Air conditioner ',
+										'ESTIA'
+				)
+			)
+		) 					as product category name ,
+		Accrual date ,
+		Working day serial number ,
+		year ,
+		year and month ,
+		period,
+		quarter ,
+		Month ,
+		sum( number of units ) 			as total number of units
+	Resident ACT_LOAD00
+	Where classification ='ACT'
+	and (C_NO='01' or ( usage ='8' and C_NO='14'))
+	and branch code <>'VH' 			// comp
+	and branch code <>'VZ' 			// G division/section
+	and Match(FD,'T22','T26','SC1','T84')>0
+	group by
+		classification ,
+		FD,
+		Product category name ,
+		Accrual date ,
+		Working day serial number ,
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month
+	;
+	join(common
+	LOAD
+		classification ,
+		FD,
+		Product category name ,
+		if(FD='T22', 					' Multi ',
+			if(FD='T26', 				' custom ',
+				if(FD='SC1', 			' Air conditioner ',
+										'ESTIA'
+				)
+			)
+		) 					as product category name ,
+		Accrual date ,
+		Working day serial number ,
+		year ,
+		year and month ,
+		period,
+		quarter ,
+		Month ,
+		sum( number of units ) 			as total number of units
+	Resident ACT_LOAD00
+	Where classification ='ACT'
+	and usage ='8'
+	and C_NO='34'
+	and branch code <>'VH' 			// comp
+	and branch code <>'VZ' 			// G division/section
+	and Match(FD,'T22','T26','SC1','T84')>0
+	group by
+		classification ,
+		FD,
+		Product category name ,
+		Accrual date ,
+		Working day serial number ,
+		year ,
+		year and month ,
+		period,
+		quarter ,
+		Month
+	;
+	////============================= Qualify / Unqualify
+	//Qualify *;
+	//Ensure_ACT_LOAD_WRAP_TEMP:
+	//LOAD *,
+	//'x' as dummy
+	//Resident ACT_LOAD_WRAP_TEMP;
+	//Unqualify *;
+	////============================= Qualify / Unqualify
+	
+	// Get the number of working days
+	// From ACT_LOAD00 (actual table)
+	KADOU_NISUU_TEMP:(common
+	LOAD Distinct
+		year and month 		asYear Month 2,
+		Accrual date 		asoccurrence date 2
+	Resident ACT_LOAD00
+	Where classification ='ACT'
+	;
+	// Get maximum performance date
+	ACT_MAXDATE:(common
+	LOAD
+		Max( occurrence date 2) as maximum occurrence date
+	RESIDENT KADOU_NISUU_TEMP;
+	LET varD_MAXDate = Peek(' Maximum Occurrence Date ', -1, 'ACT_MAXDATE' );
+	LET varC_MAXDate = Left(Date(varD_MAXDate, 'YYYY/MM/DD'), 10);
+	LET varC_YM = Left(Date(varD_MAXDate, 'YYYY-MM'), 7);
+	DROP Table ACT_MAXDATE;
+	
+	// From DB (for the current month after today)
+	//OLEDB CONNECT TO [Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=APP;Data Source=PSIPRO01.WORLD;Extended Properties=""] (XPassword is WebWWQBOQDJAXZFNNTbOWRC);
+	//Join(KADOU_NISUU_TEMP)
+	//SQL SELECT
+	//TO_CHAR(C_DATE, 'YYYY-MM') 		as year month 2,
+	//TO_CHAR(C_DATE, 'YYYY/MM/DD') as date of occurrence 2
+	//FROM"QPS_CALENDAR_SCHEDULE"
+	//WHEREHOLIDAY=0
+	//and 	SITE='PSI'
+	//AND 		TO_CHAR(C_DATE,'YYYY/MM') = SUBSTR('$(varC_MAXDate)',1,7)
+	//AND 		TO_CHAR(C_DATE,'YYYY/MM/DD') > '$(varC_MAXDate)'
+	//;
+	
+	Join(KADOU_NISUU_TEMP)(common)
+	LOAD
+		left(CDATE,4)&'-'&mid(CDATE,6,2)as year month 2,
+		CDATE 								as occurrence date 2
+	Resident MASTER_CALENDAR
+	whereleft(CDATE,7)=left('$(varC_MAXDate)',7)
+	andCDATE> '$(varC_MAXDate)'
+	;
+	
+	////============================= Qualify / Unqualify
+	//Qualify *;
+	//Ensure_KADOU_NISUU_TEMP:
+	//LOAD *,
+	//'x' as dummy
+	//Resident KADOU_NISUU_TEMP;
+	//Unqualify *;
+	////============================= Qualify / Unqualify
+	
+	KADOU_NISUU_TEMP2:(common)
+	LOAD
+		year month 2 			as year month ,
+		Count ( occurrence date 2) 	as number of working days
+	Resident KADOU_NISUU_TEMP
+	Group By Year Month 2
+	;
+	
+	//// Add working days to budget data
+	BUD_LOAD_WRAP_TEMP:(common)
+	LOAD classification ,
+	FD,
+	     Product category name ,
+	     Product classification name ,
+	     year ,
+	     year and month ,
+	     period,
+	     quarter ,
+	     Month ,
+	     Budget number
+	FROM
+	[$(MY_LOCAL_DIR)yosan number of units including construction _*.xlsx]
+	(ooxml, embedded labels, table is dataQV)
+	;
+	
+	Left Join(common)
+	LOAD
+		 year and month ,
+		 Number of working days
+	Resident KADOU_NISUU_TEMP2;
+	DROP Table KADOU_NISUU_TEMP2;
+	
+	BUD_LOAD_WRAP:(differ)
+	LOAD
+		classification ,
+		FD,
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month ,
+		Product category name ,
+		Product classification name ,
+		budget number ,
+		Budget number / working days 	as standard number of wraps
+	Resident BUD_LOAD_WRAP_TEMP;
+	
+	Left join(common
+	LOAD
+		year month 2 			as year month ,
+		Occurrence date 2 			as Occurrence date
+	Resident KADOU_NISUU_TEMP
+	;
+	DROP Table KADOU_NISUU_TEMP;
+	DROP Table BUD_LOAD_WRAP_TEMP;
+	
+	Join(ACT_LOAD_WRAP_TEMP)(common
+	LOAD
+		classification ,
+		FD,
+		Accrual date ,
+		year ,
+		year and month ,
+		period ,
+		quarter ,
+		Month ,
+		Product category name ,
+		Product classification name ,
+		budget number ,
+		Standard number of wraps
+	Resident BUD_LOAD_WRAP
+	;
+	
+	DROP Table BUD_LOAD_WRAP;
+	
+	ACT_LOAD_WRAP4:(differ)
+	LOAD
+		classification 			as category 4,
+		Accrual date 			as occurrence date 4,
+		Working day serial number 			as working day serial number 4,
+		year 			as year 4 ,
+		year and month 			as Year Month 4,
+		term 				as period 4,
+		quarter 			as quarter 4,
+		Month 				as month 4 ,
+		Year & Month & Period & Quarter & Month
+						as concatenated key 4,
+		FD 				as FD4,
+		Product category name 		as Product classification name 4,
+		Product classification name 		as Product classification name 4,
+		Match( product category name , ' custom ', ' multi ', ' air conditioner ', 'ESTIA')
+						As Product category name order 4,
+		Total number of bodies 			as Number of bodies 4,
+		Budget number	 		as budget number4 ,
+		Standard number of wraps 			as standard number of wraps 4,
+		'' 				as dummy
+	Resident ACT_LOAD_WRAP_TEMP
+	;
+	drop field dummy;
+	DROP Table ACT_LOAD_WRAP_TEMP;
+	
+	//MONTH_SORT3:
+	left join(ACT_LOAD_WRAP4)(common
+	LOAD * INLINE [
+	    MONTH 4, MONTHSORT4
+	4, 1
+	5, 2
+	6, 3
+	7, 4
+	8, 5
+	9, 6
+	10, 7
+	11, 8
+	12, 9
+	1, 10
+	2, 11
+	3, 12
+	];
+	
+	DROP Table WORKING_DATE;
+	DROP Table ACT_LOAD00;
+
+ENDIF
+///$tab selling price management
+if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode
+
+	//************************************************ ******* 2015.03 Selling price management ADDfrom
+	
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 17 ] Create selling price management data ;
+	ENDIF
+	
+	// Supports creation of display table for selling price management
+	// 	1. Create a worktable of average NET unit price by year/month/product code ( first session)
+	ACT_YM_NET_A:(common
+	LOAD
+		Product code 					as Product code_YA ,
+		year and month 					as year_YA , _
+		avg(NET unit price ) 			as NET unit price monthly average value_YA
+	ResidentACT_LOAD
+	WHEREIsNull( product code ) = 0
+	AND 		C_NO='01' 							//Ver 1.37a Add
+	group by 	product code , year and month
+	;
+	
+	// 	2. Create a worktable that adds the average value of NET unit price to the ACT_LOAD (transfer details) table .
+	ACT_LOAD_A:(common
+	LOAD
+		Product code 					as Product code_LA ,
+		Product name 					as Product name_LA ,
+		Accrual date 					as occurrence_LA , _
+		year and month 					as Year / Month_LA ,
+		channel code 				as channel code_LA ,
+		Branch code 					as branch code_LA ,
+		good at 					as Special_LA , 							//2015.04.06Company code → Change of good
+		specialty name 					as Special name_LA ,
+		NET unit price 					as NET unit price_LA ,
+		Number of sales 					as Sales_LA , _
+		Number of units 					as number of units_LA
+	ResidentACT_LOAD
+	whereC_NO='01' 						//Ver 1.37a Add
+	;			
+	Left Join(common
+	LOAD
+		Product code_YA                         as Product code_LA ,
+		Year / month_YA 					as year /month_LA,
+		NET unit price monthly average value_LA     as NET unit price monthly average value_LA
+	Resident ACT_YM_NET_A
+	;
+	
+	// 3. From the ACT_LOAD (movement details) table, the NET unit price is more than twice the average value of the NET unit price.
+	//　　Create a worktable that excludes NET unit prices that are less than half of the average NET unit price.
+	ACT_LOAD_B:(common
+	LOAD
+		Product code_LA as 				Product code_LB ,
+		Product name_LA as 					Product name_LB ,
+		Occurrence date_LA as 				Occurrence date_LB ,
+		Year / month_LA 					as year /month_LB,
+		Channel code_LA as 				channel code_LB ,
+		Branch code_LA as 				Branch code_LB ,
+		Specialty_LA as Specialty_LB , 							//2015.04.06 					Specialty added
+		Specialty name_LA as 				Specialty name_LB , 						//2015.04.06 Specialty name added
+		NET unit price_LA 				as NET unit price_LB ,
+		NET unit price monthly average value_LA as 		NET unit price monthly average value_LB ,
+		Number of sales_LA as 				number of sales_LB ,
+		Number of bodies_LA as 				Number of bodies_LB
+	ResidentACT_LOAD_A	
+	WHERE 		NET unit price_LA < NET unit price monthly average value_LA * 2
+	and 			NET unit price_LA > NET unit price monthly average value_LA / 2	
+	;
+	
+	// 4. Recalculating the average value using the unit price excluding abnormal values (second time )
+	ACT_YM_NET_B:(common
+	LOAD
+		Product code_LB as 				Product code_YB ,
+		Year /Month_LB 					as Year /Month_YB,
+		avg(NET unit price_LB ) 			as NET unit price monthly average value_YB
+	ResidentACT_LOAD_B
+	WHERE 		IsNull( product code_LB ) = 0
+	group by 	product code_LB , year/ month_LB
+	;
+	
+	// 5. Add the second recalculated average value to the ACT_LOAD table
+	Left Join(ACT_LOAD)(common)
+	LOAD
+		Product code_LB as 				product code ,
+		Year and month_YB 					as year and month ,
+		NET unit price monthly average value_LB as 		NET unit price monthly average value
+	Resident ACT_YM_NET_B
+	;
+	
+	// 6. The NET unit price is more than twice the average value recalculated from the ACT_LOAD (transfer details) table.
+	//　　Create a worktable that excludes NET unit prices that are less than half of the average NET unit price.
+	ACT_LOAD_C:(common
+	LOAD
+		Product code 					asProduct code_LC ,
+		Product name 					asProduct name_LC ,
+		Accrual date 					asoccurrence date_LC ,
+		year and month 					asYear / Month_LC ,
+		channel code 				aschannel code_LC ,
+		Branch code 					asbranch code_LC ,
+		Speciality					as Specialty_LC , 						//2015.04.06 added good
+		specialty name 					as specialty name_LC , 						//2015.04.06 specialty name added
+		NET unit price 					as NET unit price_LC,
+		NET unit price monthly average value 			as NET unit price monthly average value_LC,
+		Number of sales 					as Sales_LC , _
+		Number of units 					as Unit count_LC _
+	ResidentACT_LOAD	
+	WHERE 		NET unit price < Monthly average NET unit price * 2
+	and 			NET unit price > NET unit price monthly average value /2	
+	and 		C_NO='01' 						//Ver 1.37a Add
+	;
+	
+	// From the worktable in 7.6, create a worktable for the maximum and minimum NET unit prices by year/month, product code, product name, channel, branch, and customer.
+	ACT_YM_NET_C:(common
+	LOAD
+		Product code_LC as 				Product code_YC ,
+		Product name_LC as 					Product name_YC ,
+		Channel code_LC as 				channel code_YC ,
+		Branch code_LC as 				Branch code_YC ,
+		Specialty_LC as Specialty_YC , 						//2015.04.06 					Specialty added
+		Specialty name_LC as 				Specialty name_YC , 						//2015.04.06 Specialty name added
+		Year /Month_LC 					as Year /Month_YC,
+		max(NET unit price_LC ) 			as NET unit price monthly maximum value_YC,
+		min(NET unit price_LC ) 			as NET unit price monthly minimum value_YC	
+	ResidentACT_LOAD_C
+	WHERE 		IsNull( product code_LC ) = 0
+	group by 	product code_LC ,
+				Product name_LC,
+				Channel code_LC ,
+				Branch code_LC,
+				Specialty_LC , 										//2015.04.06 Specialty added
+				Specialty name_LC , 									//2015.04.06 Specialty name added
+				Year / Month_LC
+	;
+	
+	// 8. Set a normal value flag in the ACT_LOAD (movement details) table
+	ACT_LOAD_E:(common
+	LOAD distinct
+		Product code_LC as 				Product code_LE ,
+		Product name_LC 					asProduct name_LE ,
+		Occurrence date_LC as 				Occurrence date_LE ,
+		Year /Month_LC 					as Year /Month_LE,
+		Channel code_LC as 				channel code_LE ,
+		Branch code_LC as 				Branch code_LE ,
+		Specialty_LC as Specialty_LE , 						//2015.04.06 					Specialty added
+		Specialty name_LC as 				Specialty name_LE , 						//2015.04.06 Specialty name added
+		NET unit price_LC 				as NET unit price_LE,
+		NET unit price_LC as 				NET unit price normal_LE ,	
+		1 						as normal value flag_LE
+	ResidentACT_LOAD_C
+	WHERE 		IsNull( product code_LC ) = 0
+	and 			IsNull( product name_LC) = 0
+	and 			IsNull( occurrence date_LC) = 0
+	and 			IsNull( Year /Month_LC) = 0
+	and 			IsNull( channel code_LC ) = 0
+	and 			IsNull( branch code_LC) = 0
+	and 			IsNull( Good_LC ) = 0 											//2015.04.06 Added good
+	and 			IsNull(NET unit price_LC ) = 0
+	;
+	Left Join(ACT_LOAD)(common
+	LOAD
+		Product code_LE                              as  product code ,
+		Product name_LE 					as product name ,
+		Date of occurrence_LE                      as date of occurrence ,
+		Year / month_LE 					as year/month ,
+		Channel code_LE                              as channel code ,
+		Branch code_LE                                 as branch code ,
+		Specialty _LE 					as specialty , 						//2015.04.06 Added specialty
+		Specialty Name_LE as 				Specialty Name , 					//2015.04.06 Added Specialty Name
+		NET unit price_LE 				as NET unit price ,
+		NET unit price normal_LE            as NET unit price normal ,	
+		Normal value flag_LE 				as normal value flag
+	Resident ACT_LOAD_E
+	;
+	
+	// 9. From the ACT_LOAD (transfer details) table, create a worktable for the total number of units and NET amount by year/month, product code, product name, channel, branch, and customer.
+	ACT_LOAD_D(common:
+	LOAD
+		Product code 					as Product code_LD ,
+		Product name 						as Product name_LD ,
+		channel code 					as channel code_LD ,
+		Branch code 					as Branch code_LD ,
+		Specialty 						as Specialty_LD , 					//2015.04.06 Specialty added
+		Specialty name 					as Specialty name_LD , 					//2015.04.06 Specialty name added
+		Occurrence date 					as Occurrence date_LD,
+		year/month 						as year /month_LD,
+		NET unit price 					as NET unit price_LD ,
+		NET unit price * number of units 			as NET amount_LD ,
+		Number of sales 					as Number of sales_LD,
+		Number of bodies 					as Number of bodies_LD
+	ResidentACT_LOAD
+	where 		C_NO='01' 						//Ver 1.37a Add
+	;
+	ACT_YM_NET_D:(common
+	LOAD
+		Product code_LD as 				Product code_YD ,
+		Product name_LD as 					Product name_YD ,
+		Channel code_LD as 				channel code_YD ,
+		Branch code_LD as 				Branch code_YD ,
+		Specialty_LD as Specialty_YD 					, 					//2015.04.06 Specialty added
+		Specialty name_LD as 					Specialty name_YD , 					//2015.04.06 Specialty name added
+		Year /Month_LD 					as Year /Month_YD,
+		sum( number of units_LD) 			as total number of units per month_YD ,
+		sum(NET amount_LD ) 			as NET amount monthly total_YD
+	ResidentACT_LOAD_D
+	WHERE 		IsNull( product code_LD ) = 0
+	group by 	product code_LD ,
+				Product name_LD,
+				Channel code_LD ,
+				Branch code_LD ,
+				Specialty_LD , 										//2015.04.06 Specialty added
+				Specialty name_LD , 									//2015.04.06 Specialty name added
+				Year / month_LD
+	;
+	
+	// 10. Create a sales price management table for year/month, product code, product name, channel, branch, and customer from the worktables 5, 6, and 7.
+	Left Join(ACT_YM_NET_D)(common
+	LOAD
+		Product code_YB                              as Product code_YD ,
+		Year /Month_YB 					as Year /Month_YD,
+		NET unit price monthly average value_YB 			as NET unit price monthly average value_YD
+	Resident ACT_YM_NET_B
+	;
+	Left Join(ACT_YM_NET_D)(common
+	LOAD
+		Product code_YC 				as Product code_YD ,
+		Product name_YC as 					Product name_YD ,
+		channel code_YC 				as channel code_YD ,
+		Branch code_YC as 				Branch code_YD ,
+		Specialty_YC as Specialty_YD 					, //2015.04.06 					Specialty added
+		Specialty name_YC as 					Specialty name_YD , 					//2015.04.06 Specialty name added
+		Year /Month_YC 					as Year /Month_YD,
+		NET unit price monthly maximum value_YC 			as NET unit price monthly maximum value_YD,
+		NET unit price monthly minimum value_YC 			as NET unit price monthly minimum value_YD	
+	ResidentACT_YM_NET_C
+	;
+	
+	ACT_YM_NET(common:
+	LOAD
+		Year /Month_YD &
+			Channel code_YD &
+			Branch code_YD &
+			Specialty_YD &
+			Specialty name_YD &
+			Product code_YD &
+			Product name_YD 				as concatenated key , 			//2015.04.06 Added specialty/specialty name
+		Channel code_YD as 				channel code 3,
+		Branch code_YD as 				branch code 3,
+		Specialty_YD as 					Specialty 3, 			//2015.04.06 added good
+		Specialty name_YD as 					Specialty name 3, 			//2015.04.06 Specialty name added
+		Product code_YD as 				Product code 3,
+		Product name_YD as 					Product name 3,
+		Year /Month_YD 					as Year/Month 3,
+		NET unit price monthly maximum value_YD 			as NET unit price monthly maximum value 3,
+		NET unit price monthly minimum value_YD 			as NET unit price monthly minimum value 3,
+		NET unit price monthly average value_YD 			as NET unit price monthly average value 3,
+		Total number of months for the main unit_YD 			as Total number of months for the main unit 3,
+		NET amount monthly total_YD as 			NET amount monthly total 3
+	ResidentACT_YM_NET_D
+	;
+	Left Join(ACT_YM_NET)(common
+	LOAD
+		Product code 					as Product code 3,
+		TOV 						as TOV3
+	ResidentSHOHIN_TBL
+	;
+	
+	//Ver 1.23 Upd Start 														↓↓↓↓↓↓↓↓↓↓↓
+	// Add the selling price management concatenation key to the ACT_LOAD (transfer details) table
+	RENAME Table ACT_LOAD to ACT_LOAD_WK1;(common
+	
+	ACT_LOAD:(common
+	LOAD
+		*,
+		& Month
+			Channel code &
+			Branch code &
+			Specialty &
+			Specialty name &
+			Product code &
+			Product name 				as concatenated key
+	Resident 	ACT_LOAD_WK1
+	;
+	DROP TableACT_LOAD_WK1;
+	//Ver 1.23 Upd End 														↑↑↑↑↑↑↑↑↑↑↑
+	
+	// Get maximum performance date
+	ACT_MAXDATE:(common
+	LOAD
+		Max( date of occurrence ) 			as maximum date of occurrence
+	RESIDENT ACT_LOAD;
+	LET varD_MAXDate2 = Peek(' Maximum Occurrence Date ', -1, 'ACT_MAXDATE' );
+	LET varC_MAXDate2 = Left(Date(varD_MAXDate2, 'YYYY/MM/DD'), 10);
+	LET varC_YM2 = Left(Date(varD_MAXDate2, 'YYYY-MM'), 7);
+	DROP Table ACT_MAXDATE;
+	
+	ACT_MAXDATE:(common
+	LOAD
+		year 					as maximum year ,
+		period 					as maximum period
+	RESIDENT ACT_LOAD
+	where date of occurrence = '$(varD_MAXDate2)';
+	LET varN_MAX year = Peek(' max year ', -1, 'ACT_MAXDATE' );
+	LET varC_MAX period = Peek(' max period ', -1, 'ACT_MAXDATE' );
+	DROP Table ACT_MAXDATE;
+	
+	// delete worktable
+	DROP Table ACT_LOAD_A;
+	DROP Table ACT_LOAD_B;
+	DROP Table ACT_LOAD_C;
+	DROP Table ACT_LOAD_D;
+	DROP Table ACT_LOAD_E;
+	DROP Table ACT_YM_NET_A;
+	DROP Table ACT_YM_NET_B;
+	DROP Table ACT_YM_NET_C;
+	DROP Table ACT_YM_NET_D;
+	
+	//************************************************ ******* 2015.03 Selling price management ADDto
+
+ENDIF
+///$tabFor sales performance search
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime): [ 18 ] Create data for sales performance search ;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+// TLOOKS version for new version
+//------------------------------------------------ ---------------------------
+// The variables below need to be defined in advance
+//let kbnC_NO ='|'&replace(replace(GetFieldSelections( summary item ,'|',100),'(',''),')','')&'|';
+//let kbnC_NO_Disp = '|'&replace(replace(GetFieldSelections( numeric item ,'|',100),'(',''),')','')&'|';
+				
+T_Summary item_00 :(common
+LOAD * INLINE [
+    Summary item 			, with total 	, INQUIRY_MODE2
+	Year/FY     		, 1			,0
+	term      		, 1			,0
+	quarter 		,1 			,0
+	Month    		, 1			,0
+	Occurrence date 				,0 			,0
+	Product classification 			,1 			,0
+	Product classification 			,1 			,0
+	Product subclassification 			,1 			,0
+	FD   				                          , 1			,0
+	management  				           ,1 			,0
+	Product name  				          , 1			              ,0
+	Product code 			                        ,1 			             ,0
+	Branch name 				          ,1 			             ,0
+	channel 			                           ,1 			,0
+	Location name 				,1 			,0
+	Department code 			            ,1 			,0
+	Department name 				,0 			,0
+	Person in charge code 			,1 			,0
+	Person in charge 				,0 			,0
+	Company code 			                            ,1 			,0
+	Company name 				            ,0 			,0
+	Specialty				          , 1			              ,0
+	Specialty name 				,0 			,0
+	Subcontractor BM store 		,0 			,0
+	Subcontractor BM store name 	,0 			,0
+	Order form NO. 			,0 			,0
+	Shipping date 			,0 			,0
+	Shipping No. 			            ,0 			,0
+	JOB classification 			,0 			,0
+	Set name 			            ,0 			,0
+	Case number 			           ,0 			,0
+	Shipping destination name 	           ,0 			,0
+	Shipping address 			,0 			,0
+	Business Department 		,0 			,0
+	Occurrence date serial number 	,0 			,0
+	Warehouse  				,0 			,1
+	Shipping 				,0 			,1
+	Usage code 			             ,0 			,1
+	SAP document number 		,0 			,0
+	SAP document line number    	,0 			,0
+];
+// 	Purchase GP 		,0
+// 	BU  		,0
+T_Summary items :(differ
+LOAD
+	Summary items ,
+	With total
+Resident 	T_Total item_00 _
+Where 	INQUIRY_MODE2 = $(MY_INQUIRY_MODE)
+or 	$(MY_INQUIRY_MODE) = 1
+;
+DROP Table 	T_Total items_00 ;
+
+T_Numeric item_00 :(common
+LOAD * INLINE [
+    Numerical item 			, INQUIRY_MODE
+	Number of units 				, 0
+	Number of sales 				, 0
+	Number of units (including jobs) 	,1
+	Number of sales (including jobs) 	,1
+	Number of job miscellaneous bodies 	, 1
+	Job miscellaneous sales number    	, 1
+	Sales budget 			                           ,0
+	Sales results 			            , 0
+	Sales achievement rate 			,0
+	Previous year results 			, 0
+	Sales growth rate 			             ,0
+	gross profit budget 			,0
+	Gross profit record 			, 0
+	Gross profit margin 			,0
+	Gross profit achievement rate 		,0
+	Responsible budget 			            , 0
+	Responsible achievement rate 		, 0
+	Cost price 				            , 0
+	Budget number 				, 0
+	NET unit price 		,0
+	SP 				,0
+	LP 				,0
+	Selling price rate 		,0
+];
+
+T_numeric item :(Common)
+LOAD
+	Numerical item
+Resident 	T_Numeric item_00 _
+Where 	INQUIRY_MODE = $(MY_INQUIRY_MODE)
+or 	$(MY_INQUIRY_MODE) = 1
+;
+DROP Table 	T_Numeric item_00 ;
+
+T_Total items :(common
+LOAD
+	Summary item 	as total item
+Resident 	T_Total items
+Where 	total =1
+;
+
+//Ver 2.14 Add Start ============================================ ============
+//------------------------------------------------ ---------------------------
+//JOB classification creation
+//------------------------------------------------ ---------------------------
+JOB information :(common
+LOAD
+	Distinct
+	'BUKKEN'&BUKKEN.Property NO as 		product name ,
+	BUKKEN.JOB classification 				as JOB classification
+Resident BUKKEN
+;
+//Ver 2.14 Add End ============================================ ============
+
+//Ver 1.54 Add Start ============================================ ============
+//------------------------------------------------ ---------------------------
+// "Warehouse" display order creation 	ascii sort
+//------------------------------------------------ ---------------------------
+Warehouse sort master :(common
+LOAD
+	Distinct warehouse ,
+	ord(mid( warehouse ,1,1))*65536+ord(mid( warehouse ,2,1))*256+ord(mid( warehouse ,3,1)) 	aswarehouse sort order
+Resident ACT_LOAD
+Where IsNull( warehouse )=False()
+;
+//------------------------------------------------ ---------------------------
+// Create display order of "Salesperson code" 	ASCII sort
+//------------------------------------------------ ---------------------------
+left join(ACT_LOAD)(common
+LOAD
+	Distinct salesperson code ,
+	ord(mid( salesperson code ,1,1))*256+ord(mid( salesperson code ,2,1)) 	assalesperson code sort order
+Resident ACT_LOAD
+Where IsNull( salesperson code )=False()
+;
+//------------------------------------------------ ---------------------------
+// "Management" display order creation 	ascii sort
+//------------------------------------------------ ---------------------------
+Management sort master :(common
+LOAD
+	Distinct management ,
+	ord(mid( admin ,1,1))*65536+ord(mid( admin ,2,1))*256+ord(mid( admin ,3,1)) 	asadmin sort order
+Resident ACT_LOAD
+Where IsNull( Management )=False()
+;
+//------------------------------------------------ ---------------------------
+// "FD" display order creation 	ascii sort
+//------------------------------------------------ ---------------------------
+FD sort master :(common
+LOAD
+	Distinct FD,
+	ord(mid(FD,1,1))*65536+ord(mid(FD,2,1))*256+ord(mid(FD,3,1))as FD sort order
+Resident ACT_LOAD
+Where IsNull(FD)=False()
+;
+//Ver 1.54 Add End ============================================ ============
+
+///$tab NEXTNew Division
+// 	//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=~=
+// 	//store ACT_LOAD into $(MY_QVD_DIR)ACT_LOAD_TENTATIVE.qvd;
+// 	//QVD ⇒ ACT_LOAD
+// 	//ACT_LOAD:
+// 	//LOAD*From$(MY_QVD_DIR)ACT_LOAD_TENTATIVE.qvd(qvd);
+//	
+// 	////-------------------------------------------- ----------------------------
+// 	//// Create new business department list
+// 	////-------------------------------------------- ----------------------------
+//	
+// // 		Get valid sheet name from FS_LIST sheet
+// 		New division information header :
+// 		LOAD
+// 			SHEET name , 						//yyyymmdd
+// 			Valid start date 						//YYYY/MM/DD
+// 		FROM
+// 		[$(MY_LOCAL_DIR)FS division/section.xlsx ]
+// 		(ooxml, embedded labels, table is FS_LIST)
+// 		;
+// 		for FCount=1 to 9
+// 			LET varC_FS_SHEET$(FCount) 		=if(IsNull(Peek('SHEET name ',FCount-1,' New division information header ')),'x',Peek('SHEET name ',FCount-1,' New division information header '));
+// 			LET varC_FS_STARTDATE$(FCount)=Peek(' Valid start date ',FCount-1,' New division information header ');
+// 		Next FCount
+// 		DROP Table new division information header ;
+//	
+// 		// Get FS division/section information from each sheet
+// 		New division information 01:
+// 		LOAD
+// 			Distinct
+// 			'$(varC_FS_SHEET1)'& department code 	as new division KEY,
+// 			' (FS division/section) ' 						as new business department
+// 		FROM
+// 		[$(MY_LOCAL_DIR)FS division/section.xlsx ]
+// 		(ooxml, embedded labels, table is $(varC_FS_SHEET1))
+// 		;
+// 		for FCount=2 to 9
+// 			if '$(varC_FS_SHEET$(FCount))'<>'x' then
+// 				join
+// 				LOAD
+// 					Distinct
+// 					'$(varC_FS_SHEET$(FCount))'& department code 	as new division KEY,
+// 					' (FS division/section) ' 								as new business department
+// 				FROM
+// 				[$(MY_LOCAL_DIR)FS division/section.xlsx ]
+// 				(ooxml, embedded labels, table is $(varC_FS_SHEET$(FCount)))
+// 				;
+// 			ENDIF
+// 		Next FCount
+//		
+// // 		Create new division KEY from ACT_LOAD
+// 		New division information 00:
+// 		// ① Extract the era when there were no FS division/sections
+// 		LOAD
+// 			Distinct
+// 			'ORG'& department code 		as new division KEY,
+// 			Business Department 				as New Business Department Candidate
+// 		Resident ACT_LOAD
+// 		Where len( department code )=4
+// 		and left( department code , 1)='V'
+// 		and date of occurrence <'$(varC_FS_STARTDATE1)'
+// 		;
+// 		// ② Extract FS division/sections according to SHEET1 ~ SHEET
+// 		for FCount=1 to 9
+// 			if '$(varC_FS_SHEET$(FCount))'<>'x' then
+// 				LET FCount2=FCount+1;
+// 				if FCount=9 or '$(varC_FS_SHEET$(FCount2))'='x' then
+// 					join
+// 					LOAD
+// 						Distinct
+// 						'$(varC_FS_SHEET$(FCount))'& department code 		as new division KEY,
+// 						Business Department 									asNew Business Department Candidate
+// 					Resident ACT_LOAD
+// 					Where len( department code )=4
+// 					and left( department code , 1)='V'
+// 					and date of occurrence >='$(varC_FS_STARTDATE$(FCount))'
+// 					;
+// 				ELSE
+// 					join
+// 					LOAD
+// 						Distinct
+// 						'$(varC_FS_SHEET$(FCount))'& department code 		as new division KEY,
+// 						Business Department 									asNew Business Department Candidate
+// 					Resident ACT_LOAD
+// 					Where len( department code )=4
+// 					and left( department code , 1)='V'
+// 					and date of occurrence >='$(varC_FS_STARTDATE$(FCount))'
+// 					and date of occurrence < '$(varC_FS_STARTDATE$(FCount2))'	
+// 					;
+// 				ENDIF
+// 			ENDIF
+// 		Next FCount
+//		
+// // 		Merge the contents of FS division/section EXCEL
+// 		left join( new division information 00)
+// 		LOAD
+// 			New division KEY,
+// 			New business department
+// 		Resident 	new division information 01
+// 		;
+// 		DROP Table new business department information 01;
+//		
+// 		// Create new business department information
+// 		New division information :
+// 		LOAD
+// 			New division KEY,
+// 			New business department
+// 		Resident 	new division information 00
+// 		Where IsNull( new division )=False()
+// 		;
+// 		LOAD
+// 			New division KEY,
+// 			New business division candidate 			as new business division
+// 		Resident 	new division information 00
+// 		Where IsNull( new division )=True()
+// 		;
+// 		DROP Table new business department information 00;
+//	
+// // 		Add "New Division KEY " to ACT_LOAD
+// 		RENAME table ACT_LOAD to ACT_LOAD_TEMP;
+// 		ACT_LOAD:
+// 		LOAD
+// 			*
+// 			,if(len( department code )=4 	and left( department code ,1)='V' 	,'ORG'& department code 	,'')asNew division KEY
+// 		ResidentACT_LOAD_TEMP
+// 		where 	date of occurrence < '$(varC_FS_STARTDATE1)'
+// 		;
+// 		for FCount=1 to 9
+// 			if '$(varC_FS_SHEET$(FCount))'<>'x' then
+// 				LET FCount2=FCount+1;
+// 				if FCount=9 or '$(varC_FS_SHEET$(FCount2))'='x' then
+// 					join
+// 					LOAD
+// 						*
+// 						,if(len( department code )=4 	and left( department code ,1)='V'
+// 							,'$(varC_FS_SHEET$(FCount))'& department code
+// 							,''
+// 						) 				as new division KEY
+// 					ResidentACT_LOAD_TEMP
+// 					where 	date of occurrence >='$(varC_FS_STARTDATE$(FCount))'
+// 					;
+// 				ELSE
+// 					join
+// 					LOAD
+// 						*
+// 						,if(len( department code )=4 	and left( department code ,1)='V'
+// 							,'$(varC_FS_SHEET$(FCount))'& department code
+// 							,''
+// 						) 				as new division KEY
+// 					ResidentACT_LOAD_TEMP
+// 					where 	date of occurrence >='$(varC_FS_STARTDATE$(FCount))'
+// 					and 		date of occurrence < '$(varC_FS_STARTDATE$(FCount2))'
+// 					;
+// 				ENDIF
+// 			ENDIF
+// 		Next FCount
+// 		DROP TableACT_LOAD_TEMP;
+//		
+// 	//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=~=
+///$tab new division
+//Ver 3.10 Add Start =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+// 	//--------------------------------------------------- -----------------------------
+// 	// Create new business department list
+// 	//--------------------------------------------------- -----------------------------
+	New division information 00:(common
+	LOAD
+		Distinct
+		'ORG'& department code 		as new division KEY,
+		Business Division 					AS New Division Candidate
+	Resident ACT_LOAD
+	Where len( department code )=4
+	and left( department code ,1)='V'
+	and date of occurrence <'2019/04/01'
+	;
+	join(common
+	LOAD
+		Distinct
+		'20190401'& department code 	as new division KEY,
+		Business Division 					AS New Division Candidate
+	Resident ACT_LOAD
+	Where len( department code )=4
+	and left( department code ,1)='V'
+	and date of occurrence >='2019/04/01'
+	and date of occurrence < '2022/04/01'	
+	;
+	join(common
+	LOAD
+		Distinct
+		'20220401'& department code 	as new division KEY,
+		Business Division 					as New Division Candidate
+	Resident ACT_LOAD
+	Where len( department code )=4
+	and left( department code ,1)='V'
+	and date of occurrence >='2022/04/01'
+	;
+	New division information 01:(common
+	LOAD
+		Distinct
+		'20190401'& department code 	as new division KEY,
+		' (FS division/section) ' 			as new business department
+	FROM
+	[$(MY_LOCAL_DIR)FS division/section.xlsx ]
+	(ooxml, embedded labels, table is 20190401)
+	;
+	join(differ
+	LOAD
+		Distinct
+		'20220401'& department code 	as new division KEY,
+		' (FS division/section) ' 			as new business department ,
+		'x' 						as dummy
+	FROM
+	[$(MY_LOCAL_DIR)FS division/section.xlsx ]
+	(ooxml, embedded labels, table is 20220401)
+	;
+	left join( New division information 00)(common
+	LOAD
+		New division KEY,
+		New division
+	Resident 	new division information 01
+	;
+	DROP Table new division information 01;
+	
+	New division information :(common
+	LOAD
+		New division KEY,
+		New division
+	Resident 	new division information 00
+	Where IsNull( new division )=False()
+	;
+	LOAD
+		New division KEY,
+		New division candidate 			as new division
+	Resident 	new division information 00
+	Where IsNull( new division )=True()
+	;
+	DROP Table new division information 00;
+
+	Add "New Division KEY " to ACT_LOAD
+	RENAME table ACT_LOAD to ACT_LOAD_TEMP;(common
+	ACT_LOAD(common:
+	LOAD
+		*
+		,if(len( department code )=4 	and left( department code ,1)='V' 								and date of occurrence < '2019/04/01'
+			,'ORG'& department code
+		,if(len( department code )=4 	and left( department code ,1)='V' 	and date of occurrence >='2019/04/01' 	and date of occurrence < '2022/04/01'
+			,'20190401'& department code
+		,if(len( department code )=4 	and left( department code ,1)='V' 	and date of occurrence >='2022/04/01'
+			,'20220401'& department code
+			,''
+		)
+		)
+		) 			as new division KEY
+	ResidentACT_LOAD_TEMP
+	;
+	DROP TableACT_LOAD_TEMP;
+
+	Add "New Business Department" to ACT_LOAD
+	left join(ACT_LOAD)(common
+	LOAD
+		New division KEY,
+		New division
+	Resident 	new division information
+	;
+	DROP Table 	new division information ;
+
+	
+//Ver 3.10 Add End =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ =~=~=~=~=~=~=~=
+///$tab shipping record
+if $(MY_INQUIRY_MODE)=0 then 				// Valid when not in inquiry mode
+
+	//------------------------------------------------ ---------------------------
+	//　Trace 											Ver 2.30 Add
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 19 ] Create shipping record data ;
+	ENDIF
+	
+	// Get shipping information
+	SHIPPING1:(common
+	SQL select
+		ID 										asshipment_ID , _
+		NAME 									as shipping_product name , _
+		SHIPMENTSERIALNO__C 						asshipment_serial number , _ _
+		PRODUCTCODE__C 							as shipped_product code , _
+		SETNAME__C 								as shipped_set name , _
+		ORDERNO__C 								as shipped_order number , _
+		SHIPMENTDATERESULTS__C 					as shipped_shipment date , _
+		QUANTITY__C 								as shipped_quantity , _ _
+		SHIPPINGWAREHOUSE__C 					as shipping_warehouse , _ _
+		OPPORTUNITYNO__C 						as shipping_opportunity number , _
+		GET_NENDO ( SHIPMENTDATERESULTS__C ) 		asShipping_Year
+	from T1407_SHIPPING
+	Where GET_NENDO(SHIPMENTDATERESULTS__C)>=$(varN_VALID_STARTYEAR)
+	;
+	
+	// Extract valid shipping information
+	SHIPPING:(common
+	LOAD
+		shipment_ID ,
+		Shipping_Product name , _
+		Shipping_Serial number , _
+		Shipping_product code , _
+		Shipping_set name , _
+		Shipping_Order number , _
+		Shipping_Shipping date , _
+		Shipping_Quantity , _ _
+		Shipping_Warehouse , _ _
+		Shipping_item number , _
+		Shipping_Year , _ _
+		Shipping_Case number & Shipping_Product code & Shipping_Product name & Shipping_Set name as Shipping_KEY , _ _ _ _		
+		if(isnum(mid( shipping_product code , 4,1)),' domestic ', ' export ' 		) asshipping_export classification
+	ResidentSHIPPING1
+	WhereIsNull( Shipping_item Number )=False( )
+	;
+	
+	// Extract without case number
+	SHIPPING_TENTA:(common
+	LOAD
+		Shipping_ID as 	TENTA_ID,
+		Shipping_Product name _    	as TENTA_product name ,
+		Shipping_Serial number as TENTA_Serial number ,
+		Shipping_Product Code as TENTA_Product Code ,	
+		Shipping_Set name as TENTA_Set name 	,
+		Shipping_Order Number as TENTA_Order Number ,	
+		Shipping_Shipping date as TENTA_Shipping date ,	
+		Shipping_Quantity as TENTA_Quantity , _ _		
+		Shipping_warehouse as TENTA_warehouse , _ _		
+		if(isnum(mid( shipment_product code ,4,1)),' domestic ' ,' export ') as TENTA_export classification
+	ResidentSHIPPING1
+	WhereIsNull ( Shipping_Project Number )
+	;
+	
+	DROP Table SHIPPING1;
+	
+	//------------------------------------------------ ---------------------------
+	// Obtain operator 					◆ Migration details sheet No case/item number button ◆
+	//------------------------------------------------ ---------------------------
+	Person who can operate :(common
+	LOAD
+		CN 			as Operator ID
+	FROM
+	[$(MY_LOCAL_DIR) Sales performance parameters.xlsx]
+	(ooxml, embedded labels, table is admin1 )
+	;
+
+ENDIF
+///$tab additional information 2
+if $(MY_INQUIRY_MODE)=1 then 				// Valid in inquiry mode
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime) : [ 20 ] Additional migration details information (2) ;
+	ENDIF
+
+	//ACT_LOAD rename
+	RENAME table ACT_LOAD to ACT_LOAD_TEMP;
+	
+	// Delete unnecessary items
+	DROP Field 	Division ;
+	
+	// Add new item
+	ACT_LOAD:
+	LOAD
+		*
+		// ①Includes number of main body jobs
+		,if(C_NO='01', Number of bodies ,0) 							as Number of units job included
+		
+		// ② Sales number jobs included
+		,if(C_NO='01', Sales count ,0) 							as Sales count job included
+		
+		// ③Week number
+		,Week( occurrence date ) 									as week number
+		
+		// ④Gross profit KEY
+		,if(C_NO='01', Year/ Month & Company Code & Order NO) 			as AR_Gross Profit KEY
+		
+		// ⑤ Occurrence date D
+		,date(date#( occurrence date ,'YYYY/MM/DD'),'YYYY/MM/DD') 	asoccurrence date D
+
+	ResidentACT_LOAD_TEMP
+	Where(C_NO='01' or usage ='8')
+	;
+	DROP TableACT_LOAD_TEMP;
+
+// 	// Import guidance information
+// 	guidance :
+// 	LOAD
+// 		Guidance line NO,
+// 		Guidance title ,
+//                         Guidance content 1,
+// 		Guidance content 2,
+// 		Guidance content 3,
+// 		Guidance content 4,
+// 		Guidance notes
+// 	FROM
+// 	[$(MY_LOCAL_DIR) Sales performance parameters.xlsx]
+// 	(ooxml, embedded labels, Table is sales performance search guide )
+// 	Where 	guide line NO>0
+// 	;
+
+ENDIF
+///$tabgross profit management
+if $(MY_INQUIRY_MODE)=1 then 				// Valid in inquiry mode
+	//------------------------------------------------ ---------------------------
+	//　Trace
+	//------------------------------------------------ ---------------------------
+	IF( DEBUG = 1 ) THEN
+		LET varD_LocalTime = LocalTime();
+		TRACE$(StarStr);
+		Trace $(varD_LocalTime): [ 21 ] Gross profit management information ;
+	ENDIF
+
+// 	// Gross profit management information creation
+// 	QUALIFY *;
+// 	AR:
+// 	LOAD
+// 		year , 	period , 	quarter , 	CY year , CY period , CY quarter , year , month , week number ,
+// 		system , 	new division , 	branch code , 	branch name , 	branch name SORT, 	channel code , 	channel ,
+// 		department code , 	salesperson code , salesperson name ,
+// 		company code , 	specialty , 	specialty name ,
+// 		Management , 	FD, 	product code , 	product name , 	order form NO,
+// 		sum( actual - cost ) 				as gross profit ,
+// 		sum( actual ) 					as sales
+// 		,if(sum( actual - cost )/sum( actual )< 0.10,1, 		if(sum( actual - cost )/sum( actual )>=0.15,3,2) 	)as gross profit classification 1015
+// 		,if(sum( actual - cost )/sum( actual )< 0.10,1, 		if(sum( actual - cost )/sum( actual )>=0.20,3,2) 	)as gross profit classification 1020
+// 		,if(sum( actual - cost )/sum( actual )< 0.10,1, 		if(sum( actual - cost )/sum( actual )>=0.25,3,2) 	)as gross profit classification 1025
+// 		,if(sum( actual - cost )/sum( actual )< 0.10,1, 		if(sum( actual - cost )/sum( actual )>=0.30,3,2) 	)as gross profit classification 1030
+// 		,if(sum( actual - cost )/sum( actual )< 0.10,1, 		if(sum( actual - cost )/sum( actual )>=0.35,3,2) 	)as gross profit classification 1035
+// 		,if(sum( actual - cost )/sum( actual )< 0.10,1, 		if(sum( actual - cost )/sum( actual )>=0.40,3,2) 	)as Gross profit classification 1040
+// 		,if(sum( actual - cost )/sum( actual )< 0.15,1, 		if(sum( actual - cost )/sum( actual )>=0.20,3,2) 	)as gross profit classification 1520
+// 		,if(sum( actual - cost )/sum( actual )< 0.15,1, 		if(sum( actual - cost )/sum( actual )>=0.25,3,2) 	)as gross profit classification 1525
+// 		,if(sum( actual - cost )/sum( actual )< 0.15,1, 		if(sum( actual - cost )/sum( actual )>=0.30,3,2) 	)as gross profit classification 1530
+// 		,if(sum( actual - cost )/sum( actual )< 0.15,1, 		if(sum( actual - cost )/sum( actual )>=0.35,3,2) 	)as gross profit classification 1535
+// 		,if(sum( actual - cost )/sum( actual )< 0.15,1, 		if(sum( actual - cost )/sum( actual )>=0.40,3,2) 	)as gross profit classification 1540
+// 		,if(sum( actual - cost )/sum( actual )< 0.20,1, 		if(sum( actual - cost )/sum( actual )>=0.25,3,2) 	)as gross profit classification 2025
+// 		,if(sum( actual - cost )/sum( actual )< 0.20,1, 		if(sum( actual - cost )/sum( actual )>=0.30,3,2) 	)as gross profit classification 2030
+// 		,if(sum( actual - cost )/sum( actual )< 0.20,1, 		if(sum( actual - cost )/sum( actual )>=0.35,3,2) 	)as gross profit classification 2035
+// 		,if(sum( actual - cost )/sum( actual )< 0.20,1, 		if(sum( actual - cost )/sum( actual )>=0.40,3,2) 	)as gross profit classification 2040
+// 		,if(sum( actual - cost )/sum( actual )< 0.25,1, 		if(sum( actual - cost )/sum( actual )>=0.30,3,2) 	)as gross profit classification 2530
+// 		,if(sum( actual - cost )/sum( actual )< 0.25,1, 		if(sum( actual - cost )/sum( actual )>=0.35,3,2) 	)as gross profit classification 2535
+// 		,if(sum( actual - cost )/sum( actual )< 0.25,1, 		if(sum( actual - cost )/sum( actual )>=0.40,3,2) 	)as gross profit classification 2540
+// 		,if(sum( actual - cost )/sum( actual )< 0.30,1, 		if(sum( actual - cost )/sum( actual )>=0.35,3,2) 	)as gross profit classification 3035
+// 		,if(sum( actual - cost )/sum( actual )< 0.30,1, 		if(sum( actual - cost )/sum( actual )>=0.40,3,2) 	)as Gross profit classification 3040
+// 		,if(sum( actual - cost )/sum( actual )< 0.35,1, 		if(sum( actual - cost )/sum( actual )>=0.40,3,2) 	)as gross profit classification 3540
+// 	ResidentACT_LOAD
+// 	Where 	classification ='ACT'
+// 	and 		C_NO='01'
+// 	and 		CY year >=2019
+// 	and 		Match( branch code ,'C1','V0')=0
+// 	// Management only
+// 	and 		Match( management ,'125','126')>0
+// 	group by
+//	     Year , 	period , 	quarter , 	CY year , CY period , CY quarter , year , month , week number ,
+//	     system , 	new division , 	branch code , 	branch name , 	branch name SORT, 	channel code , 	channel ,
+//	     Department code , 	salesperson code , salesperson name ,
+//	     company code , 	specialty , 	specialty name ,
+//	     Management , 	FD, 	product code , 	product name , 	order form NO.
+// 	;
+// 	UNQUALIFY *;
+
+	// Create gross profit rank information
+	ARARI_RANK:
+	LOAD
+		Month & Year & Company Code & Order Form No 				as AR_Gross Profit KEY,
+		sum( actual - cost )/sum( actual ) 				as AR_gross profit rate
+		
+		,if(sum( actual - cost )/sum( actual )< 0.20,1, 	if(sum( actual - cost )/sum( actual )>=0.30,3,2)) 		as AR_gross profit classification 2030
+		,if(sum( actual - cost )/sum( actual )< 0.25,1, 	if(sum( actual - cost )/sum( actual )>=0.30,3,2)) 		as AR_gross profit classification 2530
+		,if(sum( actual - cost )/sum( actual )< 0.20,1, 	if(sum( actual - cost )/sum( actual )>=0.35,3,2)) 		as AR_gross profit classification 2035
+		,if(sum( actual - cost )/sum( actual )< 0.25,1, 	if(sum( actual - cost )/sum( actual )>=0.35,3,2)) 		as AR_gross profit classification 2535
+		,if(sum( actual - cost )/sum( actual )< 0.30,1, 	if(sum( actual - cost )/sum( actual )>=0.35,3,2)) 		as AR_gross profit classification 3035
+		
+	Resident ACT_LOAD
+	whereC_NO='01'
+	and 		CY year >=2019
+	and 		Match( branch code ,'C1','V0')=0
+	group by year/month , company code , order form NO.
+	;
+
+	
+	// Low gross profit lower limit definition
+	AR_RANGE_LOWER_TBL:
+	LOAD * INLINE [
+	AR_RANGE_LOWER
+	20
+	twenty five
+	30
+	];
+	// Low gross profit upper limit definition
+	AR_RANGE_UPPER_TBL:
+	LOAD * INLINE [
+	AR_RANGE_UPPER
+	twenty five
+	30
+	35
+	];
+
+
+ENDIF
+///$tab End
+//------------------------------------------------ ---------------------------
+// delete unnecessary table
+//------------------------------------------------ ---------------------------
+DROP Table SHOHIN_TBL;
+DROP Table MASTER_BRANCH;
+DROP Table MASTER_CHANNEL;
+DROP Table MASTER_FD;
+DROP Table MASTER_FD2;
+DROP Table MASTER_CALENDAR;
+if $(MY_INQUIRY_MODE)=1 then 				// When in inquiry mode
+	DROP Table BUKKEN;
+// 	DROP Table SHIPPING_TENTA;
+	DROP Table expected primary secondary ;
+	DROP Table INFO_Target property ;
+	DROP Table MASTER_KYOTEN2;
+ENDIF
+
+//------------------------------------------------ ---------------------------
+// 	ACT_LOAD　⇒ QVD
+//------------------------------------------------ ---------------------------
+store ACT_LOAD into $(MY_QVD_DIR)ACT_LOAD.qvd;
+
+//------------------------------------------------ ---------------------------
+//　Trace
+//------------------------------------------------ ---------------------------
+IF( DEBUG = 1 ) THEN
+	LET varD_LocalTime = LocalTime();
+	TRACE$(StarStr);
+	Trace $(varD_LocalTime) : [ 99 ] End ;
+	TRACE$(StarStr);
+ENDIF
