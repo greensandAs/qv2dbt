@@ -80,8 +80,71 @@ class DbtModelGenerator:
         if table.kind == LoadKind.RESIDENT:
             return self._ref_for(table.source or "")
         if table.kind == LoadKind.INLINE:
-            return "-- INLINE_PLACEHOLDER"
+            return self._inline_values(table)
         return "-- SOURCE_PLACEHOLDER"
+
+    def _inline_values(self, table: QvTable) -> str:
+        """Generate a VALUES clause for INLINE data in dbt models."""
+        import re
+        case = self.config["target"]["identifier_case"]
+        raw = (table.source or "").strip()
+        content = raw.strip("[]").strip()
+        if not content:
+            return "-- INLINE: empty data"
+        lines = [l.strip() for l in content.split("\n") if l.strip()]
+        if not lines:
+            return "-- INLINE: no rows"
+
+        # Determine column names
+        col_names = []
+        if table.fields and not (len(table.fields) == 1
+                                 and table.fields[0].alias == "*"):
+            col_names = [case_identifier(f.alias, case)
+                         for f in table.fields]
+
+        first_parts = [p.strip() for p in lines[0].split(",")]
+        data_start = 0
+        first_line_is_header = all(
+            not re.match(r"^-?\d+(\.\d+)?$", p.strip()) and p.strip()
+            for p in first_parts
+        )
+        if first_line_is_header:
+            if not col_names:
+                col_names = [case_identifier(p.strip(), case)
+                             for p in first_parts]
+            data_start = 1
+
+        data_lines = lines[data_start:]
+        if not data_lines:
+            return "-- INLINE: headers only, no data"
+
+        expected_cols = len(col_names) if col_names else None
+        rows = []
+        for line in data_lines:
+            vals = [v.strip() for v in line.split(",")]
+            if expected_cols and len(vals) != expected_cols:
+                vals = [line.strip()]
+            quoted = []
+            for v in vals:
+                v = v.strip()
+                if v == "" or v.lower() == "null":
+                    quoted.append("NULL")
+                elif re.match(r"^-?\d+(\.\d+)?$", v):
+                    if len(v) > 1 and v.startswith("0"):
+                        quoted.append(f"'{v}'")
+                    else:
+                        quoted.append(v)
+                else:
+                    quoted.append(f"'{v}'")
+            rows.append(f"({', '.join(quoted)})")
+
+        if not col_names:
+            col_names = [f"COL{i+1}"
+                         for i in range(len(data_lines[0].split(",")))]
+        col_list = ", ".join(col_names)
+        values_str = "\n        , ".join(rows)
+        return (f"(VALUES\n        {values_str}\n"
+                f"    ) AS inline_data({col_list})")
 
     def _build(self, table: QvTable, script: QvScript) -> ModelFile:
         cols, warns = self._select_columns(table)
