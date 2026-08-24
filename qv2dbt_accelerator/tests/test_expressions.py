@@ -41,6 +41,6 @@ def test_applymap_becomes_macro(tr):
 
 
 def test_unknown_function_flagged(tr):
-    out, warns = tr.translate("Peek('X', -1)")
+    out, warns = tr.translate("ZzUnknownFunc('X', -1)")
     assert "TODO review" in out
     assert warns

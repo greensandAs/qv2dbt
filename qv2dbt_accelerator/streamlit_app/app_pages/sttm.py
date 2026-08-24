@@ -43,7 +43,13 @@ def render(session):
 
     # Download full STTM
     st.divider()
-    csv = df.to_csv(index=False)
+    # Flatten multiline expressions to prevent CSV row corruption
+    csv_df = df.copy()
+    for col in ["Target Column", "QlikView Expression", "Snowflake SQL", "Notes"]:
+        if col in csv_df.columns:
+            csv_df[col] = csv_df[col].apply(
+                lambda v: " ".join(str(v).split()) if pd.notna(v) else "")
+    csv = csv_df.to_csv(index=False)
     st.download_button(
         "Download Full STTM CSV",
         csv,

@@ -35,6 +35,7 @@ class ExpressionTranslator:
         s = self._bracket_to_quoted(expr)
         s = self._normalize_operators(s)
         result = self._resolve(s, warnings)
+        result = self._cleanup_null_patterns(result)
         return result.strip(), warnings
 
     # -- helpers --------------------------------------------------------------
@@ -73,10 +74,39 @@ class ExpressionTranslator:
             text = re.sub(re.escape(src), dst, text, flags=re.IGNORECASE)
         return text
 
+    @staticmethod
+    def _cleanup_null_patterns(s: str) -> str:
+        """Collapse QlikView IsNull(x)=True() artifacts into valid Snowflake SQL.
+
+        After translation, IsNull(x)=True() becomes 'x IS NULL=TRUE' and
+        IsNull(x)=False() becomes 'x IS NULL=FALSE'. These are not valid SQL.
+        """
+        s = re.sub(r'\bIS\s+NULL\s*=\s*TRUE\b', 'IS NULL', s, flags=re.IGNORECASE)
+        s = re.sub(r'\bIS\s+NULL\s*=\s*FALSE\b', 'IS NOT NULL', s, flags=re.IGNORECASE)
+        return s
+
     def _resolve(self, s: str, warnings: list[str]) -> str:
         out: list[str] = []
         i = 0
         while i < len(s):
+            # Skip over quoted identifiers ("...") and string literals ('...')
+            # so their contents are never mistaken for function calls.
+            if s[i] == '"':
+                end = s.find('"', i + 1)
+                if end == -1:
+                    out.append(s[i:])
+                    break
+                out.append(s[i:end + 1])
+                i = end + 1
+                continue
+            if s[i] == "'":
+                end = s.find("'", i + 1)
+                if end == -1:
+                    out.append(s[i:])
+                    break
+                out.append(s[i:end + 1])
+                i = end + 1
+                continue
             m = _IDENT_PAREN.match(s, i)
             if m:
                 name = m.group(1)
@@ -248,13 +278,32 @@ class ExpressionTranslator:
         needed = [int(x) for x in re.findall(r"\{(\d+)\}", template)]
         max_idx = max(needed) if needed else -1
         padded = list(args)
+
+        # Heuristic: if extra args exist and the function expects 2 args
+        # (string + length), try merging leading bare-identifier args into a
+        # compound field name.  This handles translated scripts where a field
+        # like "year/month" became "year , month" during localisation.
+        if len(padded) > max_idx + 1 and max_idx >= 1:
+            last = padded[-1].strip()
+            if re.fullmatch(r"\d+", last):
+                # All args except the last numeric one might be a single field.
+                field_parts = padded[:-1]
+                if all(re.fullmatch(r"[\w\s]+", p.strip()) for p in field_parts):
+                    merged_field = ", ".join(p.strip() for p in field_parts)
+                    padded = [merged_field, last]
+                    warnings.append(
+                        f"Function '{name}()' received {len(args)} args but "
+                        f"mapping uses {max_idx + 1} - merged leading args as "
+                        f"compound field name '{merged_field}'; review."
+                    )
+
         while len(padded) <= max_idx:
             padded.append("NULL")
             warnings.append(
                 f"Function '{name}()' missing argument #{len(padded)} - "
                 f"defaulted to NULL."
             )
-        if len(args) > max_idx + 1:
+        if len(padded) > max_idx + 1:
             warnings.append(
                 f"Function '{name}()' received {len(args)} args but mapping "
                 f"uses {max_idx + 1} - extra arguments dropped; review."

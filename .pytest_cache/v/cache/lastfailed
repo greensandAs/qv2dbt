@@ -1,0 +1,7 @@
+{
+  "tests/test_end_to_end.py": true,
+  "tests/test_expressions.py": true,
+  "tests/test_parser.py": true,
+  "tests/test_preprocessor.py": true,
+  "tests/test_sttm_lineage.py": true
+}
