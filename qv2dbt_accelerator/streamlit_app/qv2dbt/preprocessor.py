@@ -153,15 +153,40 @@ def _hint(stmt: str) -> str:
     if s.startswith(("sub ", "call ", "for ", "next", "if ", "endif",
                      "loop", "do ", "switch", "end sub", "exit ")):
         return "control"
-    if "load" in s:
+    if "load" in s or "\nsql" in s or s.startswith("sql"):
         return "load"
     return "other"
+
+
+_CONTROL_TERM = re.compile(
+    r"(?im)^(end\s*if|end\s*sub|next\b[^\n]*|loop\b[^\n]*)\s*\n",
+)
+
+
+def _split_control_terminators(statements: list[str]) -> list[str]:
+    """Split statements that start with a bare control terminator (ENDIF, NEXT,
+    etc.) not followed by `;`.  QlikView allows these without a semicolon, but
+    our splitter only cuts on `;`, so they get glued to the next statement."""
+    result = []
+    for stmt in statements:
+        m = _CONTROL_TERM.match(stmt)
+        if m:
+            # The control terminator itself
+            term = m.group(1).strip()
+            rest = stmt[m.end():].strip()
+            result.append(term)
+            if rest:
+                result.append(rest)
+        else:
+            result.append(stmt)
+    return result
 
 
 def preprocess(text: str) -> tuple[list[Statement], list[QvVariable]]:
     """Full stage-1 pass. Returns (statements, variables)."""
     cleaned = strip_comments(text)
     raw_statements = split_statements(cleaned)
+    raw_statements = _split_control_terminators(raw_statements)
 
     variables: list[QvVariable] = []
     var_values: dict[str, str] = {}

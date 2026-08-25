@@ -216,15 +216,33 @@ class Parser:
 
     def _table_name_and_body(self, raw: str) -> tuple[str | None, str]:
         # Match table name labels: single word, [bracketed], or multi-word with spaces
+        # Optionally followed by a (annotation) before the colon
         m = re.match(
-            r"(?is)^\s*([A-Za-z_][\w$]*(?:\s+[\w$]+)*|\[[^\]]+\])\s*:\s*(.*)$", raw)
-        if m and re.search(r"(?is)\bload\b", m.group(2).lstrip()[:60]):
+            r"(?is)^\s*([A-Za-z_][\w$]*(?:\s+[\w$]+)*|\[[^\]]+\])"
+            r"\s*(?:\([^)]*\))?\s*:\s*(.*)$", raw)
+        if m and re.search(r"(?is)\b(load|sql)\b", m.group(2).lstrip()[:60]):
             return _clean_ident(m.group(1)), m.group(2).strip()
         return None, raw.strip()
 
     def _parse_load(self, stmt: Statement, forced_name: str | None = None):
         name, body = self._table_name_and_body(stmt.raw)
         name = forced_name or name or f"table_{self._order + 1}"
+
+        # Detect SQL pass-through: body starts with SQL\s+SELECT (no LOAD keyword)
+        sql_match = re.match(r"(?is)^(?:\([^)]*\)\s*)?SQL\s+(select\b.*)$", body)
+        if sql_match:
+            self._order += 1
+            table = QvTable(
+                name=name,
+                kind=LoadKind.SQL,
+                fields=[],
+                source=sql_match.group(1).strip(),
+                order=self._order,
+                raw=stmt.raw,
+            )
+            self.script.tables.append(table)
+            return
+
         distinct, field_text, which, source_clause, where_raw, group_by = \
             self._split_load(body)
 
