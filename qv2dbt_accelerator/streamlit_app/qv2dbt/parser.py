@@ -139,6 +139,11 @@ class Parser:
                 self._parse_load(stmt)
             elif hint in ("drop", "rename", "store", "control"):
                 self._record_unsupported(stmt)
+                # Extract LOAD/SQL from inside control blocks so conditional
+                # tables (e.g. inside IF...ENDIF) are still captured for the
+                # migration inventory.
+                if hint == "control":
+                    self._extract_loads_from_control(stmt)
             # 'variable' and 'other' need no table work here.
             i += 1
         self._assign_layers()
@@ -365,6 +370,42 @@ class Parser:
         )
 
     # -- unsupported ----------------------------------------------------------
+
+    def _extract_loads_from_control(self, stmt: Statement):
+        """Parse LOAD/SQL statements buried inside IF...ENDIF control blocks.
+
+        QlikView scripts often wrap table loads in conditional branches.  Even
+        though the control flow itself can't be translated, the table
+        definitions inside are valuable for the migration inventory.  Tables
+        extracted here are tagged with a warning indicating they come from a
+        conditional branch.
+        """
+        body = stmt.raw
+        # Find table_name: SQL select ... or table_name: LOAD ...
+        pattern = re.compile(
+            r"(?im)^\s*([A-Za-z_][\w$]*(?:\s+[\w$]+)*|\[[^\]]+\])"
+            r"\s*(?:\([^)]*\))?\s*:\s*\n?\s*(SQL\s+select\b|LOAD\b)",
+        )
+        for m in pattern.finditer(body):
+            tbl_name = _clean_ident(m.group(1))
+            # Skip if already parsed
+            if self.script.table_by_name(tbl_name):
+                continue
+            # Extract from match start to next semicolon or end
+            start = m.start()
+            end = body.find(";", m.end())
+            if end == -1:
+                end = len(body)
+            fragment = body[m.start():end].strip()
+            inner_stmt = Statement(raw=fragment, kind_hint="load")
+            self._parse_load(inner_stmt, forced_name=None)
+            # Tag the table as conditional
+            t = self.script.table_by_name(tbl_name)
+            if t:
+                t.warnings.append(
+                    f"Table defined inside a conditional block "
+                    f"(IF...ENDIF) - verify it runs in production."
+                )
 
     def _record_unsupported(self, stmt: Statement, reason: str | None = None):
         kind = stmt.kind_hint
