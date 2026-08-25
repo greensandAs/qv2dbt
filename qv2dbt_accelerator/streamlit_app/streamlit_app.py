@@ -10,6 +10,7 @@ import streamlit as st
 
 from components import inject_styles, render_header, render_sidebar, render_footer
 from app_pages import upload, inventory, lineage, sttm, conversion, chatbot
+from config.brand import CORTEX_MODELS
 import snowflake_utils as sf
 
 # ─── Page Config ──────────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ except Exception:
 st.session_state.setdefault("analysis", None)
 st.session_state.setdefault("all_analyses", [])
 st.session_state.setdefault("chat", [])
-st.session_state.setdefault("cortex_model", "mistral-large2")
+st.session_state.setdefault("cortex_model", CORTEX_MODELS[0])
 st.session_state["snowflake_session"] = session
 
 # ─── Layout ───────────────────────────────────────────────────────────────────
@@ -105,7 +106,10 @@ PAGE_MAP = {
     "6 · Chatbot": chatbot.render,
 }
 
-PAGE_MAP[page](session)
+if page and page in PAGE_MAP:
+    PAGE_MAP[page](session)
+else:
+    upload.render(session)
 
 # ─── Footer ──────────────────────────────────────────────────────────────────
 render_footer()

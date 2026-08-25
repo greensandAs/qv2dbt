@@ -63,7 +63,7 @@ def _ask(session, analysis, question: str):
             try:
                 answer = sf.cortex_chat(
                     session, question, analysis,
-                    st.session_state.get("cortex_model", "mistral-large2"),
+                    st.session_state.get("cortex_model", "claude-sonnet-4-6"),
                 )
             except Exception as e:
                 answer = f"Error calling Cortex: {e}"

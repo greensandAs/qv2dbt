@@ -15,7 +15,7 @@ import streamlit as st
 
 
 # ─── Cortex Chat ──────────────────────────────────────────────────────────────
-def cortex_chat(session, question: str, analysis, model: str = "mistral-large2") -> str:
+def cortex_chat(session, question: str, analysis, model: str = "claude-sonnet-4-6") -> str:
     """Send a question to Snowflake Cortex with migration context."""
     context_parts = []
 

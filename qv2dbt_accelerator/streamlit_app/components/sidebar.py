@@ -36,9 +36,14 @@ def render_sidebar() -> str:
         page = st.radio("Navigation", PAGES, label_visibility="collapsed")
 
         st.markdown("---")
-        # Dynamically fetch available models from this Snowflake account
-        session = st.session_state.get("snowflake_session")
-        available_models = get_available_cortex_models(session)
+        # Use cached model list (probed once per session, not every render)
+        try:
+            if "available_cortex_models" not in st.session_state:
+                session = st.session_state.get("snowflake_session")
+                st.session_state["available_cortex_models"] = get_available_cortex_models(session)
+            available_models = st.session_state["available_cortex_models"]
+        except Exception:
+            available_models = CORTEX_MODELS
         current_model = st.session_state.get("cortex_model", available_models[0])
         if current_model not in available_models:
             current_model = available_models[0]
