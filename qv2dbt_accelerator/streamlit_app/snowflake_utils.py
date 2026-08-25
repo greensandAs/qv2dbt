@@ -116,21 +116,34 @@ def save_analysis(session, analysis, database: str = None, schema: str = None) -
     if database and schema:
         prefix = f"{database}.{schema}."
 
-    # Write via PUT from a temporary local file
-    import tempfile
-    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
-    json.dump(metadata, tmp)
-    tmp.close()
+    # Upload to stage using Snowpark's put_stream (works in SiS and local)
+    import io
+    json_bytes = json.dumps(metadata).encode("utf-8")
+    stream = io.BytesIO(json_bytes)
+    stage_path = f"@{prefix}{STAGE_NAME}/analyses/"
 
     try:
-        session.sql(
-            f"PUT 'file://{tmp.name}' @{prefix}{STAGE_NAME}/analyses/ "
-            f"AUTO_COMPRESS=FALSE OVERWRITE=TRUE"
-        ).collect()
-    finally:
-        os.unlink(tmp.name)
+        session.file.put_stream(
+            stream, f"{stage_path}{filename}",
+            auto_compress=False, overwrite=True
+        )
+    except (AttributeError, Exception):
+        # Fallback: use PUT with /tmp for environments that support it
+        import tempfile
+        tmp = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False, dir="/tmp"
+        )
+        json.dump(metadata, tmp)
+        tmp.close()
+        try:
+            session.sql(
+                f"PUT 'file://{tmp.name}' {stage_path} "
+                f"AUTO_COMPRESS=FALSE OVERWRITE=TRUE"
+            ).collect()
+        finally:
+            os.unlink(tmp.name)
 
-    return f"@{prefix}{STAGE_NAME}/analyses/{filename}"
+    return f"{stage_path}{filename}"
 
 
 def list_saved_analyses(session, database: str = None, schema: str = None) -> list[dict]:
@@ -151,11 +164,19 @@ def list_saved_analyses(session, database: str = None, schema: str = None) -> li
 
 def load_saved_analysis(session, stage_path: str) -> dict | None:
     """Load a saved analysis JSON from stage."""
+    import io
+    try:
+        # Try Snowpark's get_stream (works in SiS)
+        stream = session.file.get_stream(stage_path)
+        content = stream.read()
+        return json.loads(content)
+    except (AttributeError, Exception):
+        pass
+    # Fallback: GET to /tmp
     import tempfile
-    tmp_dir = tempfile.mkdtemp()
+    tmp_dir = tempfile.mkdtemp(dir="/tmp")
     try:
         session.sql(f"GET '{stage_path}' 'file://{tmp_dir}/'").collect()
-        # Find the downloaded file
         files = os.listdir(tmp_dir)
         if files:
             with open(os.path.join(tmp_dir, files[0])) as f:
