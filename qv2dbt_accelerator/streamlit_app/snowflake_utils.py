@@ -16,50 +16,86 @@ import streamlit as st
 
 # ─── Cortex Chat ──────────────────────────────────────────────────────────────
 def cortex_chat(session, question: str, analysis, model: str = "claude-sonnet-4-6") -> str:
-    """Send a question to Snowflake Cortex with migration context."""
+    """Send a question to Snowflake Cortex with full migration context."""
     context_parts = []
 
-    # Build rich context from the Analysis object
     if hasattr(analysis, "script"):
-        # Full Analysis object from accelerator
+        script = analysis.script
+        lineage = analysis.lineage
+
+        # Full table inventory (all tables, concise format)
         tables_info = []
-        for t in analysis.script.tables[:20]:
-            fields_str = ", ".join(f.alias for f in t.fields[:10])
-            tables_info.append(
-                f"- {t.name} (layer={t.layer}, kind={t.kind.value}, "
-                f"source={t.source or 'n/a'}, fields=[{fields_str}])"
-            )
-        context_parts.append("## Tables\n" + "\n".join(tables_info))
-
-        # Lineage sample
-        lin_rows = []
-        for t in analysis.script.tables[:5]:
-            for c in analysis.lineage.for_table(t.name)[:5]:
-                lin_rows.append(
-                    f"- {t.name}.{c.column}: {c.qlik_expr} → {c.snowflake_sql}"
-                )
-        if lin_rows:
-            context_parts.append("## Lineage (sample)\n" + "\n".join(lin_rows))
-
-        # Script excerpt
+        for t in script.tables:
+            fields_str = ", ".join(f.alias for f in t.fields[:20])
+            joins_str = ", ".join(j.right_table for j in t.joins) if t.joins else ""
+            warnings_str = "; ".join(t.warnings[:2]) if t.warnings else ""
+            line = (f"- {t.name} | layer={t.layer} | kind={t.kind.value} | "
+                    f"source={t.source or '-'} | fields=[{fields_str}]")
+            if joins_str:
+                line += f" | joins=[{joins_str}]"
+            if warnings_str:
+                line += f" | ⚠ {warnings_str}"
+            tables_info.append(line)
         context_parts.append(
-            "## Script (first 3000 chars)\n```\n" + analysis.text[:3000] + "\n```"
+            f"## Tables ({len(script.tables)} total)\n" + "\n".join(tables_info)
         )
+
+        # Full STTM (all columns with translations)
+        sttm_rows = []
+        for cm in lineage.columns:
+            sources = ", ".join(f"{t}.{c}" for t, c in cm.ultimate_sources) or "-"
+            review = "⚠" if cm.notes else ""
+            sttm_rows.append(
+                f"| {cm.table} | {cm.column} | {cm.mapping_type} | "
+                f"{cm.qlik_expr[:60]} | {cm.snowflake_sql[:60]} | {sources} | {review} |"
+            )
+        # Include as many rows as will fit
+        sttm_header = "| Table | Column | Type | QlikView | Snowflake SQL | Sources | Review |\n|---|---|---|---|---|---|---|"
+        sttm_text = sttm_header + "\n" + "\n".join(sttm_rows)
+        context_parts.append(f"## STTM ({len(lineage.columns)} columns)\n{sttm_text}")
+
+        # Unsupported / control flow summary
+        if script.unsupported:
+            unsup = []
+            for u in script.unsupported[:30]:
+                unsup.append(f"- [{u['kind']}] {u['raw'][:80]}")
+            context_parts.append(
+                f"## Unsupported ({len(script.unsupported)} items)\n" + "\n".join(unsup)
+            )
+
+        # Variables
+        if script.variables:
+            vars_text = "\n".join(
+                f"- {v.name} = {v.value[:50]}" for v in script.variables[:30]
+            )
+            context_parts.append(f"## Variables ({len(script.variables)})\n{vars_text}")
+
+        # Dropped tables
+        if script.dropped_tables:
+            context_parts.append(
+                f"## Dropped Tables ({len(script.dropped_tables)}): "
+                + ", ".join(script.dropped_tables[:20])
+            )
+
     else:
-        # Fallback for dict-style analysis
         context_parts.append(f"Script: {analysis.get('name', 'unknown')}")
 
     context = "\n\n".join(context_parts)
+
+    # Cortex model token limits: truncate to ~28K chars to stay within limits
+    max_context = 28000
+    if len(context) > max_context:
+        context = context[:max_context] + "\n...(truncated)"
+
     prompt = (
-        "You are a QlikView-to-Snowflake migration expert. Answer the user's "
-        "question using ONLY the context below about their parsed QlikView script. "
-        "Give Snowflake SQL examples where helpful. Be concise.\n\n"
+        "You are a QlikView-to-Snowflake migration expert. You have the FULL "
+        "parsed migration data below including all tables, field-level STTM "
+        "(source-to-target mapping with QlikView→Snowflake SQL translations), "
+        "unsupported constructs, and variables. Answer the user's question "
+        "using this context. Give Snowflake SQL examples where helpful. "
+        "Be thorough but concise.\n\n"
         f"{context}\n\nUser question: {question}"
     )
-
-    # Truncate if too long for the model
-    if len(prompt) > 12000:
-        prompt = prompt[:12000] + "\n...(truncated)"
 
     try:
         result = session.sql(
