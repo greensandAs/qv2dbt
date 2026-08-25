@@ -16,14 +16,15 @@ import streamlit as st
 
 # ─── Cortex Chat ──────────────────────────────────────────────────────────────
 def cortex_chat(session, question: str, analysis, model: str = "claude-sonnet-4-6") -> str:
-    """Send a question to Snowflake Cortex with full migration context."""
+    """Send a question to Snowflake Cortex with full migration context including
+    generated SQL views, dbt models, and the original script."""
     context_parts = []
 
     if hasattr(analysis, "script"):
         script = analysis.script
         lineage = analysis.lineage
 
-        # Full table inventory (all tables, concise format)
+        # 1. Full table inventory
         tables_info = []
         for t in script.tables:
             fields_str = ", ".join(f.alias for f in t.fields[:20])
@@ -40,41 +41,94 @@ def cortex_chat(session, question: str, analysis, model: str = "claude-sonnet-4-
             f"## Tables ({len(script.tables)} total)\n" + "\n".join(tables_info)
         )
 
-        # Full STTM (all columns with translations)
+        # 2. Full STTM (all columns with translations + review notes)
         sttm_rows = []
         for cm in lineage.columns:
             sources = ", ".join(f"{t}.{c}" for t, c in cm.ultimate_sources) or "-"
             review = "⚠" if cm.notes else ""
+            notes_str = "; ".join(cm.notes) if cm.notes else ""
             sttm_rows.append(
                 f"| {cm.table} | {cm.column} | {cm.mapping_type} | "
-                f"{cm.qlik_expr[:60]} | {cm.snowflake_sql[:60]} | {sources} | {review} |"
+                f"{cm.qlik_expr[:80]} | {cm.snowflake_sql[:80]} | "
+                f"{sources} | {review} {notes_str} |"
             )
-        # Include as many rows as will fit
-        sttm_header = "| Table | Column | Type | QlikView | Snowflake SQL | Sources | Review |\n|---|---|---|---|---|---|---|"
+        sttm_header = ("| Table | Column | Type | QlikView | Snowflake SQL | "
+                       "Sources | Review |\n|---|---|---|---|---|---|---|")
         sttm_text = sttm_header + "\n" + "\n".join(sttm_rows)
         context_parts.append(f"## STTM ({len(lineage.columns)} columns)\n{sttm_text}")
 
-        # Unsupported / control flow summary
+        # 3. Generated SQL Views (converted output)
+        try:
+            from qv2dbt.generators.sql_views import SqlViewGenerator
+            from qv2dbt.config import load_config
+            config = analysis.config if hasattr(analysis, "config") else load_config(None)
+            view_gen = SqlViewGenerator(config)
+            views_sql = []
+            for t in script.tables[:50]:
+                try:
+                    select = view_gen._select_sql(t, script)
+                    fqvn = view_gen._fqvn(t)
+                    views_sql.append(
+                        f"-- {t.name}\nCREATE OR REPLACE VIEW {fqvn} AS\n{select};")
+                except Exception:
+                    continue
+            if views_sql:
+                context_parts.append(
+                    f"## Generated SQL Views ({len(views_sql)} tables)\n"
+                    + "\n\n".join(views_sql)
+                )
+        except Exception:
+            pass
+
+        # 4. Generated dbt Models
+        try:
+            from qv2dbt.generators.dbt_models import DbtModelGenerator
+            from qv2dbt.config import load_config
+            config = analysis.config if hasattr(analysis, "config") else load_config(None)
+            dbt_gen = DbtModelGenerator(config)
+            models = dbt_gen.generate(script)
+            dbt_sql = []
+            for m in models[:50]:
+                dbt_sql.append(f"-- {m.name} ({m.layer})\n{m.sql}")
+            if dbt_sql:
+                context_parts.append(
+                    f"## Generated dbt Models ({len(dbt_sql)} models)\n"
+                    + "\n\n".join(dbt_sql)
+                )
+        except Exception:
+            pass
+
+        # 5. Original QlikView Script (full text)
+        if hasattr(analysis, "text") and analysis.text:
+            context_parts.append(
+                f"## Original QlikView Script ({len(analysis.text)} chars)\n"
+                f"```\n{analysis.text}\n```"
+            )
+
+        # 6. Unsupported / control flow
         if script.unsupported:
             unsup = []
             for u in script.unsupported[:30]:
-                unsup.append(f"- [{u['kind']}] {u['raw'][:80]}")
+                unsup.append(f"- [{u['kind']}] {u['raw'][:100]}")
             context_parts.append(
-                f"## Unsupported ({len(script.unsupported)} items)\n" + "\n".join(unsup)
+                f"## Unsupported ({len(script.unsupported)} items)\n"
+                + "\n".join(unsup)
             )
 
-        # Variables
+        # 7. Variables
         if script.variables:
             vars_text = "\n".join(
-                f"- {v.name} = {v.value[:50]}" for v in script.variables[:30]
+                f"- {v.name} = {v.value[:60]}" for v in script.variables[:40]
             )
-            context_parts.append(f"## Variables ({len(script.variables)})\n{vars_text}")
+            context_parts.append(
+                f"## Variables ({len(script.variables)})\n{vars_text}"
+            )
 
-        # Dropped tables
+        # 8. Dropped tables
         if script.dropped_tables:
             context_parts.append(
                 f"## Dropped Tables ({len(script.dropped_tables)}): "
-                + ", ".join(script.dropped_tables[:20])
+                + ", ".join(script.dropped_tables[:30])
             )
 
     else:
@@ -82,18 +136,23 @@ def cortex_chat(session, question: str, analysis, model: str = "claude-sonnet-4-
 
     context = "\n\n".join(context_parts)
 
-    # Cortex model token limits: truncate to ~28K chars to stay within limits
-    max_context = 28000
+    # Use large context window (128K tokens for most Cortex models)
+    max_context = 120000
     if len(context) > max_context:
         context = context[:max_context] + "\n...(truncated)"
 
     prompt = (
-        "You are a QlikView-to-Snowflake migration expert. You have the FULL "
-        "parsed migration data below including all tables, field-level STTM "
-        "(source-to-target mapping with QlikView→Snowflake SQL translations), "
-        "unsupported constructs, and variables. Answer the user's question "
-        "using this context. Give Snowflake SQL examples where helpful. "
-        "Be thorough but concise.\n\n"
+        "You are a QlikView-to-Snowflake migration expert. You have the COMPLETE "
+        "migration data below:\n"
+        "- All parsed tables with metadata\n"
+        "- Full field-level STTM (QlikView expression → Snowflake SQL)\n"
+        "- Generated CREATE VIEW statements (converted SQL)\n"
+        "- Generated dbt models (Jinja SQL)\n"
+        "- The original QlikView load script\n"
+        "- Unsupported constructs and variables\n\n"
+        "Answer the user's question thoroughly using this context. "
+        "Reference specific tables/columns by name. "
+        "Provide Snowflake SQL examples where helpful.\n\n"
         f"{context}\n\nUser question: {question}"
     )
 
