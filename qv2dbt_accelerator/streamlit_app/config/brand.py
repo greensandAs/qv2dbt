@@ -20,7 +20,66 @@ CHART_COLORS = [
     "#9C27B0", "#00BCD4", "#E91E63", "#8BC34A",
 ]
 
-CORTEX_MODELS = ["mistral-large2", "llama3.1-70b", "snowflake-arctic", "mixtral-8x7b"]
+CORTEX_MODELS = ["claude-sonnet-4-6", "llama3.3-70b", "mistral-large3", "claude-haiku-4-5"]
+
+
+def get_available_cortex_models(session=None) -> list[str]:
+    """Query Snowflake for available Cortex LLM models.
+
+    Tries SHOW CORTEX BASE MODELS first.  If empty, probes known models with
+    a trivial COMPLETE call.  Falls back to the hardcoded list on failure.
+    """
+    if session is None:
+        return CORTEX_MODELS
+    try:
+        # Method 1: SHOW CORTEX BASE MODELS
+        df = session.sql("SHOW CORTEX BASE MODELS").collect()
+        if df:
+            models = []
+            for row in df:
+                name = row["name"]
+                status = str(row.get("lifecycle_status", "") or "")
+                if status.upper() not in ("LEGACY", "DEPRECATED", "EOL"):
+                    models.append(name)
+            # Exclude embedding-only models
+            complete_models = [
+                m for m in models
+                if not any(x in m for x in ("embed", "nv-embed",
+                                             "multilingual-e5", "voyage"))
+            ]
+            if complete_models:
+                return sorted(complete_models)
+    except Exception:
+        pass
+
+    # Method 2: Probe known models with a trivial call
+    try:
+        probe_models = CORTEX_MODELS + [
+            "llama3.1-8b", "llama3.1-70b", "mistral-large",
+            "claude-3-5-sonnet", "snowflake-arctic",
+        ]
+        # Deduplicate while preserving order
+        seen = set()
+        unique = []
+        for m in probe_models:
+            if m not in seen:
+                seen.add(m)
+                unique.append(m)
+        available = []
+        for model in unique:
+            try:
+                session.sql(
+                    f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', 'hi')"
+                ).collect()
+                available.append(model)
+            except Exception:
+                continue
+        if available:
+            return available
+    except Exception:
+        pass
+
+    return CORTEX_MODELS
 
 
 def _is_dark_color(hex_color: str) -> bool:

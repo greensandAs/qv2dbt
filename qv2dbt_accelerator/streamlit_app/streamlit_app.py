@@ -54,6 +54,7 @@ st.session_state.setdefault("analysis", None)
 st.session_state.setdefault("all_analyses", [])
 st.session_state.setdefault("chat", [])
 st.session_state.setdefault("cortex_model", "mistral-large2")
+st.session_state["snowflake_session"] = session
 
 # ─── Layout ───────────────────────────────────────────────────────────────────
 render_header()

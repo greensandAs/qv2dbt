@@ -1,7 +1,7 @@
 # Sidebar navigation component
 from pathlib import Path
 import streamlit as st
-from config.brand import TA_ORANGE, CORTEX_MODELS, get_theme_tokens
+from config.brand import TA_ORANGE, CORTEX_MODELS, get_available_cortex_models, get_theme_tokens
 
 PAGES = [
     "1 · Upload & Parse",
@@ -36,9 +36,15 @@ def render_sidebar() -> str:
         page = st.radio("Navigation", PAGES, label_visibility="collapsed")
 
         st.markdown("---")
+        # Dynamically fetch available models from this Snowflake account
+        session = st.session_state.get("snowflake_session")
+        available_models = get_available_cortex_models(session)
+        current_model = st.session_state.get("cortex_model", available_models[0])
+        if current_model not in available_models:
+            current_model = available_models[0]
         st.session_state.cortex_model = st.selectbox(
-            "Cortex Model", CORTEX_MODELS,
-            index=CORTEX_MODELS.index(st.session_state.get("cortex_model", CORTEX_MODELS[0])),
+            "Cortex Model", available_models,
+            index=available_models.index(current_model),
         )
 
         st.markdown("---")
