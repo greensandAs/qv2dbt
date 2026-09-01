@@ -263,15 +263,23 @@ def _send_sdk(analysis, question: str, cli_path: str | None, work_dir: str | Non
             if cli_path:
                 opts.cli_path = cli_path
 
-            # Point to skill directory
+            # Point to skill and context — always included for every query
             skill_path = os.path.join(cwd, "coco_skill", "SKILL.md")
+            ctx_path = os.path.join(cwd, "migration_context.json")
             prompt_prefix = ""
             if os.path.isfile(skill_path):
                 prompt_prefix = (
-                    f"[System: Load the skill from {skill_path} and follow "
-                    f"its instructions. The migration context is at "
-                    f"{os.path.join(cwd, 'migration_context.json')}]\n\n"
+                    f"[System: Read the skill file at {skill_path} and follow "
+                    f"its instructions. "
                 )
+                if os.path.isfile(ctx_path):
+                    prompt_prefix += (
+                        f"IMPORTANT: Always read {ctx_path} before answering — "
+                        f"it contains the full parsed QlikView script with all "
+                        f"tables, fields, lineage, and effort scores. "
+                        f"Reference specific table/column names from it."
+                    )
+                prompt_prefix += "]\n\n"
 
             async for message in coco_query(
                 prompt=prompt_prefix + question,
