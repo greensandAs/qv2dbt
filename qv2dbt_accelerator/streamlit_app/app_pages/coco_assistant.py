@@ -207,7 +207,9 @@ def _send_sdk(analysis, question: str, cli_path: str | None):
             loop.run_until_complete(_run())
             loop.close()
         except Exception as e:
-            collected.append(f"\n\n**Error:** {e}")
+            import traceback
+            tb = traceback.format_exc()
+            collected.append(f"\n\n**Error:** {e}\n\n```\n{tb}\n```")
             placeholder.markdown("".join(collected))
 
         answer = "".join(collected) or "(No response from CoCo)"
