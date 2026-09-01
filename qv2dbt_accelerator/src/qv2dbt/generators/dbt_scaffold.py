@@ -12,6 +12,35 @@ from ..models import LoadKind, QvScript
 from ..utils import snake
 from .dbt_models import ModelFile
 
+import re as _re
+
+
+def _inline_map_values(m) -> str | None:
+    """Parse INLINE data from a QvMap's raw text and return a VALUES-based SELECT."""
+    raw = m.raw or ""
+    # Find the INLINE [ ... ] block
+    match = _re.search(r"(?is)\binline\s*\[([^\]]*)\]", raw)
+    if not match:
+        return None
+    data = match.group(1).strip()
+    lines = [l.strip() for l in data.splitlines() if l.strip()]
+    if len(lines) < 2:
+        return None
+    headers = [h.strip() for h in lines[0].split(",")]
+    if len(headers) < 2:
+        return None
+    rows = []
+    for line in lines[1:]:
+        vals = [v.strip().strip('"') for v in line.split(",")]
+        if len(vals) >= 2:
+            key = f"'{vals[0]}'" if not _re.fullmatch(r"-?\d+(\.\d+)?", vals[0]) else vals[0]
+            val = f"'{vals[1]}'" if not _re.fullmatch(r"-?\d+(\.\d+)?", vals[1]) else vals[1]
+            rows.append(f"    ({key}, {val})")
+    if not rows:
+        return None
+    values_str = ",\n".join(rows)
+    return f"select mapped_key, mapped_value\nfrom (VALUES\n{values_str}\n) AS t(mapped_key, mapped_value)"
+
 
 def _write(path: str, content: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -119,17 +148,28 @@ models:
         model_name = f"map_{snake(m.name)}"
         if m.source:
             frm = f"{{{{ ref('{_guess_ref(script, m.source)}') }}}}"
+            sql_body = f"""\
+select
+    {m.key_expr or 'key'} as mapped_key,
+    {m.value_expr or 'value'} as mapped_value
+from {frm}"""
         else:
-            frm = "-- TODO: source of mapping table"
+            # INLINE mapping table — try to generate VALUES clause
+            frm = _inline_map_values(m)
+            if frm:
+                sql_body = frm
+            else:
+                sql_body = f"""\
+select
+    {m.key_expr or 'key'} as mapped_key,
+    {m.value_expr or 'value'} as mapped_value
+from -- TODO: provide source for mapping table '{m.name}'"""
         emit(f"models/staging/{model_name}.sql", f"""\
 -- Mapping table migrated from QlikView MAPPING LOAD '{m.name}'.
 -- Used by the apply_map() macro to resolve ApplyMap() calls.
 {{{{ config(materialized='table') }}}}
 
-select
-    {m.key_expr or 'key'} as mapped_key,
-    {m.value_expr or 'value'} as mapped_value
-from {frm}
+{sql_body}
 """)
 
     # -- model files by layer -------------------------------------------------

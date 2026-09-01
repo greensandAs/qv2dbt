@@ -14,6 +14,35 @@ from ..expressions import ExpressionTranslator
 from ..models import JoinKind, LoadKind, QvScript, QvTable
 from ..utils import case_identifier, snake
 
+import re as _re
+
+
+def _inline_to_values(source: str | None) -> str:
+    """Convert QlikView INLINE [...] data to a Snowflake VALUES clause."""
+    if not source:
+        return "-- INLINE (no data)"
+    data = source.strip()
+    if data.startswith("[") and data.endswith("]"):
+        data = data[1:-1].strip()
+    lines = [l.strip() for l in data.splitlines() if l.strip()]
+    if len(lines) < 2:
+        return "-- INLINE (insufficient data)"
+    headers = [h.strip() for h in lines[0].split(",")]
+    rows = []
+    for line in lines[1:]:
+        vals = [v.strip() for v in line.split(",")]
+        formatted = []
+        for v in vals:
+            v = v.strip().strip('"')
+            if _re.fullmatch(r"-?\d+(\.\d+)?", v):
+                formatted.append(v)
+            else:
+                formatted.append(f"'{v}'")
+        rows.append(f"({', '.join(formatted)})")
+    col_list = ", ".join(headers)
+    values_list = ",\n           ".join(rows)
+    return f"(VALUES\n           {values_list}\n    ) AS t({col_list})"
+
 
 @dataclass
 class ModelFile:
@@ -78,7 +107,9 @@ class DbtModelGenerator:
         if table.kind == LoadKind.SQL:
             return f"{{{{ source('{self.source_name}', '{snake(table.name)}') }}}}"
         if table.kind == LoadKind.RESIDENT:
-            return self._ref_for(table.source or "")
+            if not table.source:
+                return "-- SOURCE_PLACEHOLDER (RESIDENT source not resolved)"
+            return self._ref_for(table.source)
         if table.kind == LoadKind.INLINE:
             return self._inline_values(table)
         return "-- SOURCE_PLACEHOLDER"

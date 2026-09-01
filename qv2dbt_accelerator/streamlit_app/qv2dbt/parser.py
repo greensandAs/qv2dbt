@@ -136,12 +136,15 @@ class Parser:
             elif hint == "mapping":
                 self._parse_mapping(stmt)
             elif hint == "load":
+                # Look-ahead: QlikView pattern LOAD fields; SQL SELECT ...
+                next_stmt = statements[i + 1] if i + 1 < len(statements) else None
+                if next_stmt and re.match(r"(?is)^\s*SQL\s+SELECT\b", next_stmt.raw):
+                    self._parse_load_with_sql(stmt, next_stmt)
+                    i += 2
+                    continue
                 self._parse_load(stmt)
             elif hint in ("drop", "rename", "store", "control"):
                 self._record_unsupported(stmt)
-                # Extract LOAD/SQL from inside control blocks so conditional
-                # tables (e.g. inside IF...ENDIF) are still captured for the
-                # migration inventory.
                 if hint == "control":
                     self._extract_loads_from_control(stmt)
             # 'variable' and 'other' need no table work here.
@@ -220,14 +223,16 @@ class Parser:
         return distinct, field_text, which, source_clause, where_raw, group_by
 
     def _table_name_and_body(self, raw: str) -> tuple[str | None, str]:
+        # Strip NoConcatenate prefix — it's a load modifier, not part of the name
+        stripped = re.sub(r"(?is)^\s*noconcatenate\s+", "", raw)
         # Match table name labels: single word, [bracketed], or multi-word with spaces
         # Optionally followed by a (annotation) before the colon
         m = re.match(
             r"(?is)^\s*([A-Za-z_][\w$]*(?:\s+[\w$]+)*|\[[^\]]+\])"
-            r"\s*(?:\([^)]*\))?\s*:\s*(.*)$", raw)
+            r"\s*(?:\([^)]*\))?\s*:\s*(.*)$", stripped)
         if m and re.search(r"(?is)\b(load|sql)\b", m.group(2).lstrip()[:60]):
             return _clean_ident(m.group(1)), m.group(2).strip()
-        return None, raw.strip()
+        return None, stripped.strip()
 
     def _parse_load(self, stmt: Statement, forced_name: str | None = None):
         name, body = self._table_name_and_body(stmt.raw)
@@ -290,6 +295,32 @@ class Parser:
             )
         if kind == LoadKind.AUTOGEN:
             table.warnings.append("AUTOGENERATE has no relational equivalent.")
+        self.script.tables.append(table)
+
+    def _parse_load_with_sql(self, load_stmt: Statement, sql_stmt: Statement):
+        """Handle QlikView LOAD fields; SQL SELECT ... pattern as a single table."""
+        name, body = self._table_name_and_body(load_stmt.raw)
+        name = name or f"table_{self._order + 1}"
+
+        # Parse fields from the LOAD part
+        distinct, field_text, _, _, where_raw, group_by = self._split_load(body)
+
+        # Extract the SQL source from the SQL statement
+        sql_match = re.match(r"(?is)^\s*SQL\s+(SELECT\b.*)$", sql_stmt.raw)
+        sql_source = sql_match.group(1).strip() if sql_match else sql_stmt.raw
+
+        self._order += 1
+        table = QvTable(
+            name=name,
+            kind=LoadKind.SQL,
+            fields=parse_fields(field_text) if field_text else [],
+            source=sql_source,
+            where_raw=where_raw,
+            group_by=split_top_level(group_by) if group_by else [],
+            distinct=distinct,
+            order=self._order,
+            raw=load_stmt.raw + ";\n" + sql_stmt.raw,
+        )
         self.script.tables.append(table)
 
     # -- JOIN / KEEP / CONCATENATE -------------------------------------------
