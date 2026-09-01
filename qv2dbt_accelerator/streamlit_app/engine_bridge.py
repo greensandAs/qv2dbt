@@ -370,20 +370,47 @@ class Converter:
 # ─── Effort Scoring ───────────────────────────────────────────────────────────
 def effort_scores(analysis: Analysis) -> list[dict]:
     """Estimate migration effort per table."""
+    import re
+    _FUNC_CALL = re.compile(r'[A-Za-z_]\w*\s*\(')
+
+    map_names = {m.name.lower() for m in analysis.script.maps}
+
     scores = []
     for t in analysis.script.tables:
         reviews = len([w for f in t.fields for w in f.warnings]) + len(t.warnings)
-        pts = len(t.fields) * 0.2 + len(t.joins) * 2 + reviews * 3
+
+        # Expression complexity: count nested function calls per field
+        complex_fields = 0
+        for f in t.fields:
+            n_funcs = len(_FUNC_CALL.findall(f.source_expr or ""))
+            if n_funcs >= 3:
+                complex_fields += 1
+
+        # Mapping table usage: fields referencing ApplyMap
+        lookup_fields = 0
+        for f in t.fields:
+            expr_low = (f.source_expr or "").lower()
+            sf_low = (f.sf_expr or "").lower()
+            if "applymap" in expr_low or "apply_map" in sf_low:
+                lookup_fields += 1
+
+        pts = (len(t.fields) * 0.2
+               + len(t.joins) * 2
+               + reviews * 3
+               + complex_fields * 1.5
+               + lookup_fields * 1)
         if t.group_by:
             pts += 2
+
         level = "Low" if pts < 5 else "Medium" if pts < 12 else "High"
         scores.append({
             "Table": t.name,
             "Layer": t.layer,
             "Fields": len(t.fields),
             "Joins": len(t.joins),
+            "Complex Exprs": complex_fields,
+            "Lookups": lookup_fields,
             "Review Items": reviews,
-            "Points": round(pts, 1),
             "Complexity": level,
         })
     return scores
