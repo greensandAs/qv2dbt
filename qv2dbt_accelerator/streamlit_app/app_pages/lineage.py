@@ -73,8 +73,12 @@ def render(session):
         st.error(f"Error generating OpenLineage events: {e}")
         return
 
+    # Filter out AUTOGENERATE/control-flow tables for cleaner display
+    autogen_names = {t.name for t in a.script.tables if t.kind.value == "autogen"}
+    display_events = [e for e in ol_events if e["job"]["name"] not in autogen_names]
+
     summary_rows = []
-    for ev in ol_events:
+    for ev in display_events:
         job = ev["job"]["name"]
         n_in = len(ev["inputs"])
         cl = ev["outputs"][0].get("facets", {}).get("columnLineage", {})
@@ -87,18 +91,21 @@ def render(session):
         })
     st.dataframe(pd.DataFrame(summary_rows), hide_index=True,
                  use_container_width=True)
+    if autogen_names:
+        st.caption(f"Excluded {len(autogen_names)} AUTOGENERATE table(s) from "
+                   f"control flow: {', '.join(sorted(autogen_names))}")
 
     # --- Table-level DAG ---
     st.subheader("Table-level lineage graph")
-    st.graphviz_chart(_ol_table_dag(ol_events))
+    st.graphviz_chart(_ol_table_dag(display_events))
 
     # --- Column-level drill-down ---
     st.subheader("Column lineage drill-down")
-    job_names = [ev["job"]["name"] for ev in ol_events]
+    job_names = [ev["job"]["name"] for ev in display_events]
     selected_job = st.selectbox("Select a table to inspect column lineage",
                                 job_names)
     if selected_job:
-        ev = next(e for e in ol_events if e["job"]["name"] == selected_job)
+        ev = next(e for e in display_events if e["job"]["name"] == selected_job)
         cl = ev["outputs"][0].get("facets", {}).get("columnLineage", {})
         fields = cl.get("fields", {})
         if fields:
@@ -159,14 +166,12 @@ def _ol_table_dag(events: list[dict]) -> str:
 
     for ev in events:
         job_name = ev["job"]["name"]
-        out_ns = ev["outputs"][0]["namespace"] if ev["outputs"] else ""
-        # Determine layer from table metadata
         cl = ev["outputs"][0].get("facets", {}).get("columnLineage", {})
         n_cols = len(cl.get("fields", {}))
         jobs[job_name] = n_cols
 
         for inp in ev["inputs"]:
-            src_label = inp["name"]
+            src_label = _clean_source_label(inp["name"])
             is_external = "snowflake://" not in inp["namespace"]
             if is_external:
                 sources.add(src_label)
@@ -215,7 +220,8 @@ def _ol_column_dag(table_name: str, fields: dict) -> str:
     for col, info in fields.items():
         tgt_nid = f"tgt_{_safe_id(col)}"
         for inp in info.get("inputFields", []):
-            src_label = f"{inp['name']}.{inp['field']}"
+            clean_name = _clean_source_label(inp['name'])
+            src_label = f"{clean_name}.{inp['field']}"
             src_nid = f"src_{_safe_id(src_label)}"
             if src_nid not in seen_src:
                 seen_src.add(src_nid)
@@ -235,3 +241,23 @@ def _safe_id(name: str) -> str:
     """Convert a name to a safe Graphviz node ID."""
     import re
     return "n_" + re.sub(r"[^0-9A-Za-z]+", "_", name).strip("_")
+
+
+def _clean_source_label(name: str) -> str:
+    """Clean up source labels for the lineage graph.
+    INLINE data and long SQL are replaced with short descriptive labels.
+    Detailed data is available in Inventory and STTM pages."""
+    if not name:
+        return "(unknown)"
+    stripped = name.strip()
+    # INLINE data starts with [ or contains CSV-like content
+    if stripped.startswith("[") or ("\n" in stripped and "," in stripped.split("\n")[0]):
+        return "inline_data"
+    # Long SQL statements — show just the table name if possible
+    if len(name) > 60:
+        import re
+        m = re.search(r"(?i)\bFROM\s+(\w+)", name)
+        if m:
+            return m.group(1)
+        return name[:40] + "..."
+    return name
