@@ -10,6 +10,7 @@ PAGES = [
     "4 · STTM",
     "5 · Conversion",
     "6 · Chatbot",
+    "7 · CoCo Assistant",
 ]
 
 

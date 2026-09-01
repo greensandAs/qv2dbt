@@ -9,7 +9,7 @@ from pathlib import Path
 import streamlit as st
 
 from components import inject_styles, render_header, render_sidebar, render_footer
-from app_pages import upload, inventory, lineage, sttm, conversion, chatbot
+from app_pages import upload, inventory, lineage, sttm, conversion, chatbot, coco_assistant
 from config.brand import CORTEX_MODELS
 import snowflake_utils as sf
 
@@ -104,6 +104,7 @@ PAGE_MAP = {
     "4 · STTM": sttm.render,
     "5 · Conversion": conversion.render,
     "6 · Chatbot": chatbot.render,
+    "7 · CoCo Assistant": coco_assistant.render,
 }
 
 if page and page in PAGE_MAP:
