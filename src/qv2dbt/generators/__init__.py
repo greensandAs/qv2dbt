@@ -3,6 +3,7 @@ from . import (  # noqa: F401
     dbt_models,
     dbt_scaffold,
     lineage_out,
+    openlineage,
     report,
     snowflake_ddl,
     sql_views,

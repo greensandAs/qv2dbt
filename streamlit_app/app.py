@@ -211,6 +211,46 @@ def page_lineage():
     st.subheader("Lineage graph")
     st.graphviz_chart(_dot(a, picked_tables, picked_srcs))
 
+    # OpenLineage events section
+    st.divider()
+    st.subheader("OpenLineage Events (spec v2-0-2)")
+    st.caption("Standard-format lineage events for ingestion into Marquez, "
+               "Atlan, DataHub, or Snowflake Horizon.")
+    ol_events = _openlineage_events(a)
+    summary_rows = []
+    for ev in ol_events:
+        job = ev["job"]["name"]
+        n_in = len(ev["inputs"])
+        cl = ev["outputs"][0].get("facets", {}).get("columnLineage", {})
+        n_cols = len(cl.get("fields", {}))
+        summary_rows.append({
+            "Job": job,
+            "Namespace": ev["job"]["namespace"],
+            "Inputs": n_in,
+            "Output columns": n_cols,
+        })
+    st.dataframe(pd.DataFrame(summary_rows), hide_index=True,
+                 use_container_width=True)
+
+    with st.expander("Preview event JSON (first selected table)"):
+        import json as _json
+        matched = [e for e in ol_events if e["job"]["name"] in picked_tables]
+        preview = matched[0] if matched else ol_events[0] if ol_events else {}
+        st.code(_json.dumps(preview, indent=2), language="json")
+
+    import json as _json
+    ol_json = _json.dumps(ol_events, indent=2)
+    st.download_button("⬇ Download openlineage_events.json", ol_json,
+                       file_name="openlineage_events.json",
+                       mime="application/json")
+
+
+@st.cache_data(show_spinner=False)
+def _openlineage_events(_a):
+    from qv2dbt.generators.openlineage import build_events
+    a = st.session_state.analysis
+    return build_events(a.script, a.lineage, a.config)
+
 
 def _dot(a, picked_tables, picked_srcs) -> str:
     lin = a.lineage

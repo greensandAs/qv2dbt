@@ -23,6 +23,7 @@ if _PKG_SRC not in sys.path:
 from qv2dbt.config import load_config                       # noqa: E402
 from qv2dbt.generators.dbt_models import DbtModelGenerator  # noqa: E402
 from qv2dbt.generators.sql_views import SqlViewGenerator    # noqa: E402
+from qv2dbt.generators.openlineage import build_events       # noqa: E402
 from qv2dbt.lineage import build_lineage                    # noqa: E402
 from qv2dbt.models import LoadKind, QvScript, QvTable       # noqa: E402
 from qv2dbt.parser import parse_script, _source_identifier  # noqa: E402
@@ -415,6 +416,14 @@ def effort_score(table: QvTable) -> dict:
     return {"table": table.name, "points": round(pts, 1), "complexity": level,
             "review_items": reviews, "joins": len(table.joins),
             "fields": len(table.fields)}
+
+
+# ---------------------------------------------------------------------------
+# OpenLineage events (for in-app display)
+# ---------------------------------------------------------------------------
+
+def openlineage_events(analysis: Analysis) -> list[dict]:
+    return build_events(analysis.script, analysis.lineage, analysis.config)
 
 
 # ---------------------------------------------------------------------------
