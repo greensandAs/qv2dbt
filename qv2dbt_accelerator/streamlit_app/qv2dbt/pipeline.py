@@ -10,6 +10,7 @@ from .generators import (
     dbt_models,
     dbt_scaffold,
     lineage_out,
+    openlineage,
     report,
     snowflake_ddl,
     sql_views,
@@ -85,6 +86,10 @@ def run_migration(qvs_path: str, out_dir: str,
     }
     lineage_out.generate(script, lineage, lineage_paths)
 
+    # OpenLineage events (spec v2-0-2).
+    ol_path = os.path.join(sttm_dir, "openlineage_events.json")
+    openlineage.write_events(script, lineage, config, ol_path)
+
     # Plain Snowflake SQL views/selects per target (non-dbt path).
     sql_dir = os.path.join(out_dir, "sql_views")
     sql_info = sql_views.generate(script, config, sql_dir)
@@ -107,6 +112,7 @@ def run_migration(qvs_path: str, out_dir: str,
         "lineage_mermaid": lineage_paths["mmd"],
         "lineage_md": lineage_paths["md"],
         "lineage_html": lineage_paths["html"],
+        "openlineage_json": ol_path,
         "dbt_project": dbt_dir,
         "dbt_files": scaffold_files,
         "report_md": report_md,

@@ -1,5 +1,7 @@
 # Lineage page with error boundaries
 # Co-authored with CoCo
+import json as _json
+
 import pandas as pd
 import streamlit as st
 import engine_bridge as eb
@@ -57,3 +59,42 @@ def render(session):
         file_name="lineage.csv",
         mime="text/csv",
     )
+
+    # --- OpenLineage Events ---
+    st.divider()
+    st.subheader("OpenLineage Events (spec v2-0-2)")
+    st.caption("Standard-format lineage events for ingestion into Marquez, "
+               "Atlan, DataHub, or Snowflake Horizon.")
+
+    try:
+        from qv2dbt.generators.openlineage import build_events
+        ol_events = build_events(a.script, a.lineage, a.config)
+    except Exception as e:
+        st.error(f"Error generating OpenLineage events: {e}")
+        return
+
+    summary_rows = []
+    for ev in ol_events:
+        job = ev["job"]["name"]
+        n_in = len(ev["inputs"])
+        cl = ev["outputs"][0].get("facets", {}).get("columnLineage", {})
+        n_cols = len(cl.get("fields", {}))
+        summary_rows.append({
+            "Job": job,
+            "Namespace": ev["job"]["namespace"],
+            "Inputs": n_in,
+            "Output columns": n_cols,
+        })
+    st.dataframe(pd.DataFrame(summary_rows), hide_index=True,
+                 use_container_width=True)
+
+    with st.expander("Preview event JSON (first selected table)"):
+        picked_set = set(picked_tables) if picked_tables else set()
+        matched = [e for e in ol_events if e["job"]["name"] in picked_set]
+        preview = matched[0] if matched else ol_events[0] if ol_events else {}
+        st.code(_json.dumps(preview, indent=2), language="json")
+
+    ol_json = _json.dumps(ol_events, indent=2)
+    st.download_button("Download openlineage_events.json", ol_json,
+                       file_name="openlineage_events.json",
+                       mime="application/json")
