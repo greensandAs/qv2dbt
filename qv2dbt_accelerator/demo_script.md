@@ -1,0 +1,290 @@
+# qv2dbt Studio — Client Demo Script
+# Duration: 8–10 minutes
+# Audience: Technical decision-makers, data engineering leads
+# Format: Screen recording with AI-generated voiceover
+
+---
+
+## PRE-DEMO SETUP CHECKLIST
+
+- [ ] App running locally: `streamlit run streamlit_app.py`
+- [ ] Snowflake connection active (green indicator in sidebar)
+- [ ] Sample QlikView script ready: `test_comprehensive.qvs` (covers all constructs)
+- [ ] Browser zoomed to 90% for full visibility
+- [ ] Clear session state (refresh browser)
+- [ ] Optional: real client `.qvf` file for second demo pass
+
+---
+
+## SCENE 1: OPENING (30 seconds)
+
+**[Screen: App landing page — Upload & Parse]**
+
+**VOICEOVER:**
+"Welcome to qv2dbt Studio — an accelerator built by Tiger Analytics
+that automates the migration of QlikView load scripts to Snowflake
+and dbt. Instead of manually rewriting hundreds of QlikView expressions,
+this tool parses your scripts, translates the logic, and generates
+production-ready Snowflake SQL, dbt models, and full documentation
+— in seconds."
+
+---
+
+## SCENE 2: UPLOAD & PARSE (1 minute)
+
+**[Action: Upload test_comprehensive.qvs → Click "Parse All"]**
+
+**VOICEOVER:**
+"We start by uploading a QlikView load script. The tool accepts
+dot-Q-V-S text files as well as binary QVF and QVW app files.
+
+Watch as the parser processes the script — it identifies tables,
+mapping loads, variable definitions, joins, aggregations, and
+even control flow constructs like FOR loops and SUB routines.
+
+Within seconds, we see the summary: eight tables detected across
+staging, intermediate, and mart layers. One mapping table, seven
+variables, and a ninety-four percent auto-translation rate —
+meaning only two fields out of thirty-six require manual review."
+
+**[Action: Briefly expand "View extracted script" to show the raw QlikView code]**
+
+---
+
+## SCENE 3: INVENTORY (1.5 minutes)
+
+**[Action: Navigate to Page 2 — Inventory]**
+
+**VOICEOVER:**
+"The Inventory page gives a complete picture of the migration scope.
+
+At the top, we see the layer distribution — four staging tables
+that read from external sources, four intermediate tables with
+transformations and joins, one mart for final reporting, and one
+mapping lookup table."
+
+**[Action: Scroll to Table Details]**
+
+"The Table Details grid shows every table with its load kind, source
+reference, field count, join count, and review items. Notice how
+RawSales is correctly identified as a SQL source table, while
+TransformedSales is an intermediate table built from a RESIDENT
+load with a LEFT JOIN and CONCATENATE."
+
+**[Action: Scroll to Migration Effort Estimate]**
+
+"The Migration Effort Estimate scores each table on complexity.
+The scoring considers field count, number of joins, complex
+expressions with three or more nested functions, ApplyMap lookups,
+and items flagged for manual review. CustomerSummary is rated
+Medium complexity due to its GROUP BY aggregation. InventoryLog
+is rated High because of the Peek function, which requires careful
+conversion to a Snowflake LAG window function."
+
+---
+
+## SCENE 4: LINEAGE (2 minutes)
+
+**[Action: Navigate to Page 3 — Lineage]**
+
+**VOICEOVER:**
+"The Lineage page traces every column from its QlikView source
+expression to the translated Snowflake SQL.
+
+You can filter by target table and layer. Let me select
+CustomerSummary — our mart table."
+
+**[Action: Filter to CustomerSummary, show the column mapping table]**
+
+"Each row shows the target column, its mapping type — direct,
+derived, aggregate, or lookup — the original QlikView expression,
+the translated Snowflake SQL, and the ultimate source columns.
+For example, TotalSpend is an aggregate mapping: Sum of Amount,
+traced back to the original orders source."
+
+**[Action: Scroll to Table-level lineage graph]**
+
+"The table-level lineage graph shows the full data flow as a
+directed acyclic graph. External sources in blue flow into
+staging tables, through intermediate transformations, and into
+the mart layer in orange. This is generated in the OpenLineage
+standard — version two point zero point two — meaning it can be
+ingested directly into Marquez, Atlan, DataHub, or Snowflake
+Horizon for catalog integration."
+
+**[Action: Scroll to Column lineage drill-down, select CustomerSummary]**
+
+"The column-level drill-down lets you select any table and see
+exactly which source columns feed each target column. Direct
+mappings are labeled. Derived and aggregate columns show the
+full upstream chain."
+
+**[Action: Click Download openlineage_events.json]**
+
+"The full OpenLineage JSON is downloadable for integration with
+your lineage catalog."
+
+---
+
+## SCENE 5: STTM (1 minute)
+
+**[Action: Navigate to Page 4 — STTM]**
+
+**VOICEOVER:**
+"The Source-to-Target Mapping page is what your data engineers
+and business analysts review together.
+
+For each target table, we show the business functionality
+summary — generated by Snowflake Cortex AI — followed by a
+detailed column mapping with source expressions, Snowflake SQL,
+and review flags."
+
+**[Action: Click "Generate with Cortex" for CustomerSummary]**
+
+"The AI-generated business description explains in plain English
+what this table represents — customer-level order aggregations
+with total spend, order count, and date ranges."
+
+**[Action: Click Download STTM.xlsx]**
+
+"The full STTM is downloadable as an Excel workbook with
+separate sheets for target inventory, source inventory, and
+the column-level mapping — ready for sign-off."
+
+---
+
+## SCENE 6: CONVERSION (1.5 minutes)
+
+**[Action: Navigate to Page 5 — Conversion]**
+
+**VOICEOVER:**
+"The Conversion page is where the rubber meets the road. Select
+one or more tables and choose your output formats."
+
+**[Action: Select CustomerSummary + TransformedSales, check CREATE TABLE + dbt model + View]**
+
+"Let me generate three output types for our key tables."
+
+**[Action: Expand CREATE TABLE for CustomerSummary]**
+
+"The CREATE TABLE DDL defines the physical Snowflake table with
+inferred column types. This goes into your RAW landing zone."
+
+**[Action: Expand dbt model for CustomerSummary]**
+
+"The dbt model uses Jinja source and ref macros, with proper
+materialization — tables for marts, views for staging. The
+GROUP BY aggregation is preserved with COUNT DISTINCT, SUM,
+AVG, MIN, and MAX — all translated automatically."
+
+**[Action: Expand dbt model for TransformedSales]**
+
+"Notice how TransformedSales includes the LEFT JOIN using
+a ref to the customer staging model, and the CONCATENATE
+is rendered as UNION ALL. The If function becomes a CASE WHEN,
+ApplyMap becomes a dbt macro call, and AutoNumber becomes
+DENSE_RANK — all handled automatically."
+
+**[Action: Click "Download generated SQL"]**
+
+"All generated SQL is downloadable in a single file, or you can
+run it directly in Snowflake from this page."
+
+---
+
+## SCENE 7: AI ASSISTANT (1 minute)
+
+**[Action: Navigate to Page 6 — Chatbot]**
+
+**VOICEOVER:**
+"The built-in AI assistant answers questions about your specific
+migration using Snowflake Cortex. It has full context of the
+parsed script, lineage, and conversion output."
+
+**[Action: Click "List items needing review"]**
+
+"Asking for review items instantly surfaces the two columns that
+need manual attention — the Peek function in InventoryLog and
+the AutoNumber surrogate key — with specific Snowflake SQL
+suggestions for each."
+
+**[Action: Type "How is TotalSpend calculated?" in chat]**
+
+"You can also ask natural language questions. The assistant traces
+through the lineage and explains that TotalSpend is a SUM of
+Amount from TransformedSales, which itself comes from RawSales
+with a WHERE filter on completed orders."
+
+---
+
+## SCENE 8: CLOSING (30 seconds)
+
+**[Screen: Back to Upload page showing the summary metrics]**
+
+**VOICEOVER:**
+"To summarize — qv2dbt Studio parsed this QlikView script in
+under five seconds and produced: a complete dbt project with
+staging, intermediate, and mart models; Snowflake DDL for the
+landing zone; an Excel STTM for business sign-off; column-level
+lineage in the OpenLineage standard; a migration effort estimate;
+and an AI assistant that knows your specific script.
+
+Ninety-four percent of the logic was translated automatically.
+The remaining six percent is flagged with specific guidance —
+no silent failures, no guesswork.
+
+This is Tiger Analytics' qv2dbt Studio. Thank you."
+
+---
+
+## AI VOICEOVER GENERATION
+
+### Recommended tools (free/low-cost):
+1. **ElevenLabs** (elevenlabs.io) — Best quality, 10K chars free/month
+2. **Google Cloud Text-to-Speech** — WaveNet voices, pay-per-use
+3. **Microsoft Azure Speech** — Neural voices, 500K chars free/month
+4. **OpenAI TTS** — Simple API, `tts-1-hd` model
+
+### Voice settings:
+- Voice: Professional male or female (e.g., ElevenLabs "Adam" or "Rachel")
+- Speed: 1.0x (normal pace for demo)
+- Style: Informative, confident, not salesy
+
+### How to generate:
+1. Copy each SCENE's voiceover text
+2. Paste into ElevenLabs or your chosen TTS tool
+3. Generate one audio clip per scene
+4. Record the screen actions separately (OBS Studio or Loom)
+5. Sync audio + video in a free editor (CapCut, DaVinci Resolve, or Clipchamp)
+
+### Video specs:
+- Resolution: 1920x1080 (Full HD)
+- Frame rate: 30fps
+- Format: MP4 (H.264)
+- Duration target: 8–10 minutes
+- Add Tiger Analytics logo watermark in corner
+- Add scene titles as text overlays during transitions
+
+---
+
+## OPTIONAL: LIVE DEMO TALKING POINTS
+
+If presenting live instead of a video, keep these in your pocket:
+
+### Objection handling:
+- "What about complex scripts?" → "The parser handles JOIN, GROUP BY,
+  ApplyMap, Peek, control flow. Unknown constructs are flagged, never
+  silently dropped."
+- "What if table names don't follow patterns?" → "The mart detection
+  rules are configurable in YAML. You can add your naming conventions."
+- "Can it handle .qvf files?" → "Yes — it extracts the load script
+  from binary QVF/QVW files automatically."
+- "What about data validation?" → "The tool generates reconciliation
+  queries for row counts and key aggregates."
+
+### Wow moments to emphasize:
+1. The 94% auto-translation rate (show the metric)
+2. Column-level lineage graph (visual impact)
+3. OpenLineage standard export (catalog integration story)
+4. AI chatbot that knows YOUR specific script (not generic)
+5. One-click dbt project generation (time saved)
